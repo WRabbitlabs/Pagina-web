@@ -13,8 +13,8 @@
  *   public/site.webmanifest    + icon-192 / icon-512
  */
 import sharp from 'sharp';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import { mkdir, writeFile, stat } from 'node:fs/promises';
+import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -28,6 +28,32 @@ await mkdir(join(root, 'public', 'og'), { recursive: true });
 
 const png = (svg, w, h) =>
   sharp(Buffer.from(svg)).resize(w, h, { fit: 'fill' }).png({ compressionLevel: 9 }).toBuffer();
+
+/**
+ * Escribe solo si el archivo NO existe.
+ *
+ * Este script pisaba sin preguntar, y costó caro: al correrlo para regenerar el
+ * manifest se llevó por delante dos fotografías reales —company.png bajó de 389
+ * a 57 KB y newsroom-registro.png de 763 a 9— sustituidas por los marcadores
+ * geométricos que genera aquí abajo. El sitio quedó publicado con ellas.
+ *
+ * Estos marcadores existen para arrancar un proyecto vacío, no para reemplazar
+ * lo que ya hay. Cuando llegan los assets de verdad, el script deja de tener
+ * nada que hacer y su trabajo es apartarse.
+ *
+ * Para regenerarlos a propósito: borrar el archivo y volver a correrlo.
+ */
+async function escribirSiFalta(ruta, buffer) {
+  try {
+    await stat(ruta);
+    console.log(`[assets] se conserva ${relative(root, ruta)} — ya existe`);
+    return false;
+  } catch {
+    await writeFile(ruta, buffer);
+    console.log(`[assets] generado ${relative(root, ruta)}`);
+    return true;
+  }
+}
 
 /** Fragmento del diagrama, escalable a cualquier lienzo. */
 const diagram = (sx = 1, sy = 1, op = 0.55) => `
@@ -57,7 +83,7 @@ const company = `<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="13
   <g transform="translate(120 240)">${diagram(1.5, 1.5, 0.7)}</g>
 </svg>`;
 
-await writeFile(join(root, 'src', 'assets', 'company.png'), await png(company, 2400, 1350));
+await escribirSiFalta(join(root, 'src', 'assets', 'company.png'), await png(company, 2400, 1350));
 
 /* -------------------------------------------------------------- */
 /* Imagen del artículo destacado — 1600×1000                       */
@@ -79,7 +105,7 @@ const registro = `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1
   <path d="M180 468 H1000" stroke="${SIGNAL}" stroke-width="1.6" opacity="0.9"/>
 </svg>`;
 
-await writeFile(join(root, 'src', 'assets', 'newsroom-registro.png'), await png(registro, 1600, 1000));
+await escribirSiFalta(join(root, 'src', 'assets', 'newsroom-registro.png'), await png(registro, 1600, 1000));
 
 /* -------------------------------------------------------------- */
 /* Lo que este script YA NO genera                                 */
@@ -132,4 +158,4 @@ await writeFile(
   ) + '\n',
 );
 
-console.log('[assets] generados: company.png, imágenes de newsroom, manifest');
+console.log('[assets] manifest actualizado');
