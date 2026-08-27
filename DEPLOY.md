@@ -34,30 +34,42 @@ Una sola cosa a mano, y solo una vez:
 
 > **Settings → Pages → Build and deployment → Source: `GitHub Actions`**
 
-**Y hay que comprobar que la selección se guardó**, porque el desplegable puede
-enseñar «GitHub Actions» sin que el sitio exista. Lo único que no miente es la
-API:
+Si el despliegue falla con *«Get Pages site failed»*, es que esa selección no
+está aplicada. La forma fiable de crear el sitio es elegir primero **«Deploy
+from a branch»** con `main` / `/ (root)` y guardar, y volver después a **«GitHub
+Actions»**.
 
-```bash
-curl -sI https://api.github.com/repos/WRabbitlabs/Pagina-web/pages | head -1
-```
+No sirve consultar `GET /repos/.../pages` sin autenticar para comprobarlo:
+devuelve `404` exista o no el sitio, porque GitHub responde 404 en vez de 403
+para no revelar su existencia. El único juez es si el despliegue pasa.
 
-`200` es que está activado. `404` es que no, diga lo que diga la pantalla — y
-con 404 el despliegue falla con *«Get Pages site failed»*.
-
-Si da 404: elegir primero **«Deploy from a branch»** con `main` / `/ (root)` y
-guardar —eso sí crea el sitio siempre—, y volver después a **«GitHub Actions»**.
-
-El parámetro `enablement` de `actions/configure-pages` no sirve para esto: su
-propia documentación dice que exige un token personal, no el del flujo.
+El parámetro `enablement` de `actions/configure-pages` tampoco vale: su propia
+documentación dice que exige un token personal, no el del flujo.
 
 Después, cada empujón a `main` construye y publica solo
 (`.github/workflows/deploy.yml`). También se puede relanzar desde la pestaña
 **Actions**, sin empujar nada.
 
-### El dominio
+### El dominio no es un extra: es lo que hace visible el sitio
 
-`wrailabs.com` todavía no resuelve. En el registrador donde se compró:
+Mientras `wrailabs.com` no resuelva, GitHub publica esto como **página de
+proyecto**, en `wrabbitlabs.github.io/Pagina-web/`. Y ahí el sitio se ve roto:
+el HTML pide `/video/hero.webm`, `/fonts/…`, `/_astro/…`, y todas esas rutas
+apuntan a la raíz del dominio, no a `/Pagina-web/`. No se cae solo el vídeo de
+fondo: se caen las fuentes, el JavaScript y las imágenes.
+
+Se intentó resolverlo con la opción `base` de Astro y **no sirve**: `base` solo
+reescribe lo que genera Astro —los paquetes de `_astro/`—, no las rutas
+absolutas escritas a mano. Y aquí hay **21**, repartidas entre los archivos de
+datos, la plantilla y los componentes: el vídeo, el póster, los iconos, el
+manifest, la precarga de la fuente y los enlaces de navegación. Hacerlas
+relativas a la base sería una reforma ancha, y habría que deshacerla en cuanto
+el dominio entrara.
+
+Con el dominio propio el sitio vive en la raíz y todo funciona sin tocar una
+línea. Por eso el DNS es el paso que falta, no un adorno.
+
+En el registrador donde se compró:
 
 | Tipo | Nombre | Valor |
 |---|---|---|

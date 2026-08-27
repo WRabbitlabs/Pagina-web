@@ -18,6 +18,7 @@ import sitemap from '@astrojs/sitemap';
  */
 export const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'https://wrailabs.com';
 
+
 export default defineConfig({
   site: SITE_URL,
   trailingSlash: 'never',
