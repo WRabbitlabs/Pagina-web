@@ -591,12 +591,35 @@ sale a producción.
 
 ### Cerradas — 27 de agosto de 2026
 
-**12.1 · La tesis única.** Hoy compiten tres: `hero.headlineFlat` («IA aplicada,
+**12.1 · La tesis única es «Automatización que deja constancia.»**
+
+Sustituye a las tres que competían: `hero.headlineFlat` («IA aplicada,
 resultados medibles.»), `site.tagline` («Automatización auditable para
-instituciones.») y `marquee.text` («Automatización auditable»). Se descartan las
-tres: **ninguna es la forma final**. La redacción exacta está pendiente, pero el
-terreno ya no es «instituciones» sino sectores regulados, por 12.3. Cuando se
-fije, va palabra por palabra en los tres sitios.
+instituciones.») y `marquee.text` («Automatización auditable»). Va **palabra por
+palabra** en los tres sitios, y el H1 la parte en dos tiempos:
+
+```
+H1        Automatización
+          que deja constancia.
+
+SUBTÍTULO Software dedicado y automatización para empresas
+          reguladas, bufetes y entidades del Estado.
+```
+
+Por qué esta y no otra:
+
+- **Es la tesis de identidad de §1 dicha literal.** El documento dice «la
+  compañía que deja constancia»; el titular lo dice sin traducirlo.
+- **«Dejar constancia» es vocabulario del comprador**, no de la agencia. Es lo
+  que dice un acta, un requerimiento y un papel de trabajo. Un director de
+  cumplimiento no tiene que aprenderla.
+- **El sujeto es el trabajo**, no la empresa ni el lector. Cumple §3.4 sin
+  presumir y sin prometer.
+- **Cuatro palabras, cero cifra, cero adjetivo evaluativo, cero «IA».** Cumple
+  §3.9 y el régimen de «IA» de §5.
+- **Deja el subtítulo con trabajo que hacer**: el H1 pone el método, la línea
+  siguiente pone el terreno. Es el orden método → terreno de §3.10, que es lo
+  que impide que el titular suene a eslogan.
 
 **12.2 · «Newsroom» no se traduce.** Se conserva como nombre propio de sección y
 queda **declarado como excepción expresa** a la regla de un solo idioma (§3.25),
@@ -640,7 +663,7 @@ segundo plano, no el primero.
    documento?** Ahora son las dos anclas **principales**, no las de reserva. Si
    son aspiracionales, se retira la pieza del newsroom y la afirmación de
    `/company`, y el sitio se queda sin ningún verificador externo.
-3. **La redacción exacta de la tesis** (ver 12.1).
+3. ~~La redacción exacta de la tesis.~~ Cerrada en 12.1.
 4. **¿«follow what others don't see» es marca registrada?** Si lo es, vive solo
    dentro del lockup del logo. Si no, se elimina y se adopta una sola forma en
    español. Nota: con «Newsroom» ya gastando la única excepción de idioma, un
