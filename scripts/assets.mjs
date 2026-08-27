@@ -82,66 +82,38 @@ const registro = `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1
 await writeFile(join(root, 'src', 'assets', 'newsroom-registro.png'), await png(registro, 1600, 1000));
 
 /* -------------------------------------------------------------- */
-/* Open Graph — 1200×630                                           */
+/* Lo que este script YA NO genera                                 */
 /* -------------------------------------------------------------- */
 
-const og = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="${INK}"/>
-  <g transform="translate(-40 90) scale(0.62)" opacity="0.5">${diagram(1, 1, 1)}</g>
-  <g transform="translate(72 92)" fill="none" stroke="${PAPER}"
-     stroke-width="3.4" stroke-linecap="square">
-    <path d="M0 0 10.5 27.5 21 7.75l10.5 19.75L42 0"/>
-  </g>
-  <text x="128" y="118" fill="${PAPER}" font-family="Segoe UI, Helvetica, Arial, sans-serif"
-        font-size="30" letter-spacing="1.4">WRABBIT AI</text>
-  <text x="72" y="392" fill="${PAPER}" font-family="Segoe UI, Helvetica, Arial, sans-serif"
-        font-size="72" letter-spacing="-2.2">Ingeniería de procesos</text>
-  <text x="72" y="470" fill="${PAPER}" font-family="Segoe UI, Helvetica, Arial, sans-serif"
-        font-size="72" letter-spacing="-2.2">que resisten una auditoría.</text>
-  <rect x="72" y="530" width="14" height="14" fill="${SIGNAL}"/>
-  <text x="102" y="542" fill="${SIGNAL}" font-family="Consolas, monospace" font-size="21"
-        letter-spacing="0.8">AUTOMATIZACION AUDITABLE</text>
-</svg>`;
-
-await writeFile(join(root, 'public', 'og', 'default.png'), await png(og, 1200, 630));
-
-/* -------------------------------------------------------------- */
-/* Favicons                                                        */
-/* -------------------------------------------------------------- */
-
-const mark = (bg, fg, s = 64) => `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="${bg}"/>
-  <path d="M12 21 20.5 43 29 27.2 37.5 43 46 21" fill="none" stroke="${fg}"
-        stroke-width="5" stroke-linecap="square" stroke-linejoin="miter"/>
-  <rect x="46" y="40" width="7" height="7" fill="${SIGNAL}"/>
-</svg>`;
-
-await writeFile(join(root, 'public', 'icon.svg'), mark(INK, PAPER));
-await writeFile(join(root, 'public', 'apple-touch-icon.png'), await png(mark(INK, PAPER, 180), 180, 180));
-await writeFile(join(root, 'public', 'icon-192.png'), await png(mark(INK, PAPER, 192), 192, 192));
-await writeFile(join(root, 'public', 'icon-512.png'), await png(mark(INK, PAPER, 512), 512, 512));
-
-// .ico: un único frame de 32×32, que es lo que consumen los navegadores.
-const ico32 = await sharp(Buffer.from(mark(INK, PAPER, 32))).resize(32, 32).png().toBuffer();
-const header = Buffer.alloc(22);
-header.writeUInt16LE(0, 0);
-header.writeUInt16LE(1, 2);
-header.writeUInt16LE(1, 4);
-header.writeUInt8(32, 6);
-header.writeUInt8(32, 7);
-header.writeUInt8(0, 8);
-header.writeUInt8(0, 9);
-header.writeUInt16LE(1, 10);
-header.writeUInt16LE(32, 12);
-header.writeUInt32LE(ico32.length, 14);
-header.writeUInt32LE(22, 18);
-await writeFile(join(root, 'public', 'favicon.ico'), Buffer.concat([header, ico32]));
+/*
+ * Aquí vivían la tarjeta de Open Graph, los favicons y un robots.txt
+ * estático. Los tres se fueron, y quitarlos importaba: este script escribe
+ * sin preguntar, así que cualquiera que lo corriera para regenerar las
+ * imágenes de relleno se habría llevado por delante los assets reales.
+ *
+ *   public/og/default.png   → scripts/og.mjs
+ *                             el fotograma del pie con el nombre encima.
+ *
+ *   public/icon.svg y los PNG y el .ico
+ *                           → scripts/logo.mjs
+ *                             la marca del conejo, vectorizada del original.
+ *
+ *   public/robots.txt       → src/pages/robots.txt.ts
+ *                             generado, porque depende de site.indexable y
+ *                             del dominio del entorno. El estático que había
+ *                             aquí traía escrito a mano un dominio que ni
+ *                             siquiera es de la compañía, y un `Allow: /` que
+ *                             habría abierto al rastreo un sitio que todavía
+ *                             publica datos de relleno.
+ *
+ * El manifest sí se queda: es el único que no tiene otro dueño.
+ */
 
 await writeFile(
   join(root, 'public', 'site.webmanifest'),
   JSON.stringify(
     {
-      name: 'WRabbit AI',
+      name: 'WRabbit AI Labs',
       short_name: 'WRabbit',
       description: 'Automatización auditable para instituciones.',
       lang: 'es',
@@ -160,9 +132,4 @@ await writeFile(
   ) + '\n',
 );
 
-await writeFile(
-  join(root, 'public', 'robots.txt'),
-  ['User-agent: *', 'Allow: /', '', 'Sitemap: https://wrabbit.ai/sitemap-index.xml', ''].join('\n'),
-);
-
-console.log('[assets] generados: company.png, og/default.png, favicons, manifest, robots.txt');
+console.log('[assets] generados: company.png, imágenes de newsroom, manifest');

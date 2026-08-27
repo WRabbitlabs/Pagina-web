@@ -29,7 +29,7 @@
  * Para fidelidad exacta habría que rasterizar la tarjeta en un navegador.
  */
 import sharp from 'sharp';
-import { mkdir, writeFile, stat } from 'node:fs/promises';
+import { mkdir, writeFile, stat, readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -40,8 +40,15 @@ const H = 630;
 const SIGNAL = '#cef79e';
 const PAPER = '#ffffff';
 
-/** Lo que dice la tarjeta. El único sitio donde se cambia. */
-const NAME = 'WRabbit AI Labs';
+/*
+ * El nombre se lee de src/data/site.ts en vez de repetirse aquí. Es un script
+ * de Node y no puede importar el módulo —lleva `import.meta.env`, que fuera de
+ * Astro no existe— así que se extrae del texto. Un nombre escrito dos veces es
+ * un nombre que algún día dirá dos cosas distintas.
+ */
+const siteTs = await readFile(join(root, 'src', 'data', 'site.ts'), 'utf8');
+const NAME = siteTs.match(/^\s*name: '([^']+)'/m)?.[1];
+if (!NAME) throw new Error('no se pudo leer site.name de src/data/site.ts');
 const EYEBROW = 'AUTOMATIZACIÓN AUDITABLE';
 
 const SANS = 'Segoe UI, Inter, Helvetica Neue, Helvetica, Arial, sans-serif';

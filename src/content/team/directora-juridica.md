@@ -4,7 +4,7 @@ role: 'Directora jurídica y cofundadora'
 order: 2
 founder: true
 draft: true
-imageAlt: 'Retrato de la directora jurídica de WRabbit AI.'
+imageAlt: 'Retrato de la directora jurídica de WRabbit AI Labs.'
 links:
   - label: 'LinkedIn'
     href: 'https://www.linkedin.com/in/placeholder-juridica'

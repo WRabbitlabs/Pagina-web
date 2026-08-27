@@ -1,8 +1,8 @@
-# WRabbit AI — sitio institucional
+# WRabbit AI Labs — sitio institucional
 
 **Creado por Moshe Rafael Manrique.**
 
-Sitio institucional de WRabbit AI, compañía colombiana de automatización y
+Sitio institucional de WRabbit AI Labs, compañía colombiana de automatización y
 software dedicado para empresas reguladas, firmas de abogados y entidades del
 Estado. Vive en **[wrailabs.com](https://wrailabs.com)**.
 

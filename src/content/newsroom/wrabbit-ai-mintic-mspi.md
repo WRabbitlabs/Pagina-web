@@ -1,5 +1,5 @@
 ---
-title: 'WRabbit AI completa la alineación con el Modelo de Seguridad y Privacidad de la Información'
+title: 'WRabbit AI Labs completa la alineación con el Modelo de Seguridad y Privacidad de la Información'
 category: 'Anuncio'
 date: 2026-02-20
 excerpt: 'Cerramos el proceso de alineación con el MSPI del MinTIC para los componentes de ingesta, ejecución y registro, requisito habitual en contrataciones con entidades del orden nacional.'

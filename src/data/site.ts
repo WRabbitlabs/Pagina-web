@@ -18,7 +18,7 @@ export const site = {
    */
   indexable: false,
 
-  name: 'WRabbit AI',
+  name: 'WRabbit AI Labs',
   legalName: 'WRabbit AI S.A.S.',
   nit: '901.000.000-0', // PENDIENTE — reemplazar con el NIT real
   /** Espejo de SITE_URL en astro.config.mjs: mismo origen del entorno. */
@@ -39,7 +39,7 @@ export const site = {
   /** Tesis de la empresa. Se repite en el marquee y en el JSON-LD. */
   tagline: 'Automatización auditable para instituciones.',
   description:
-    'WRabbit AI construye software dedicado y automatizaciones para empresas medianas y grandes, buffets de abogados y entidades del Estado colombiano. Cada proceso deja evidencia auditable.',
+    'WRabbit AI Labs construye software dedicado y automatizaciones para empresas medianas y grandes, buffets de abogados y entidades del Estado colombiano. Cada proceso deja evidencia auditable.',
 } as const;
 
 export const social = [
