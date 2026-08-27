@@ -1,0 +1,861 @@
+---
+import { governance, planStates } from '../../data/home';
+import { esNumber, numWidth } from '../../lib/format';
+
+/**
+ * GOBIERNO CONTINUO — la consola.
+ *
+ * Una maqueta de producto sobre tinta: KPIs, una serie por semana, el plan de
+ * cumplimiento y el registro de actividad. Es el único bloque del sitio que
+ * enseña producto, y por eso es el que más cuidado necesita: una consola con
+ * cifras se lee como real. El descargo va DENTRO del panel, al mismo peso que
+ * su título, no en una nota al pie.
+ *
+ * El gráfico se puede cambiar de serie y se puede recorrer con el puntero o
+ * con el teclado. Los datos completos van además en tablas para lectores de
+ * pantalla: quien no ve el trazo no se queda sin las cifras.
+ *
+ * Geometría del gráfico: coordenadas del viewBox, como en Trazado.astro.
+ */
+
+const VB = { w: 600, h: 220 };
+const X0 = 10;
+const X1 = 590;
+const Y0 = 18;
+const Y1 = 190;
+
+const { series } = governance.chart;
+const N = governance.chart.weeks;
+const step = (X1 - X0) / (N - 1);
+const r1 = (n: number) => Math.round(n * 10) / 10;
+const px = (i: number) => r1(X0 + i * step);
+
+/**
+ * Cada serie se escala contra su propio máximo: son magnitudes distintas
+ * —cientos de ejecuciones frente a unidades de incidencias— y compartir eje
+ * dejaría una de las tres pegada a la base. El 1.12 es aire por arriba para
+ * que el pico no toque el borde.
+ */
+const plot = series.map((s) => {
+  const top = Math.max(...s.values) * 1.12;
+  const ys = s.values.map((v) => r1(Y1 - (v / top) * (Y1 - Y0)));
+  return { id: s.id, label: s.label, unit: s.unit, values: s.values, ys };
+});
+
+const linePath = (ys: number[]) =>
+  ys.map((y, i) => `${i ? 'L' : 'M'}${px(i)} ${y}`).join(' ');
+const areaPath = (ys: number[]) => `${linePath(ys)} L${X1} ${Y1} L${X0} ${Y1} Z`;
+
+const first = plot[0]!;
+const lastIndex = N - 1;
+
+/** Todo lo que el script necesita, sin repetir la geometría en el cliente. */
+const payload = {
+  x: Array.from({ length: N }, (_, i) => px(i)),
+  base: Y1,
+  series: plot.map((s) => ({
+    label: s.label,
+    unit: s.unit,
+    ys: s.ys,
+    values: s.values,
+  })),
+};
+
+/** Decimales de cada KPI: 99,4 lleva uno; 24 y 0, ninguno. */
+const kpis = governance.kpis.map((k) => {
+  const decimals = Number.isInteger(k.value) ? 0 : 1;
+  return { ...k, decimals, text: esNumber(k.value, decimals), w: numWidth(k.value, decimals) };
+});
+
+const GRID = [0.25, 0.5, 0.75];
+---
+
+<section class="section governance" data-surface="dark" aria-labelledby="gov-title">
+  <div class="container split governance__grid">
+    <div class="governance__side">
+      <h2 class="t-eyebrow governance__tag" id="gov-title">
+        <span class="governance__dot" aria-hidden="true"></span>
+        {governance.eyebrow}
+      </h2>
+      <p class="t-h2 governance__heading" data-text-reveal>{governance.heading}</p>
+      <p class="prose governance__body" data-reveal>{governance.body}</p>
+    </div>
+
+    <div class="console" data-reveal>
+      <div class="console__bar">
+        <p class="t-eyebrow console__title">
+          <span class="console__live" aria-hidden="true"></span>
+          {governance.panel.title}
+        </p>
+        {/* El descargo, dentro del panel y al mismo peso que su título. */}
+        <p class="t-eyebrow console__note">{governance.panel.disclaimer}</p>
+      </div>
+
+      <!-- ------------------------------------------------------------ -->
+      <!-- KPIs                                                          -->
+      <!-- ------------------------------------------------------------ -->
+      <ul class="console__kpis" role="list">
+        {
+          kpis.map((k) => (
+            <li class="kpi">
+              <p class="kpi__value">
+                <span
+                  class="kpi__n"
+                  data-count={k.value}
+                  data-decimals={k.decimals}
+                  style={`--w:${k.w}ch`}
+                >
+                  {k.text}
+                </span>{k.suffix}
+              </p>
+              <p class="t-small kpi__label">{k.label}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="console__body">
+        <!-- ---------------------------------------------------------- -->
+        <!-- Gráfico                                                     -->
+        <!-- ---------------------------------------------------------- -->
+        <div class="chart" data-chart>
+          <div class="chart__head">
+            <h3 class="t-eyebrow chart__title">{governance.chart.title}</h3>
+
+            <div class="seg" role="group" aria-label="Serie del gráfico">
+              {
+                plot.map((s, i) => (
+                  <button
+                    class="seg__btn t-eyebrow"
+                    type="button"
+                    data-series={i}
+                    aria-pressed={i === 0 ? 'true' : 'false'}
+                  >
+                    {s.label}
+                  </button>
+                ))
+              }
+            </div>
+          </div>
+
+          {/*
+            El SVG es decorativo: las mismas cifras van completas en las tablas
+            de abajo, que son las que lee un lector de pantalla.
+          */}
+          <svg
+            class="chart__svg"
+            viewBox={`0 0 ${VB.w} ${VB.h}`}
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            fill="none"
+          >
+            <defs>
+              <linearGradient id="chart-fade" x1="0" y1="0" x2="0" y2="1">
+                <stop class="chart__stop chart__stop--top" offset="0" />
+                <stop class="chart__stop chart__stop--bottom" offset="1" />
+              </linearGradient>
+            </defs>
+
+            {
+              GRID.map((f) => (
+                <path class="chart__grid" d={`M${X0} ${r1(Y0 + (Y1 - Y0) * f)} H${X1}`} />
+              ))
+            }
+
+            <path class="chart__area" d={areaPath(first.ys)} fill="url(#chart-fade)" />
+            <path class="chart__line" d={linePath(first.ys)} pathLength="1" />
+
+            <g class="chart__cursor" data-cursor>
+              <path class="chart__guide" d={`M0 ${Y0 - 10} V${Y1}`} />
+              <circle class="chart__dot" cx="0" cy="0" r="4.5" />
+            </g>
+          </svg>
+
+          {/*
+            Lectura de la semana bajo el puntero. SIN `aria-live`: se actualiza
+            en cada movimiento del ratón, y anunciarlo en voz alta doce veces
+            por barrido sería insoportable. Quién está mirando qué serie ya lo
+            dice el `aria-pressed` del botón, y las cifras completas están en
+            las tablas de abajo.
+          */}
+          <p class="chart__readout t-eyebrow" data-readout>
+            <span data-readout-week>Semana {lastIndex + 1}</span>
+            <span class="chart__sep" aria-hidden="true">·</span>
+            <span class="chart__num" data-readout-value>
+              {esNumber(first.values[lastIndex]!)}
+            </span>
+            <span data-readout-unit>{first.unit}</span>
+          </p>
+
+          {/* Los datos, en texto. Una tabla por serie. */}
+          <div class="sr-only">
+            {
+              plot.map((s) => (
+                <table>
+                  <caption>
+                    {s.label} — {s.unit} por semana. {governance.panel.disclaimer}
+                  </caption>
+                  <thead>
+                    <tr>
+                      {s.values.map((_, i) => (
+                        <th scope="col">Semana {i + 1}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      {s.values.map((v) => (
+                        <td>{esNumber(v)}</td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              ))
+            }
+          </div>
+        </div>
+
+        <!-- ---------------------------------------------------------- -->
+        <!-- Plan de cumplimiento + actividad                            -->
+        <!-- ---------------------------------------------------------- -->
+        <div class="console__aside">
+          <section class="plan" aria-labelledby="plan-title">
+            <h3 class="t-eyebrow plan__title" id="plan-title">{governance.plan.title}</h3>
+            <ul class="plan__list" role="list">
+              {
+                governance.plan.items.map((item, i) => (
+                  <li class="plan__row" data-state={item.state} style={`--i:${i}`}>
+                    <span class="plan__mark" aria-hidden="true" />
+                    <span class="t-small plan__task">{item.task}</span>
+                    <span class="t-eyebrow plan__state">{planStates[item.state]}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+
+          <section class="log" aria-labelledby="log-title">
+            <h3 class="t-eyebrow log__title" id="log-title">{governance.activity.title}</h3>
+            <ol class="log__list" role="list">
+              {
+                governance.activity.items.map((item, i) => (
+                  <li class="log__row" style={`--i:${i}`}>
+                    <span class="t-eyebrow log__time">{item.time}</span>
+                    <span class="log__bullet" aria-hidden="true" />
+                    <span class="t-small log__text">{item.text}</span>
+                  </li>
+                ))
+              }
+            </ol>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-chart-payload is:inline set:html={JSON.stringify(payload)}
+  ></script>
+</section>
+
+<style>
+  /* --------------------------------------------------------------------- */
+  /* Reparto                                                                */
+  /* --------------------------------------------------------------------- */
+
+  .governance__grid {
+    align-items: start;
+  }
+
+  @media (min-width: 64rem) {
+    .governance__grid {
+      /* El panel manda: se lleva dos tercios largos de la fila. */
+      grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  .governance__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7ch;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-btn);
+  }
+
+  .governance__dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    background: var(--signal);
+  }
+
+  .governance__heading {
+    margin-top: var(--space-m);
+    max-width: 12ch;
+  }
+
+  .governance__body {
+    margin-top: var(--space-m);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* El panel                                                               */
+  /* --------------------------------------------------------------------- */
+
+  /*
+   * Los tonos del panel salen de mezclar papel sobre la tinta de la sección,
+   * no de colores nuevos: si mañana cambia --ink, el panel lo sigue.
+   */
+  .console {
+    --panel: color-mix(in srgb, var(--paper) 6%, var(--ink));
+    --panel-cell: color-mix(in srgb, var(--paper) 3%, var(--ink));
+
+    /*
+     * El panel se reparte por SU ancho, no por el de la ventana.
+     *
+     * Con media queries el reparto interno salía mal medido: a 1024px de
+     * ventana el panel solo mide 495px, pero una `@media (min-width: 56rem)`
+     * ya se había cumplido y partía ese medio metro en dos columnas. El plan
+     * de cumplimiento quedaba en una tira de 230px con «RNBD actualizado ante
+     * la SIC» en tres líneas. La ventana no es el contenedor.
+     */
+    container-type: inline-size;
+
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-card);
+    overflow: clip;
+  }
+
+  .console__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+    padding: var(--space-xs);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .console__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7ch;
+    color: var(--text);
+  }
+
+  /* Punto de «en marcha». Late despacio: es un estado, no una alarma. */
+  .console__live {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border-radius: var(--radius-pill);
+    background: var(--signal);
+    animation: pulse 2.4s var(--ease-in-out) infinite;
+  }
+
+  @keyframes pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  .console__note {
+    color: var(--text-muted);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* KPIs                                                                   */
+  /* --------------------------------------------------------------------- */
+
+  .console__kpis {
+    display: grid;
+    /* El hilo de 1px entre celdas es el `gap` sobre el fondo del panel. */
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    background: var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  @container (min-width: 26rem) {
+    .console__kpis {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .kpi {
+    padding: var(--space-xs);
+    background: var(--panel);
+  }
+
+  .kpi__value {
+    font-size: var(--text-h3);
+    line-height: var(--lh-h3);
+    letter-spacing: var(--ls-heading);
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  /* Ancho reservado en `ch`: la cuenta atrás no empuja al sufijo. */
+  .kpi__n {
+    display: inline-block;
+    min-width: var(--w);
+  }
+
+  .kpi__label {
+    margin-top: var(--space-3xs);
+    color: var(--text-muted);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Cuerpo                                                                 */
+  /* --------------------------------------------------------------------- */
+
+  .console__body {
+    display: grid;
+    gap: 1px;
+    background: var(--rule);
+  }
+
+  /* 40rem = 640px de panel. Por debajo, el plan de cumplimiento no cabe al
+     lado del gráfico sin partir sus tareas en tres líneas. */
+  @container (min-width: 40rem) {
+    .console__body {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    }
+  }
+
+  .chart,
+  .console__aside {
+    padding: var(--space-xs);
+    background: var(--panel);
+  }
+
+  .chart__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+    margin-bottom: var(--space-s);
+  }
+
+  .chart__title {
+    color: var(--text-muted);
+  }
+
+  /* Control segmentado ------------------------------------------------- */
+
+  .seg {
+    display: inline-flex;
+    /* En un panel estrecho los tres nombres no caben en fila: antes de
+       desbordar y quedar recortados por el `overflow: clip` del panel,
+       bajan a la línea siguiente. */
+    flex-wrap: wrap;
+    padding: 2px;
+    background: var(--panel-cell);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-btn);
+  }
+
+  .seg__btn {
+    /*
+     * --text-nav y no el cuerpo fluido de .t-eyebrow. Es el mismo problema
+     * que resolvió ese token en el header: un bloque de control tiene que
+     * caber entero al lado de otra cosa a cualquier ancho. A 1440 el eyebrow
+     * sube a 15px, los tres nombres suman 351px, la columna del gráfico da
+     * 328 y el control partía en dos filas. A 13px suman 305.
+     */
+    font-size: var(--text-nav);
+    /* Por debajo del área táctil de 44px a propósito: es un control
+       secundario dentro de una maqueta, y a 44 el panel se descuadra.
+       WCAG 2.5.5 AAA lo pide; AA, que es nuestro nivel, no. */
+    padding: 0.45rem 0.6rem;
+    color: var(--text-muted);
+    border-radius: calc(var(--radius-btn) - 2px);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  .seg__btn:hover {
+    color: var(--text);
+  }
+
+  /* Sin JS el control no cambia nada: mejor no ofrecerlo. El gráfico se queda
+     en la primera serie, con su rótulo y su lectura, y sigue siendo cierto. */
+  html:not(.js) .seg {
+    display: none;
+  }
+
+  .seg__btn[aria-pressed='true'] {
+    background: var(--text);
+    color: var(--ink);
+  }
+
+  /* Gráfico ------------------------------------------------------------ */
+
+  .chart__svg {
+    display: block;
+    width: 100%;
+    /* preserveAspectRatio="none" estira el viewBox, así que el alto se fija
+       aquí y el trazo se compensa con vector-effect. */
+    height: clamp(9rem, 7rem + 8vw, 13.75rem);
+    overflow: visible;
+  }
+
+  .chart__grid,
+  .chart__guide {
+    stroke: var(--rule);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .chart__guide {
+    stroke-dasharray: 3 4;
+  }
+
+  .chart__stop--top {
+    stop-color: var(--paper);
+    stop-opacity: 0.16;
+  }
+
+  .chart__stop--bottom {
+    stop-color: var(--paper);
+    stop-opacity: 0;
+  }
+
+  .chart__line {
+    stroke: var(--text);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1200ms var(--ease-out);
+  }
+
+  .console.is-revealed .chart__line {
+    stroke-dashoffset: 0;
+  }
+
+  .chart__area {
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-out) 500ms;
+  }
+
+  .console.is-revealed .chart__area {
+    opacity: 1;
+  }
+
+  .chart__dot {
+    fill: var(--signal);
+    stroke: var(--ink);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* El cursor solo existe mientras alguien está leyendo el gráfico. */
+  .chart__cursor {
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+
+  .chart[data-reading] .chart__cursor {
+    opacity: 1;
+  }
+
+  .chart__readout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6ch;
+    margin-top: var(--space-2xs);
+    padding-top: var(--space-2xs);
+    border-top: 1px solid var(--rule);
+    color: var(--text-muted);
+  }
+
+  .chart__num {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chart__sep {
+    color: var(--rule-strong);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Plan y registro                                                        */
+  /* --------------------------------------------------------------------- */
+
+  .console__aside {
+    display: grid;
+    align-content: start;
+    gap: var(--space-s);
+  }
+
+  .plan__title,
+  .log__title {
+    color: var(--text-muted);
+  }
+
+  .plan__list,
+  .log__list {
+    margin: var(--space-2xs) 0 0;
+    padding: 0;
+  }
+
+  .plan__row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding-block: var(--space-2xs);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .plan__row:last-child {
+    border-bottom: 0;
+  }
+
+  /*
+   * Tres estados, tres rellenos del mismo cuadrado. El estado no se dice solo
+   * con la forma: al lado va escrito «Completado», «En curso» o «Programado».
+   */
+  .plan__mark {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    border: 1px solid var(--rule-strong);
+  }
+
+  .plan__row[data-state='hecho'] .plan__mark {
+    background: var(--signal);
+    border-color: var(--signal);
+  }
+
+  .plan__row[data-state='curso'] .plan__mark {
+    /* Medio cuadrado: en curso se ve, no se lee. */
+    background: linear-gradient(
+      to right,
+      var(--signal) 0 50%,
+      transparent 50% 100%
+    );
+  }
+
+  .plan__task {
+    color: var(--text);
+  }
+
+  .plan__state {
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .log__row {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-2xs);
+    padding-block: var(--space-3xs);
+  }
+
+  .log__time {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .log__bullet {
+    width: 4px;
+    height: 4px;
+    flex: none;
+    background: var(--rule-strong);
+  }
+
+  .log__text {
+    color: var(--text);
+  }
+
+  /* Entrada escalonada de las dos listas, colgada del reveal del panel. */
+  .plan__row,
+  .log__row {
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity var(--dur-mid) var(--ease-out),
+      transform var(--dur-mid) var(--ease-out);
+    transition-delay: calc(420ms + var(--i) * 80ms);
+  }
+
+  .console.is-revealed .plan__row,
+  .console.is-revealed .log__row {
+    opacity: 1;
+    transform: none;
+  }
+
+  html:not(.js) .plan__row,
+  html:not(.js) .log__row {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .console__live {
+      animation: none;
+    }
+
+    .chart__line {
+      stroke-dashoffset: 0;
+      transition: none;
+    }
+
+    .chart__area {
+      opacity: 1;
+      transition: none;
+    }
+
+    .plan__row,
+    .log__row {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { counters } from '../../scripts/count';
+  import { esNumber } from '../../lib/format';
+
+  counters();
+
+  /* --------------------------------------------------------------------- */
+  /* El gráfico                                                             */
+  /* --------------------------------------------------------------------- */
+
+  type Serie = { label: string; unit: string; ys: number[]; values: number[] };
+  type Payload = { x: number[]; base: number; series: Serie[] };
+
+  const node = document.querySelector<HTMLElement>('[data-chart]');
+  const raw = document.querySelector('[data-chart-payload]')?.textContent;
+
+  if (node && raw) {
+    const data: Payload = JSON.parse(raw);
+    const { x, base, series } = data;
+
+    const svg = node.querySelector<SVGSVGElement>('.chart__svg')!;
+    const area = node.querySelector<SVGPathElement>('.chart__area')!;
+    const line = node.querySelector<SVGPathElement>('.chart__line')!;
+    const cursor = node.querySelector<SVGGElement>('[data-cursor]')!;
+    const guide = cursor.querySelector<SVGPathElement>('.chart__guide')!;
+    const dot = cursor.querySelector<SVGCircleElement>('.chart__dot')!;
+    const buttons = Array.from(node.querySelectorAll<HTMLButtonElement>('[data-series]'));
+
+    const outWeek = node.querySelector<HTMLElement>('[data-readout-week]')!;
+    const outValue = node.querySelector<HTMLElement>('[data-readout-value]')!;
+    const outUnit = node.querySelector<HTMLElement>('[data-readout-unit]')!;
+
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+    const last = x.length - 1;
+
+    /** Estado: qué serie se ve y en qué punto del recorrido va la mezcla. */
+    let current = 0;
+    let ys = series[0]!.ys.slice();
+    let raf = 0;
+
+    const toLine = (v: number[]) =>
+      v.map((y, i) => `${i ? 'L' : 'M'}${x[i]} ${Math.round(y * 10) / 10}`).join(' ');
+
+    const draw = (v: number[]) => {
+      const d = toLine(v);
+      line.setAttribute('d', d);
+      area.setAttribute('d', `${d} L${x[last]} ${base} L${x[0]} ${base} Z`);
+    };
+
+    /**
+     * Interpolación punto a punto entre la serie de salida y la de llegada.
+     * Las tres tienen el mismo número de puntos, así que no hay que remuestrear
+     * nada: es una mezcla lineal de doce números.
+     */
+    const morph = (target: number[]) => {
+      cancelAnimationFrame(raf);
+
+      if (reduce.matches) {
+        ys = target.slice();
+        draw(ys);
+        return;
+      }
+
+      const from = ys.slice();
+      const start = performance.now();
+      const DUR = 560;
+
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / DUR);
+        const e = 1 - Math.pow(1 - t, 3);
+        ys = from.map((y, i) => y + (target[i]! - y) * e);
+        draw(ys);
+        if (t < 1) raf = requestAnimationFrame(step);
+      };
+
+      raf = requestAnimationFrame(step);
+    };
+
+    const readout = (i: number) => {
+      const s = series[current]!;
+      outWeek.textContent = `Semana ${i + 1}`;
+      outValue.textContent = esNumber(s.values[i]!);
+      outUnit.textContent = s.unit;
+    };
+
+    /* Lectura por puntero ------------------------------------------------ */
+
+    const nearest = (clientX: number) => {
+      const box = svg.getBoundingClientRect();
+      /* El viewBox se estira (preserveAspectRatio="none"), así que la
+         conversión es una regla de tres, no una matriz. */
+      const vx = ((clientX - box.left) / box.width) * (x[last]! - x[0]!) + x[0]!;
+      let best = 0;
+      for (let i = 1; i < x.length; i++) {
+        if (Math.abs(x[i]! - vx) < Math.abs(x[best]! - vx)) best = i;
+      }
+      return best;
+    };
+
+    const point = (i: number) => {
+      guide.setAttribute('d', `M${x[i]} 8 V${base}`);
+      dot.setAttribute('cx', String(x[i]));
+      dot.setAttribute('cy', String(Math.round(ys[i]! * 10) / 10));
+      readout(i);
+    };
+
+    /* En el SVG y no en el bloque entero: pasar por encima de los botones de
+       serie no tiene por qué mover la guía del gráfico. */
+    svg.addEventListener('pointermove', (e) => {
+      node.dataset.reading = '';
+      point(nearest(e.clientX));
+    });
+
+    svg.addEventListener('pointerleave', () => {
+      delete node.dataset.reading;
+      readout(last);
+    });
+
+    /* Cambio de serie ---------------------------------------------------- */
+
+    buttons.forEach((btn, i) => {
+      btn.addEventListener('click', () => {
+        if (i === current) return;
+        current = i;
+        buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(i === j)));
+        morph(series[i]!.ys);
+        readout(last);
+      });
+    });
+  }
+</script>

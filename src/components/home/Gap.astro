@@ -1,0 +1,616 @@
+---
+import { gap } from '../../data/home';
+
+/**
+ * LA BRECHA — el problema, dibujado.
+ *
+ * Un esquema de tres trayectorias sobre lienzo claro: la adopción sube
+ * rápido, la capacidad de gobernarla se queda atrás, y entre las dos queda
+ * un área rayada que es literalmente la brecha del titular. La exigencia
+ * regulatoria avanza por el medio y explica por qué el área cuesta dinero.
+ *
+ * NO ES UNA GRÁFICA. No tiene eje de valores ni una sola cifra, y lo dice
+ * por escrito debajo. El sitio entero sostiene que ninguna cifra existe sin
+ * su fuente; dibujar una curva con pinta de medición sería el primer sitio
+ * donde ese argumento se rompe. Aquí la forma es el único dato.
+ *
+ * El área rayada, y no rellena: --signal solo cubre micro-superficies
+ * (DESIGN.md §3), y una trama de líneas es dibujo técnico, no relleno. Se
+ * lee como el anexo de un contrato, que es de donde viene el lenguaje del
+ * Trazado.
+ *
+ * Animación: el trazo se dibuja con `pathLength="1"`, así que el dasharray
+ * es 1 y no hace falta medir el path con JS. El JS del componente solo
+ * decide QUÉ trayectoria está encendida.
+ */
+
+/* ---------------------------------------------------------------------- */
+/* Geometría. Coordenadas en el viewBox, como en Trazado.astro.            */
+/* ---------------------------------------------------------------------- */
+
+const VB = { w: 1200, h: 440 };
+/** Área de dibujo. A la derecha queda un canalón para los rótulos. */
+const X0 = 88;
+const X1 = 940;
+const Y0 = 48;
+const Y1 = 356;
+
+/**
+ * Nueve puntos por trayectoria, en una escala arbitraria de 0 a 100.
+ *
+ * Los números no significan nada por sí solos —no hay eje que los lea— y
+ * están escogidos por la FORMA: adopción con curvatura creciente, capacidad
+ * casi recta, regulación por el medio pero acelerando al final.
+ */
+const SERIES = {
+  adopcion: [6, 11, 18, 28, 41, 56, 71, 85, 96],
+  regulacion: [10, 14, 20, 28, 38, 49, 61, 72, 82],
+  capacidad: [5, 8, 11, 15, 19, 24, 28, 33, 37],
+} as const;
+
+type TraceId = keyof typeof SERIES;
+
+const N = SERIES.adopcion.length;
+const px = (i: number) => X0 + (i / (N - 1)) * (X1 - X0);
+const py = (v: number) => Y1 - (v / 100) * (Y1 - Y0);
+const r1 = (n: number) => Math.round(n * 10) / 10;
+
+/** Polilínea recta: es un trazado, no una curva suavizada. */
+const line = (vals: readonly number[]) =>
+  vals.map((v, i) => `${i ? 'L' : 'M'}${r1(px(i))} ${r1(py(v))}`).join(' ');
+
+/** El área: de ida por adopción, de vuelta por capacidad. */
+const gapArea = `${line(SERIES.adopcion)} ${[...SERIES.capacidad]
+  .map((v, i) => ({ v, i }))
+  .reverse()
+  .map(({ v, i }) => `L${r1(px(i))} ${r1(py(v))}`)
+  .join(' ')} Z`;
+
+/** Rótulo al final de cada trayectoria, en el canalón de la derecha. */
+const ends = (Object.keys(SERIES) as TraceId[]).map((id) => {
+  const vals = SERIES[id];
+  return { id, x: px(N - 1), y: py(vals[vals.length - 1]!) };
+});
+
+/** Ancla del rótulo del área, a media altura de la brecha. */
+const MID = 6;
+const gapY = r1((py(SERIES.adopcion[MID]!) + py(SERIES.capacidad[MID]!)) / 2);
+const gapX = r1(px(MID));
+
+/** Guía vertical del «hoy»: el punto donde la brecha ya está abierta. */
+const NOW = r1(px(Math.floor((N - 1) / 2)));
+---
+
+<section class="section gap" aria-labelledby="gap-title" data-gap>
+  <div class="container">
+    <div class="split gap__intro">
+      <div class="gap__col">
+        <h2 class="t-eyebrow gap__tag" id="gap-title">
+          <span class="gap__dot" aria-hidden="true"></span>
+          {gap.eyebrow}
+        </h2>
+      </div>
+
+      <div class="gap__col">
+        <p class="t-h2 gap__heading" data-text-reveal>{gap.heading}</p>
+        <p class="prose gap__body" data-reveal>{gap.body}</p>
+      </div>
+    </div>
+
+    <figure class="gap__fig" data-reveal>
+      {/*
+        role="img" con su descripción: el esquema dice lo mismo que las tres
+        tarjetas de abajo, pero quien no lo ve merece saber qué forma tiene.
+      */}
+      <svg
+        class="gap__svg"
+        viewBox={`0 0 ${VB.w} ${VB.h}`}
+        role="img"
+        aria-label={gap.diagram.label}
+        fill="none"
+      >
+        <defs>
+          {/* Trama diagonal. Dibujo técnico, no superficie de color. */}
+          <pattern
+            id="gap-hatch"
+            width="9"
+            height="9"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <line class="gap__hatchline" x1="0" y1="0" x2="0" y2="9" />
+          </pattern>
+
+          {/* Barrido de izquierda a derecha para el área. */}
+          <clipPath id="gap-wipe">
+            <rect class="gap__wipe" x="0" y="0" width={VB.w} height={VB.h} />
+          </clipPath>
+        </defs>
+
+        {/* Base y guía del presente. */}
+        <path class="gap__axis" d={`M${X0} ${Y1} H${X1}`} />
+        <path class="gap__now" d={`M${NOW} ${Y0 - 8} V${Y1}`} />
+
+        <g clip-path="url(#gap-wipe)">
+          <path class="gap__area" d={gapArea} fill="url(#gap-hatch)" />
+        </g>
+
+        {
+          (Object.keys(SERIES) as TraceId[]).map((id) => (
+            <path class="gap__trace" data-trace={id} d={line(SERIES[id])} pathLength="1" />
+          ))
+        }
+
+        {/* Marca cuadrada al final de cada trayectoria. */}
+        {
+          ends.map((e) => (
+            <rect class="gap__end" data-trace={e.id} x={r1(e.x - 5)} y={r1(e.y - 5)} width="10" height="10" />
+          ))
+        }
+
+        {/* Rótulos de trayectoria, en el canalón derecho. */}
+        {
+          ends.map((e) => (
+            <text class="gap__label" data-trace={e.id} x={r1(e.x + 18)} y={r1(e.y + 4)}>
+              {gap.diagram.traces[e.id]}
+            </text>
+          ))
+        }
+
+        {/* Rótulo del área, sobre un tapón del color del lienzo. */}
+        <g class="gap__gaplabel">
+          <rect x={gapX - 62} y={gapY - 15} width="124" height="26" rx="2" />
+          <text x={gapX} y={gapY + 4}>{gap.diagram.gapLabel}</text>
+        </g>
+
+        {/* Eje del tiempo. */}
+        {
+          gap.diagram.axis.map((t, i) => (
+            <text
+              class="gap__axislabel"
+              x={i === 0 ? X0 : i === 1 ? NOW : X1}
+              y={Y1 + 34}
+              text-anchor={i === 0 ? 'start' : i === 1 ? 'middle' : 'end'}
+            >
+              {t}
+            </text>
+          ))
+        }
+      </svg>
+
+      {/*
+        Leyenda para pantallas estrechas.
+
+        Los rótulos del SVG están en unidades del viewBox: 1200 unidades
+        metidas en 335px de móvil dejan la tipografía en 4px. Ahí no se
+        arreglan subiéndoles el tamaño —crecerían dentro del dibujo y lo
+        taparían—, así que abajo de 48rem el dibujo se queda sin texto y los
+        nombres salen aquí, en HTML, al cuerpo que les toca.
+      */}
+      <ul class="gap__legend" role="list">
+        {
+          ends.map((e) => (
+            <li class="gap__legenditem" data-trace={e.id}>
+              <span class="gap__swatch" aria-hidden="true" />
+              <span class="t-eyebrow">{gap.diagram.traces[e.id]}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <figcaption class="t-eyebrow gap__caption">{gap.diagram.caption}</figcaption>
+    </figure>
+
+    <ol class="gap__forces" role="list">
+      {
+        gap.forces.map((f, i) => (
+          <li
+            class="force"
+            data-trace={f.trace}
+            data-reveal
+            style={`--reveal-delay:${i * 90}ms`}
+          >
+            <span class="t-eyebrow force__n">{f.n}</span>
+            <h3 class="t-h3 force__title">{f.title}</h3>
+            <p class="t-body force__body">{f.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  /* --------------------------------------------------------------------- */
+  /* Encabezado                                                             */
+  /* --------------------------------------------------------------------- */
+
+  .gap__intro {
+    margin-bottom: var(--space-xl);
+  }
+
+  .gap__col {
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--rule);
+  }
+
+  .gap__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7ch;
+    padding: 0.4rem 0.7rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-btn);
+  }
+
+  .gap__dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    background: var(--signal);
+  }
+
+  .gap__heading {
+    max-width: 18ch;
+  }
+
+  .gap__body {
+    margin-top: var(--space-m);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* El esquema                                                             */
+  /* --------------------------------------------------------------------- */
+
+  .gap__fig {
+    margin: 0;
+  }
+
+  .gap__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* El trazo no engorda al escalar el viewBox. */
+    vector-effect: non-scaling-stroke;
+    overflow: visible;
+  }
+
+  .gap__axis,
+  .gap__now {
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+
+  .gap__now {
+    stroke-dasharray: 3 5;
+  }
+
+  /*
+   * La trama, un punto por encima de la hairline. --rule sobre lienzo claro da
+   * 1.53:1: medido en pantalla, el área quedaba casi en blanco y la brecha
+   * —que es el argumento de la sección— no se veía. Grafito rebajado la sube
+   * a un gris legible sin convertirla en una superficie de color.
+   */
+  .gap__hatchline {
+    stroke: color-mix(in srgb, var(--rule-strong) 42%, transparent);
+    stroke-width: 1.75;
+  }
+
+  /* El área arranca cerrada y se abre de izquierda a derecha. */
+  .gap__wipe {
+    transform-box: view-box;
+    transform-origin: 0 0;
+    transform: scaleX(0);
+    transition: transform 1100ms var(--ease-out) 260ms;
+  }
+
+  .gap__fig.is-revealed .gap__wipe {
+    transform: scaleX(1);
+  }
+
+  .gap__area {
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+
+  /*
+   * pathLength="1" normaliza cada trazado a longitud 1, así que el mismo
+   * dasharray sirve para las tres curvas sin medir nada con JS.
+   */
+  .gap__trace {
+    stroke: var(--text-muted);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition:
+      stroke-dashoffset 1400ms var(--ease-out),
+      stroke var(--dur-mid) var(--ease-out),
+      stroke-width var(--dur-mid) var(--ease-out),
+      opacity var(--dur-mid) var(--ease-out);
+  }
+
+  .gap__fig.is-revealed .gap__trace {
+    stroke-dashoffset: 0;
+  }
+
+  .gap__end {
+    fill: var(--surface);
+    stroke: var(--text-muted);
+    stroke-width: 2;
+    opacity: 0;
+    transition:
+      opacity var(--dur-mid) var(--ease-out) 1200ms,
+      fill var(--dur-mid) var(--ease-out),
+      stroke var(--dur-mid) var(--ease-out);
+  }
+
+  .gap__fig.is-revealed .gap__end {
+    opacity: 1;
+  }
+
+  .gap__label,
+  .gap__axislabel,
+  .gap__gaplabel text {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    letter-spacing: var(--ls-mono);
+    text-transform: uppercase;
+    fill: var(--text-muted);
+    transition: fill var(--dur-mid) var(--ease-out);
+  }
+
+  .gap__gaplabel text {
+    text-anchor: middle;
+    fill: var(--text);
+  }
+
+  /* Tapón del color del lienzo: la trama no debe cruzar el rótulo. */
+  .gap__gaplabel rect {
+    fill: var(--surface);
+  }
+
+  .gap__gaplabel {
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-out) 1000ms;
+  }
+
+  .gap__fig.is-revealed .gap__gaplabel {
+    opacity: 1;
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Leyenda (solo pantallas estrechas)                                     */
+  /* --------------------------------------------------------------------- */
+
+  .gap__legend {
+    display: grid;
+    gap: var(--space-3xs);
+    margin: var(--space-s) 0 0;
+    padding: 0;
+  }
+
+  .gap__legenditem {
+    display: flex;
+    align-items: center;
+    gap: 0.8ch;
+    transition: opacity var(--dur-mid) var(--ease-out);
+  }
+
+  .gap__swatch {
+    width: 18px;
+    height: 2px;
+    flex: none;
+    background: var(--text);
+  }
+
+  @media (min-width: 48rem) {
+    .gap__legend {
+      display: none;
+    }
+  }
+
+  /* El dibujo se queda sin texto justo donde ese texto sería ilegible. */
+  @media (max-width: 47.9375rem) {
+    .gap__label,
+    .gap__axislabel,
+    .gap__gaplabel {
+      display: none;
+    }
+  }
+
+  .gap__caption {
+    margin-top: var(--space-s);
+    padding-top: var(--space-2xs);
+    border-top: 1px solid var(--rule);
+    text-transform: none;
+    color: var(--text-muted);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Trayectoria encendida                                                  */
+  /* --------------------------------------------------------------------- */
+
+  /*
+   * Una regla por trayectoria, y no un selector genérico con :has(): el
+   * atributo lo pone el JS en la sección, y las tres reglas dicen sin
+   * ambigüedad qué se apaga y qué se enciende.
+   */
+  /* 0.4 y no menos: por debajo, las dos trayectorias en reposo desaparecían
+     del todo y el esquema dejaba de tener tres fuerzas. */
+  .gap[data-active] .gap__trace,
+  .gap[data-active] .gap__label,
+  .gap[data-active] .gap__end,
+  .gap[data-active] .gap__legenditem {
+    opacity: 0.4;
+  }
+
+  .gap[data-active='adopcion'] [data-trace='adopcion'],
+  .gap[data-active='regulacion'] [data-trace='regulacion'],
+  .gap[data-active='capacidad'] [data-trace='capacidad'] {
+    opacity: 1;
+  }
+
+  .gap[data-active='adopcion'] .gap__trace[data-trace='adopcion'],
+  .gap[data-active='regulacion'] .gap__trace[data-trace='regulacion'],
+  .gap[data-active='capacidad'] .gap__trace[data-trace='capacidad'] {
+    stroke: var(--text);
+    stroke-width: 3;
+  }
+
+  .gap[data-active='adopcion'] .gap__end[data-trace='adopcion'],
+  .gap[data-active='regulacion'] .gap__end[data-trace='regulacion'],
+  .gap[data-active='capacidad'] .gap__end[data-trace='capacidad'] {
+    /* El único relleno de acento del esquema: 10×10. */
+    fill: var(--signal);
+    stroke: var(--text);
+  }
+
+  .gap[data-active='adopcion'] .gap__label[data-trace='adopcion'],
+  .gap[data-active='regulacion'] .gap__label[data-trace='regulacion'],
+  .gap[data-active='capacidad'] .gap__label[data-trace='capacidad'] {
+    fill: var(--text);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Las tres fuerzas                                                       */
+  /* --------------------------------------------------------------------- */
+
+  .gap__forces {
+    display: grid;
+    gap: var(--gutter);
+    margin: var(--space-l) 0 0;
+    padding: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .gap__forces {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .force {
+    position: relative;
+    padding: var(--space-s) var(--space-xs) var(--space-m);
+    background: var(--surface-raised);
+    border-radius: var(--radius-card);
+    /* El filete superior es el que se enciende: sustituye al borde entero
+       para no repintar la caja al cambiar de tarjeta activa. */
+    box-shadow: inset 0 1px 0 0 var(--rule);
+    transition: box-shadow var(--dur-mid) var(--ease-out);
+  }
+
+  /* Marca la tarjeta cuya trayectoria está encendida. */
+  .gap[data-active='adopcion'] .force[data-trace='adopcion'],
+  .gap[data-active='regulacion'] .force[data-trace='regulacion'],
+  .gap[data-active='capacidad'] .force[data-trace='capacidad'] {
+    box-shadow: inset 0 3px 0 0 var(--ink);
+  }
+
+  .force__n {
+    display: block;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    transition: color var(--dur-mid) var(--ease-out);
+  }
+
+  .gap[data-active='adopcion'] .force[data-trace='adopcion'] .force__n,
+  .gap[data-active='regulacion'] .force[data-trace='regulacion'] .force__n,
+  .gap[data-active='capacidad'] .force[data-trace='capacidad'] .force__n {
+    color: var(--text);
+  }
+
+  .force__title {
+    margin-top: var(--space-m);
+  }
+
+  .force__body {
+    margin-top: var(--space-2xs);
+    max-width: 34ch;
+    color: var(--text-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gap__wipe {
+      transform: scaleX(1);
+      transition: none;
+    }
+
+    .gap__trace {
+      stroke-dashoffset: 0;
+      transition: none;
+    }
+
+    .gap__end,
+    .gap__gaplabel {
+      opacity: 1;
+      transition: none;
+    }
+
+    .force {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /*
+   * Qué trayectoria está encendida.
+   *
+   * Dos entradas, en este orden de prioridad:
+   *
+   *   1. El scroll. La tarjeta que cruza el centro de la ventana enciende la
+   *      suya. Es lo único que funciona en táctil, donde no hay puntero.
+   *   2. El puntero. Pasar por encima de una tarjeta manda mientras dure;
+   *      al salir, el mando vuelve al scroll.
+   *
+   * El atributo vive en la sección y todo lo demás es CSS: este script no
+   * toca ni un estilo.
+   */
+  const section = document.querySelector<HTMLElement>('[data-gap]');
+  const cards = Array.from(section?.querySelectorAll<HTMLElement>('.force') ?? []);
+
+  if (section && cards.length) {
+    let scrolled = cards[0]!.dataset.trace!;
+
+    const apply = (trace: string) => {
+      if (section.dataset.active !== trace) section.dataset.active = trace;
+    };
+
+    apply(scrolled);
+
+    /*
+     * La banda de -46%/-46% deja activa una franja de apenas un 8% de alto en
+     * el centro de la ventana: solo una tarjeta puede estar dentro a la vez,
+     * así que no hace falta desempatar entre varias.
+     */
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          scrolled = (entry.target as HTMLElement).dataset.trace!;
+          apply(scrolled);
+        }
+      },
+      { rootMargin: '-46% 0px -46% 0px' },
+    );
+
+    cards.forEach((card) => {
+      observer.observe(card);
+
+      card.addEventListener('pointerenter', (e) => {
+        /* Solo puntero fino: en táctil, `pointerenter` llega con el toque y
+           robaría el mando al scroll justo cuando el dedo está desplazando. */
+        if (e.pointerType === 'touch') return;
+        apply(card.dataset.trace!);
+      });
+
+      card.addEventListener('pointerleave', (e) => {
+        if (e.pointerType === 'touch') return;
+        apply(scrolled);
+      });
+    });
+  }
+</script>

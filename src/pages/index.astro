@@ -3,8 +3,11 @@ import Base from '../layouts/Base.astro';
 import Hero from '../components/home/Hero.astro';
 import Stage from '../components/home/Stage.astro';
 import Statements from '../components/home/Statements.astro';
+import Gap from '../components/home/Gap.astro';
 import Platform from '../components/home/Platform.astro';
+import Governance from '../components/home/Governance.astro';
 import Marquee from '../components/home/Marquee.astro';
+import Results from '../components/home/Results.astro';
 import Company from '../components/home/Company.astro';
 import NewsroomTeaser from '../components/home/NewsroomTeaser.astro';
 import { site, social } from '../data/site';
@@ -56,8 +59,17 @@ const website = {
     <Statements />
   </Stage>
 
+  {/*
+    Orden de lectura: problema → respuesta → operación → prueba → quiénes
+    somos. La brecha va inmediatamente después de las declaraciones porque es
+    lo que justifica que exista la plataforma; la evidencia va después del
+    respiro del marquee, para que las cifras no lleguen pegadas a la consola.
+  */}
+  <Gap />
   <Platform />
+  <Governance />
   <Marquee />
+  <Results />
   <Company />
   <NewsroomTeaser />
 </Base>

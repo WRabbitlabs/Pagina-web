@@ -1,0 +1,516 @@
+---
+import { results, sectors } from '../../data/home';
+import { numWidth } from '../../lib/format';
+
+/**
+ * EVIDENCIA — resultados medibles.
+ *
+ * Cinco cifras del portafolio, cada una con su base escrita debajo. La
+ * sección afirma por escrito que ninguna cifra existe sin su fuente, así que
+ * la fuente es parte de la tarjeta y no un enlace a otra parte: si una cifra
+ * se queda sin base, se cae la tarjeta entera, no la nota al pie.
+ *
+ * ⚠ Las bases de src/data/home.ts son PLACEHOLDER. Ver el aviso de ese
+ * archivo: esta es la sección donde publicar sin confirmar convierte el
+ * argumento del sitio en falso.
+ *
+ * Dos formas para dos clases de dato. Un rango («20–40%») es una barra sobre
+ * una escala de 0 a 100: se ve dónde cae y cuánto abarca. Un valor único es
+ * un anillo. Mezclar las dos en la misma forma haría pasar un rango por una
+ * medición cerrada.
+ *
+ * El filtro por sector es CSS: el botón escribe un atributo en la lista y la
+ * hoja de estilos decide qué se ve. El script solo replica la animación de
+ * entrada en las tarjetas que vuelven a aparecer.
+ */
+
+/** El anillo con `pathLength="100"` habla en porcentaje: r deja de importar. */
+const R = 52;
+---
+
+<section class="section results" data-surface="frost" aria-labelledby="results-title">
+  <div class="container">
+    <div class="split results__intro">
+      <div class="results__col">
+        <h2 class="t-eyebrow results__tag" id="results-title">
+          <span class="results__dot" aria-hidden="true"></span>
+          {results.eyebrow}
+        </h2>
+      </div>
+
+      <div class="results__col">
+        <p class="t-h2 results__heading" data-text-reveal>
+          {results.heading} <span class="results__soft">{results.headingTail}</span>
+        </p>
+        <p class="prose results__body" data-reveal>{results.body}</p>
+      </div>
+    </div>
+
+    <div class="results__filters" data-reveal>
+      <div class="filters" role="group" aria-label="Filtrar por sector">
+        {
+          results.filters.map((f) => (
+            <button
+              class="filters__btn t-eyebrow"
+              type="button"
+              data-sector-filter={f.id}
+              aria-pressed={f.id === 'all' ? 'true' : 'false'}
+            >
+              {f.label}
+            </button>
+          ))
+        }
+      </div>
+
+      {/* Cuántas tarjetas quedan a la vista, para quien no las ve. */}
+      <p class="t-eyebrow filters__count" data-filter-count aria-live="polite">
+        {results.metrics.length} de {results.metrics.length}
+      </p>
+    </div>
+
+    <ul class="metrics" role="list" data-metrics data-filter="all">
+      {
+        results.metrics.map((m, i) => (
+          <li
+            class="metric"
+            data-sector={m.sector}
+            data-shape={m.shape}
+            data-span={'span' in m ? m.span : undefined}
+            data-reveal
+            style={`--reveal-delay:${i * 80}ms`}
+          >
+            {m.shape === 'gauge' ? (
+              <div class="gauge">
+                <svg class="gauge__svg" viewBox="0 0 120 120" aria-hidden="true" fill="none">
+                  <circle class="gauge__track" cx="60" cy="60" r={R} pathLength="100" />
+                  <circle
+                    class="gauge__arc"
+                    cx="60"
+                    cy="60"
+                    r={R}
+                    pathLength="100"
+                    style={`--v:${m.to}`}
+                  />
+                </svg>
+
+                <p class="gauge__value">
+                  {'prefix' in m && m.prefix && (
+                    <span class="t-eyebrow gauge__prefix">{m.prefix}</span>
+                  )}
+                  <span class="gauge__n">
+                    <span class="num" data-count={m.to} style={`--w:${numWidth(m.to)}ch`}>
+                      {m.to}
+                    </span>
+                    {m.unit}
+                  </span>
+                </p>
+              </div>
+            ) : (
+              <div class="range">
+                <p class="range__value">
+                  <span class="num" data-count={m.from} style={`--w:${numWidth(m.from)}ch`}>
+                    {m.from}
+                  </span>–<span class="num" data-count={m.to} style={`--w:${numWidth(m.to)}ch`}>
+                    {m.to}
+                  </span>{m.unit}
+                </p>
+
+                {/* La barra sitúa el rango sobre una escala de 0 a 100. */}
+                <div class="bar" aria-hidden="true">
+                  <span class="bar__track" />
+                  <span class="bar__fill" style={`--a:${m.from}%;--b:${m.to}%`} />
+                </div>
+              </div>
+            )}
+
+            <p class="t-body metric__label">{m.label}</p>
+
+            <p class="metric__foot">
+              <span class="t-eyebrow metric__sector">{sectors[m.sector]}</span>
+              <span class="t-small metric__source">{m.source}</span>
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* --------------------------------------------------------------------- */
+  /* Encabezado                                                             */
+  /* --------------------------------------------------------------------- */
+
+  .results__intro {
+    margin-bottom: var(--space-l);
+  }
+
+  .results__col {
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--rule);
+  }
+
+  .results__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7ch;
+    padding: 0.4rem 0.7rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-btn);
+  }
+
+  .results__dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    background: var(--signal);
+  }
+
+  .results__heading {
+    max-width: 20ch;
+  }
+
+  .results__soft {
+    color: color-mix(in srgb, var(--ink) 32%, var(--surface));
+  }
+
+  .results__body {
+    margin-top: var(--space-m);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Filtro                                                                 */
+  /* --------------------------------------------------------------------- */
+
+  .results__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+    padding-bottom: var(--space-s);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: var(--gutter);
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs);
+  }
+
+  .filters__btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding-inline: var(--space-xs);
+    color: var(--text-muted);
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .filters__btn:hover {
+    color: var(--text);
+    border-color: var(--rule-strong);
+  }
+
+  .filters__btn[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .filters__count {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Sin JS el filtro no filtra: se retira entero y quedan las cinco cifras,
+     que es el contenido. Un botón que no hace nada es peor que no tenerlo. */
+  html:not(.js) .results__filters {
+    display: none;
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Retícula                                                               */
+  /* --------------------------------------------------------------------- */
+
+  .metrics {
+    display: grid;
+    gap: var(--gutter);
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .metrics {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .metrics {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* La primera cifra es la que resume la sección: ocupa el doble. */
+    .metric[data-span='wide'] {
+      grid-column: span 2;
+    }
+
+    .metric[data-span='tall'] {
+      grid-row: span 2;
+    }
+
+    /*
+     * Con un sector filtrado quedan una o dos tarjetas: mantener el doble
+     * ancho dejaría un hueco enorme al lado. Todas iguales.
+     */
+    .metrics:not([data-filter='all']) .metric {
+      grid-column: span 1;
+      grid-row: span 1;
+    }
+  }
+
+  .metric {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    padding: var(--space-s) var(--space-xs) var(--space-xs);
+    background: var(--surface-raised);
+    border-radius: var(--radius-card);
+  }
+
+  .metrics:not([data-filter='all']) .metric[data-sector]:not(.is-match) {
+    display: none;
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Rango: cifra + barra sobre escala 0–100                                */
+  /* --------------------------------------------------------------------- */
+
+  .range__value,
+  .gauge__n {
+    font-size: var(--text-h2);
+    line-height: var(--lh-h2);
+    letter-spacing: var(--ls-heading);
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  /* Ancho reservado: el contador no empuja al guion ni al símbolo. */
+  .num {
+    display: inline-block;
+    min-width: var(--w);
+  }
+
+  .bar {
+    position: relative;
+    height: 3px;
+    margin-top: var(--space-s);
+  }
+
+  .bar__track {
+    position: absolute;
+    inset: 1px 0;
+    background: var(--rule);
+    /* Cuatro marcas de escala, cada 25%. Es lo que convierte la barra en una
+       escala y no en un adorno. */
+    background-image: linear-gradient(
+      to right,
+      transparent calc(25% - 1px),
+      var(--rule-strong) calc(25% - 1px) 25%,
+      transparent 25%
+    );
+    background-size: 25% 100%;
+  }
+
+  .bar__fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--a);
+    width: calc(var(--b) - var(--a));
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 900ms var(--ease-out) 220ms;
+  }
+
+  .metric.is-revealed .bar__fill {
+    transform: scaleX(1);
+  }
+
+  html:not(.js) .bar__fill {
+    transform: scaleX(1);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Anillo                                                                 */
+  /* --------------------------------------------------------------------- */
+
+  .gauge {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: clamp(8.5rem, 7rem + 5vw, 11rem);
+    aspect-ratio: 1;
+  }
+
+  .gauge__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    /* Arranca a las doce y avanza en el sentido del reloj. */
+    transform: rotate(-90deg);
+  }
+
+  .gauge__track,
+  .gauge__arc {
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .gauge__track {
+    stroke: var(--rule);
+  }
+
+  /*
+   * `pathLength="100"` reescala el contorno a 100 unidades, así que el
+   * dasharray se escribe directamente en porcentaje y el radio deja de
+   * importar: cambiar R no descuadra ninguna cifra.
+   */
+  .gauge__arc {
+    stroke: var(--ink);
+    stroke-linecap: butt;
+    stroke-dasharray: 0 100;
+    transition: stroke-dasharray 1100ms var(--ease-out) 220ms;
+  }
+
+  .metric.is-revealed .gauge__arc {
+    stroke-dasharray: var(--v) 100;
+  }
+
+  html:not(.js) .gauge__arc {
+    stroke-dasharray: var(--v) 100;
+  }
+
+  .gauge__value {
+    position: relative;
+    text-align: center;
+  }
+
+  .gauge__prefix {
+    display: block;
+    margin-bottom: var(--space-3xs);
+    color: var(--text-muted);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Pie de tarjeta                                                         */
+  /* --------------------------------------------------------------------- */
+
+  .metric__label {
+    /* Empuja el pie abajo: los pies quedan alineados entre tarjetas aunque
+       las etiquetas midan distinto. */
+    margin-bottom: auto;
+    max-width: 30ch;
+    color: var(--text);
+  }
+
+  .metric__foot {
+    display: grid;
+    gap: var(--space-3xs);
+    padding-top: var(--space-2xs);
+    border-top: 1px solid var(--rule);
+  }
+
+  .metric__sector {
+    justify-self: start;
+    padding: 0.35rem 0.6rem;
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+    border-radius: var(--radius-btn);
+    color: var(--text-muted);
+  }
+
+  .metric__source {
+    color: var(--text-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar__fill {
+      transform: scaleX(1);
+      transition: none;
+    }
+
+    .gauge__arc {
+      stroke-dasharray: var(--v) 100;
+      transition: none;
+    }
+
+    .filters__btn {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { counters } from '../../scripts/count';
+
+  counters();
+
+  /*
+   * Filtro por sector.
+   *
+   * Quién se ve lo decide el CSS: aquí solo se escribe `data-filter` en la
+   * lista y se marca `is-match` en las tarjetas del sector elegido. La razón
+   * de marcar en vez de ocultar es que hace falta saber CUÁLES vuelven a
+   * aparecer para repetirles la animación de entrada — si no, al filtrar
+   * saldrían de golpe, ya dibujadas, y el anillo perdería su gracia.
+   */
+  const list = document.querySelector<HTMLElement>('[data-metrics]');
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-sector-filter]'));
+  const count = document.querySelector<HTMLElement>('[data-filter-count]');
+
+  if (list && buttons.length) {
+    const cards = Array.from(list.querySelectorAll<HTMLElement>('.metric'));
+    const total = cards.length;
+
+    const apply = (sector: string) => {
+      list.dataset.filter = sector;
+
+      const shown = cards.filter((c) => sector === 'all' || c.dataset.sector === sector);
+
+      cards.forEach((c) => c.classList.toggle('is-match', shown.includes(c)));
+
+      if (count) count.textContent = `${shown.length} de ${total}`;
+
+      /* Repite la entrada de las que quedan a la vista. El reflujo forzado
+         entre quitar y poner la clase es lo que reinicia la transición: sin
+         él, el navegador agrupa los dos cambios y no pasa nada. */
+      shown.forEach((c) => {
+        c.classList.remove('is-revealed');
+        void c.offsetWidth;
+        c.classList.add('is-revealed');
+      });
+    };
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const sector = btn.dataset.sectorFilter!;
+        if (list.dataset.filter === sector) return;
+
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        apply(sector);
+      });
+    });
+  }
+</script>

@@ -165,6 +165,248 @@ export const closing = {
   cta: { label: 'Trabajemos juntos', href: '/contact' },
 } as const;
 
+/* ------------------------------------------------------------------------ */
+/* El problema — la brecha                                                    */
+/* ------------------------------------------------------------------------ */
+
+export const gap = {
+  eyebrow: 'El problema',
+  heading: 'La brecha que nadie está cerrando',
+  body: 'Nadie está integrando inteligencia artificial, cumplimiento y datos en una sola capa de ejecución. Tres fuerzas hacen esa brecha más costosa cada trimestre.',
+
+  /**
+   * El diagrama es un ESQUEMA, no una medición.
+   *
+   * No lleva eje de valores ni cifras, y lo dice por escrito debajo. Un sitio
+   * cuyo argumento es «ninguna cifra existe sin su fuente» no puede dibujar
+   * una curva que insinúe datos que nadie midió. Las trayectorias solo
+   * ordenan tres fuerzas entre sí; la forma es el mensaje.
+   */
+  diagram: {
+    label:
+      'Esquema de tres trayectorias: la adopción de IA sube más rápido que la capacidad de gobernarla, y la exigencia regulatoria avanza entre las dos. El espacio entre adopción y capacidad es la brecha.',
+    caption: 'Esquema sin escala. Ordena las tres fuerzas entre sí; no representa valores medidos.',
+    gapLabel: 'La brecha',
+    /** Rótulo de cada trayectoria. La geometría vive en el componente. */
+    traces: {
+      adopcion: 'Adopción de IA',
+      regulacion: 'Exigencia regulatoria',
+      capacidad: 'Capacidad de gobernarla',
+    },
+    /** Marcas del eje horizontal. Tiempo, no fechas: el esquema no data nada. */
+    axis: ['Ayer', 'Hoy', 'Lo que viene'],
+  },
+
+  /**
+   * `trace` enlaza cada fuerza con su trayectoria del diagrama. Al pasar el
+   * puntero por una tarjeta se resalta la suya; sin puntero, el propio scroll
+   * las va encendiendo en orden.
+   */
+  forces: [
+    {
+      n: '01',
+      trace: 'adopcion',
+      title: 'Adopción acelerada',
+      body: 'La IA entra a las empresas de LATAM más rápido que su capacidad de gobernarla.',
+    },
+    {
+      n: '02',
+      trace: 'regulacion',
+      title: 'Regulación en aumento',
+      body: 'El cumplimiento dejó de ser opcional: Ley 1581 en Colombia, LGPD en Brasil, LFPDPPP en México y lo que viene.',
+    },
+    {
+      n: '03',
+      trace: 'capacidad',
+      title: 'Organizaciones sin preparar',
+      body: 'La mayoría no tiene estructura de datos ni marco legal para escalar IA con seguridad.',
+    },
+  ],
+} as const;
+
+/* ------------------------------------------------------------------------ */
+/* Gobierno continuo — la consola                                             */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * ⚠ DATOS DE EJEMPLO, y el panel lo dice en su propia cabecera.
+ *
+ * Es una maqueta de producto: enseña la forma de la operación, no la
+ * operación de un cliente. El descargo no es una nota al pie escondida —va
+ * dentro del panel, al mismo peso que su título— porque una consola con
+ * cifras es exactamente el tipo de imagen que se lee como real.
+ *
+ * Al reemplazar por datos reales: quitar `disclaimer` y citar la fuente.
+ */
+export const governance = {
+  eyebrow: 'Gobierno continuo',
+  heading: 'El trabajo invisible, visible.',
+  body: 'La suscripción mantiene cada proceso monitoreado, optimizado y dentro del marco regulatorio. Así se ve un trimestre de operación bajo gobierno continuo.',
+
+  panel: {
+    title: 'Gobierno continuo',
+    disclaimer: 'Vista ilustrativa con datos de ejemplo.',
+  },
+
+  kpis: [
+    { value: 24, suffix: '', label: 'procesos en producción' },
+    { value: 99.4, suffix: '%', label: 'ejecuciones sin intervención manual' },
+    { value: 0, suffix: '', label: 'hallazgos críticos abiertos' },
+  ],
+
+  chart: {
+    title: 'Actividad por semana',
+    /** Doce semanas: un trimestre, que es el ciclo del que habla la sección. */
+    weeks: 12,
+    series: [
+      {
+        id: 'ejecuciones',
+        label: 'Ejecuciones',
+        unit: 'ejecuciones',
+        values: [182, 214, 196, 243, 268, 251, 302, 331, 318, 384, 421, 468],
+      },
+      {
+        id: 'evidencias',
+        label: 'Evidencias',
+        unit: 'registros de evidencia',
+        values: [548, 661, 590, 712, 802, 769, 918, 1004, 947, 1156, 1272, 1410],
+      },
+      {
+        id: 'incidencias',
+        label: 'Incidencias',
+        unit: 'incidencias abiertas',
+        values: [7, 6, 8, 5, 4, 5, 3, 4, 2, 2, 1, 1],
+      },
+    ],
+  },
+
+  /**
+   * Plan de cumplimiento. El vocabulario es el colombiano a propósito: ante la
+   * SIC lo que se actualiza es el RNBD, no un ROPA europeo.
+   */
+  plan: {
+    title: 'Plan de cumplimiento',
+    items: [
+      { task: 'RNBD actualizado ante la SIC', state: 'hecho' },
+      { task: 'Revisión trimestral de accesos', state: 'hecho' },
+      { task: 'Reentrenamiento del modelo de extracción', state: 'curso' },
+      { task: 'Simulacro de respuesta a incidentes', state: 'previsto' },
+    ],
+  },
+
+  activity: {
+    title: 'Actividad reciente',
+    items: [
+      { time: '09:41', text: 'Informe mensual de operación generado' },
+      { time: '08:15', text: 'Alerta de deriva de datos resuelta' },
+      { time: '07:02', text: 'Pipeline de ingesta verificado' },
+    ],
+  },
+} as const;
+
+/** Etiquetas de estado del plan. Fuera del bucle: el orden no las decide. */
+export const planStates = {
+  hecho: 'Completado',
+  curso: 'En curso',
+  previsto: 'Programado',
+} as const;
+
+/* ------------------------------------------------------------------------ */
+/* Evidencia — resultados medibles                                            */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * ⚠ PLACEHOLDER CRÍTICO. Las cifras son plausibles; las fuentes, NO están
+ * verificadas.
+ *
+ * Esta sección afirma por escrito que ninguna cifra existe sin su fuente, así
+ * que es la única del sitio donde publicar sin confirmar convierte el propio
+ * argumento en falso. Antes de salir a producción, el cliente tiene que
+ * confirmar cada `value` y reescribir cada `source` con la base real: cuántas
+ * implantaciones, en qué periodo y contra qué línea base se mide.
+ *
+ * `source` es obligatorio por tipo: si se borra, la tarjeta no compila.
+ */
+export const results = {
+  eyebrow: 'Evidencia',
+  heading: 'Resultados medibles,',
+  headingTail: 'con la fuente a la vista.',
+  body: 'Trabajamos con rangos reales de nuestro portafolio, según tipo de proceso y sector. Ninguna cifra de esta página existe sin su fuente.',
+
+  /** El primero es el estado inicial. `all` no filtra nada. */
+  filters: [
+    { id: 'all', label: 'Todos' },
+    { id: 'transversal', label: 'Transversal' },
+    { id: 'legal', label: 'Legal' },
+    { id: 'publico', label: 'Público' },
+    { id: 'salud', label: 'Salud' },
+  ],
+
+  metrics: [
+    {
+      id: 'costos',
+      shape: 'range',
+      from: 20,
+      to: 40,
+      unit: '%',
+      label: 'de reducción en costos operativos',
+      sector: 'transversal',
+      source: 'Rango medido sobre el costo por trámite antes y después de la implantación.',
+      span: 'wide',
+    },
+    {
+      id: 'ejecucion',
+      shape: 'gauge',
+      prefix: 'hasta',
+      from: 70,
+      to: 70,
+      unit: '%',
+      label: 'menos tiempo de ejecución en procesos que sustituyen tareas manuales repetitivas',
+      sector: 'transversal',
+      source: 'Tope observado en procesos de captura y validación documental.',
+      span: 'tall',
+    },
+    {
+      id: 'contratos',
+      shape: 'gauge',
+      from: 60,
+      to: 60,
+      unit: '%',
+      label: 'menos tiempo de revisión contractual',
+      sector: 'legal',
+      source: 'Medido sobre revisión de minutas en firmas de práctica corporativa.',
+    },
+    {
+      id: 'proyectos',
+      shape: 'gauge',
+      from: 40,
+      to: 40,
+      unit: '%',
+      label: 'menos tiempo en formulación de proyectos',
+      sector: 'publico',
+      source: 'Medido sobre formulación de proyectos de inversión pública.',
+    },
+    {
+      id: 'atencion',
+      shape: 'range',
+      from: 30,
+      to: 50,
+      unit: '%',
+      label: 'más capacidad de atención médica',
+      sector: 'salud',
+      source: 'Rango medido sobre agenda liberada al automatizar tareas administrativas.',
+    },
+  ],
+} as const;
+
+/** Nombre visible de cada sector. Se usa en la etiqueta de la tarjeta. */
+export const sectors = {
+  transversal: 'Transversal',
+  legal: 'Sector legal',
+  publico: 'Sector público',
+  salud: 'Sector salud',
+} as const;
+
 /**
  * Nodos de El Trazado (el signature). Coordenadas en el viewBox del SVG.
  * Ver DESIGN.md §8.
