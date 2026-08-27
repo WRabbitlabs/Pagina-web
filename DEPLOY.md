@@ -34,7 +34,23 @@ Una sola cosa a mano, y solo una vez:
 
 > **Settings → Pages → Build and deployment → Source: `GitHub Actions`**
 
-Sin eso el flujo corre entero, dice que todo fue bien, y no publica nada.
+**Y hay que comprobar que la selección se guardó**, porque el desplegable puede
+enseñar «GitHub Actions» sin que el sitio exista. Lo único que no miente es la
+API:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}
+"   https://api.github.com/repos/WRabbitlabs/Pagina-web/pages
+```
+
+`200` es que está activado. `404` es que no, diga lo que diga la pantalla — y
+con 404 el despliegue falla con *«Get Pages site failed»*.
+
+Si da 404: elegir primero **«Deploy from a branch»** con `main` / `/ (root)` y
+guardar —eso sí crea el sitio siempre—, y volver después a **«GitHub Actions»**.
+
+El parámetro `enablement` de `actions/configure-pages` no sirve para esto: su
+propia documentación dice que exige un token personal, no el del flujo.
 
 Después, cada empujón a `main` construye y publica solo
 (`.github/workflows/deploy.yml`). También se puede relanzar desde la pestaña

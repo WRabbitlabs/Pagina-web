@@ -3,7 +3,13 @@
 # Requiere UNA cosa hecha a mano, y solo una vez:
 #   Settings → Pages → Build and deployment → Source: GitHub Actions
 #
-# Sin eso el flujo corre entero, dice que todo fue bien, y no publica nada.
+# Se comprueba con la API, que es lo único que no miente:
+#   curl -s -o /dev/null -w "%{http_code}" \
+#     https://api.github.com/repos/WRabbitlabs/Pagina-web/pages
+#
+# 200 = activado. 404 = no lo está, aunque el desplegable de los ajustes diga
+# que sí. Si da 404, la forma fiable de crearlo es elegir primero «Deploy from
+# a branch» y guardar, y volver después a «GitHub Actions».
 #
 # El dominio va en public/CNAME, que el build copia a la raíz de dist/. GitHub
 # lo lee de ahí, así que no hace falta escribirlo también en los ajustes: un
@@ -33,9 +39,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           # Del .nvmrc, para no tener la versión escrita en dos sitios.
           node-version-file: .nvmrc
@@ -56,9 +62,17 @@ jobs:
           # formulario que no envía a ninguna parte.
           PUBLIC_FORM_ENDPOINT: ${{ vars.PUBLIC_FORM_ENDPOINT }}
 
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
+      # Aquí iba `actions/configure-pages`, y se fue.
+      #
+      # Solo sirve para deducir la ruta base de frameworks que la necesitan
+      # —Next, Nuxt, Gatsby— y para exponerla como salida. Este sitio no la usa:
+      # vive en la raíz de un dominio propio y sus enlaces son absolutos.
+      #
+      # Lo que sí hacía era comprobar que Pages estuviera activado, y como no lo
+      # estaba, reventaba el flujo entero antes de subir nada. Quitarlo no oculta
+      # ese problema —`deploy-pages` avisa igual— pero deja de mezclar una
+      # comprobación con un paso de construcción.
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
@@ -70,4 +84,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
