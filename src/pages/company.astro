@@ -24,7 +24,10 @@ const description =
     <div class="container page-head__grid">
       <div>
         <p class="t-eyebrow">{intro.eyebrow}</p>
-        <h1 class="t-h1 page-head__title" data-text-reveal>{intro.heading}</h1>
+        {/* El titular de /company es el suyo: «IA aplicada, resultados
+            medibles.» subio al hero de la portada y repetirlo aqui dejaria
+            las dos paginas diciendo lo mismo en su H1. */}
+        <h1 class="t-h1 page-head__title" data-text-reveal>{company.heading}</h1>
 
         {/*
           El lema va en inglés. `lang` propio para que un lector de pantalla

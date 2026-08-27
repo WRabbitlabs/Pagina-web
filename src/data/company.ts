@@ -18,9 +18,12 @@
 /* ------------------------------------------------------------------------ */
 
 export const intro = {
-  /** Qué es la compañía, dicho sin rodeos antes del titular. */
+  /**
+   * Qué es la compañía, dicho sin rodeos antes del titular. El titular de la
+   * página lo pone : «IA aplicada, resultados medibles.» es
+   * ahora el del hero de la portada.
+   */
   eyebrow: 'WRabbit AI — Consultora de inteligencia artificial',
-  heading: 'IA aplicada, resultados medibles.',
 
   /**
    * El lema. Va en inglés y por eso lleva `lang` propio en la plantilla: sin

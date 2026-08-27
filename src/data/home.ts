@@ -11,9 +11,9 @@
 
 export const hero = {
   /** Tesis de la empresa. Una oración declarativa, con punto final. */
-  headline: ['Ingeniería de procesos', 'que resisten', 'una auditoría.'],
+  headline: ['IA aplicada,', 'resultados medibles.'],
   /** Texto accesible del h1, sin la partición visual en líneas. */
-  headlineFlat: 'Ingeniería de procesos que resisten una auditoría.',
+  headlineFlat: 'IA aplicada, resultados medibles.',
   subtitle:
     'Software dedicado y automatización para empresas, buffets de abogados y entidades del Estado colombiano.',
   cta: { label: 'Ver la compañía', href: '/company' },
@@ -171,8 +171,19 @@ export const closing = {
 
 export const gap = {
   eyebrow: 'La brecha',
-  heading: 'Lo que cuesta no implementar.',
-  body: 'La brecha no es tener inteligencia artificial o no tenerla: es la distancia entre probarla y ponerla a ejecutar. Solo el 39% de las organizaciones reporta impacto en sus resultados, y apenas un 6% captura valor significativo. El resto sigue pagando el costo de operar como antes, y ese costo sube cada trimestre.',
+  /**
+   * Declarativa y en positivo sobre lo que hacemos, no un lamento sobre lo que
+   * el cliente no hizo. «Lo que cuesta no implementar» decía la idea correcta
+   * con la forma equivocada: era un fragmento negativo entre titulares que
+   * afirman —«Un motor de ejecución auditable», «El trabajo invisible,
+   * visible»— y rompía el ritmo de la página.
+   *
+   * «Dos veces» es el puente con la tesis del sitio: el proceso manual se paga
+   * en horas y se vuelve a pagar cuando hay que reconstruir qué pasó. Eso
+   * segundo es exactamente lo que vendemos.
+   */
+  heading: 'Un proceso manual se paga dos veces.',
+  body: 'Una vez en horas, y otra cuando toca reconstruir a mano qué se hizo y con qué dato. La brecha no es tener inteligencia artificial o no tenerla: es la distancia entre probarla y ponerla a ejecutar. Solo el 39% de las organizaciones reporta impacto en sus resultados y apenas un 6% captura valor significativo; el resto sigue pagando las dos veces.',
 
   /** Fuente de las dos cifras de arriba. Sin ella no se publican. */
   source: {
