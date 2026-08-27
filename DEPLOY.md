@@ -73,6 +73,71 @@ npx wrangler deploy -c dist/server/wrangler.json
 
 ---
 
+## Si el despliegue no arranca
+
+Cuatro cosas rompen este build en Cloudflare, y ninguna se ve leyendo el
+repositorio en local.
+
+### 1 · Node
+
+Astro 7 exige **Node ≥ 22.12**. `package.json` declaraba `>=20.3.0`, que era
+sencillamente falso, y no había `.nvmrc`: el constructor elegía su versión por
+defecto y si caía por debajo, el build moría.
+
+Ahora está fijado en `.nvmrc`. Por si el constructor lo ignorase, conviene
+además declarar la variable de compilación:
+
+    NODE_VERSION = 22.12.0
+
+### 2 · Las dependencias de desarrollo
+
+**Este es el que más se repite.** Cloudflare define `NODE_ENV=production` en
+sus builds, y con eso `npm ci` **omite las `devDependencies`**. El build muere
+en el primer paso, antes de compilar nada:
+
+    npm run fonts  →  lee node_modules/@fontsource/*  →  no existen
+    astro check    →  @astrojs/check no existe
+
+Por eso lo que el build necesita —las dos familias tipográficas, `astro check`
+y TypeScript— vive en `dependencies` y no en `devDependencies`. En `dev` solo
+quedan las herramientas que generan assets a mano y que el build no toca:
+`ffmpeg-static` y `potrace`.
+
+Si aun así se quisieran en `dev`, hay que añadir la variable:
+
+    NPM_FLAGS = --include=dev
+
+### 3 · El nombre del Worker
+
+El adaptador tomaba el nombre de `package.json` —«wrabbit-ai»— y el proyecto de
+Cloudflare se llama **«pagina-web»**, por el repositorio. Al desplegar, wrangler
+comprueba que el nombre del config coincida con el Worker de destino: si no, o
+falla, o crea un Worker aparte y el sitio no aterriza donde se le espera.
+
+Lo fija `wrangler.jsonc` en la raíz. Si algún día se renombra el proyecto en
+Cloudflare, se cambia ahí y en ningún otro sitio.
+
+### 4 · wrangler
+
+El comando de despliegue es `npx wrangler deploy`. Sin wrangler declarado, npx
+lo descargaba entero en cada despliegue, sin versión fija. Ahora está en
+`dependencies`, así que el `npm ci` del propio build ya lo deja instalado.
+
+### Si sigue atascado en «Initializing»
+
+Eso ocurre **antes de clonar el repositorio**, así que no es del código. Es de
+Cloudflare: la cola de compilación o los permisos del build token. Para separar
+un problema del otro, desplegar una vez desde local:
+
+    npx wrangler login
+    npm run build
+    npx wrangler deploy -c dist/server/wrangler.json
+
+Si desde local funciona, el repositorio está bien y el problema es del
+constructor conectado.
+
+---
+
 ## Variables y secretos
 
 En el panel del Worker, **Settings → Variables and Secrets**. Los que llevan

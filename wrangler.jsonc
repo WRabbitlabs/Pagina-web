@@ -1,0 +1,16 @@
+{
+  // Solo el nombre. Todo lo demás —el punto de entrada, los assets, el binding
+  // KV, la fecha de compatibilidad— lo genera el adaptador de Astro en
+  // dist/server/wrangler.json en cada build, y se respeta tal cual.
+  //
+  // El nombre está aquí por una razón concreta: el adaptador lo tomaba de
+  // `package.json` —«wrabbit-ai»— y el proyecto de Cloudflare se llama
+  // «pagina-web», por el nombre del repositorio. Al desplegar, wrangler
+  // comprueba que el nombre del config coincida con el Worker de destino; si no
+  // coincide, o falla o crea un Worker aparte y el sitio no aterriza donde se
+  // le espera.
+  //
+  // No se edita dist/server/wrangler.json: se regenera en cada build.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pagina-web"
+}

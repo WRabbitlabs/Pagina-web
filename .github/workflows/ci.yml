@@ -1,7 +1,15 @@
-# Comprueba que la rama compila. `npm run build` ya incluye `astro check`, asi
-# que un error de tipos rompe el CI igual que rompe el build local.
+# Comprueba que la rama compila EN LAS CONDICIONES DEL DESPLIEGUE, no en las
+# de un portátil.
 #
-# El despliegue NO se hace aqui: lo hace Cloudflare, conectado al repositorio.
+# La diferencia importa y ya costó un despliegue: Cloudflare define
+# NODE_ENV=production en sus builds, así que `npm ci` omite las
+# devDependencies. Un build que pasa en local con todo instalado puede morir
+# allí en el primer paso, sin que nadie lo vea venir.
+#
+# Por eso este flujo instala con `--omit=dev`. Si alguien mueve a `dev` un
+# paquete que el build necesita, falla aquí y no en producción.
+#
+# El despliegue NO se hace aquí: lo hace Cloudflare, conectado al repositorio.
 # Ver DEPLOY.md.
 name: CI
 
@@ -18,12 +26,24 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # Del .nvmrc, para no tener la versión escrita en dos sitios que
+          # algún día dirán cosas distintas.
+          node-version-file: .nvmrc
           cache: npm
 
-      # `npm ci` corre el postinstall que copia las fuentes a public/fonts.
-      - run: npm ci
+      # Sin devDependencies, igual que Cloudflare. `npm ci` corre además el
+      # postinstall que copia las fuentes a public/fonts.
+      - run: npm ci --omit=dev
 
+      # Incluye `astro check`: un error de tipos no compila.
       - run: npm run build
         env:
           PUBLIC_SITE_URL: https://wrailabs.com
+
+      # El nombre del Worker tiene que coincidir con el proyecto de Cloudflare,
+      # o el despliegue no aterriza donde se le espera.
+      - name: El Worker se llama pagina-web
+        run: |
+          name=$(node -p "require('./dist/server/wrangler.json').name")
+          echo "name = $name"
+          test "$name" = "pagina-web"

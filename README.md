@@ -75,7 +75,8 @@ cuatro categorías en las siete rutas. Los números están en
 
 ## Requisitos
 
-- Node **≥ 20.3**
+- Node **≥ 22.12** — lo exige Astro 7, no el proyecto. Está fijado en
+  `.nvmrc` para que el constructor de Cloudflare no elija uno más viejo.
 - npm 10+
 
 ## Arrancar
