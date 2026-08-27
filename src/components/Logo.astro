@@ -1,0 +1,130 @@
+---
+import { site } from '../data/site';
+
+/**
+ * Marca: sólo tipografía. No hay símbolo.
+ *
+ * El monograma anterior era un SVG con `font-family="var(--font-mono)"` en un
+ * atributo de presentación. SVG no resuelve var() ahí, así que el nombre se
+ * dibujaba con la fuente por defecto del navegador — de ahí que se viera
+ * genérico. En HTML el sistema tipográfico sí manda.
+ *
+ * El bloqueo es de dos piezas: el nombre en la display, tracking cerrado, y el
+ * sufijo en la mono versalita, tracking abierto, separados por un filete. El
+ * contraste entre las dos caras es lo que hace que lea como logotipo y no
+ * como una línea de texto.
+ */
+
+const parts = site.name.trim().split(/\s+/);
+const suffix = parts.length > 1 ? parts.pop()! : '';
+const word = parts.join(' ');
+---
+
+{/*
+  Flujo en línea, no flex. Con flex el espacio entre las dos piezas lo pone
+  `gap` y en el DOM no queda separador: el nombre visible se calcula como
+  "WRabbitAI", deja de coincidir con el nombre accesible del enlace y rompe
+  el criterio de etiqueta en el nombre (WCAG 2.5.3) para control por voz.
+  En línea el espacio es un nodo de texto de verdad, y además la alineación
+  a la línea base sale sola.
+*/}
+<span class="mark">
+  <span class="mark__word">{word}</span>{
+    suffix && (
+      <>
+        {' '}
+        <span class="mark__rule" aria-hidden="true" />
+        {' '}
+        <span class="mark__suffix">{suffix}</span>
+      </>
+    )
+  }
+</span>
+
+<style>
+  .mark {
+    /* Medida fija: un logotipo no escala con el viewport. */
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .mark__word {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    /* Más cerrado que el texto corrido: a este cuerpo el tracking normal
+       deja el nombre suelto y pierde la unidad de logotipo. */
+    letter-spacing: -0.035em;
+  }
+
+  .mark__rule {
+    /* inline-block y no inline: una caja vacía en línea no tiene alto, y los
+       transforms de la entrada no se aplican a las cajas en línea. */
+    display: inline-block;
+    width: 1px;
+    height: 0.95rem;
+    /* Centrado óptico respecto a la línea base del nombre. */
+    vertical-align: -0.18em;
+    background: currentColor;
+    opacity: 0.3;
+  }
+
+  .mark__suffix {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    /* El tracking abre también por la derecha: se recupera para que el
+       logotipo no arrastre un hueco al final. */
+    margin-right: -0.16em;
+    text-transform: uppercase;
+    /* La mono tiene la caja de mayúsculas más baja: sin esto el sufijo
+       parece hundido respecto al nombre. */
+    transform: translateY(-0.5px);
+  }
+
+  /*
+   * Entrada: el filete se abre y el sufijo lo sigue. Encadenado al widget que
+   * lo contiene — --enter viene del header, no se redefine aquí.
+   */
+  html.js .mark__rule {
+    transform: scaleY(0);
+    animation: rule-in var(--dur-mid) var(--ease-out)
+      calc(var(--enter, 220ms) + 420ms) forwards;
+  }
+
+  html.js .mark__suffix {
+    opacity: 0;
+    animation: suffix-in var(--dur-mid) var(--ease-out)
+      calc(var(--enter, 220ms) + 500ms) forwards;
+  }
+
+  @keyframes rule-in {
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes suffix-in {
+    from {
+      opacity: 0;
+      transform: translate(-4px, -0.5px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, -0.5px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .mark__rule,
+    html.js .mark__suffix {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+
+    html.js .mark__suffix {
+      transform: translateY(-0.5px);
+    }
+  }
+</style>

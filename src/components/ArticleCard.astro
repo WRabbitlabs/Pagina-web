@@ -1,0 +1,192 @@
+---
+import Arrow from './Arrow.astro';
+import { href, isExternal, formatDate, isoDate, type Article } from '../lib/newsroom';
+
+interface Props {
+  entry: Article;
+  /** Tono de la superficie. Se reparte desde quien coloca las tarjetas. */
+  tone?: 'paper' | 'moss' | 'ink';
+  delay?: number;
+}
+const { entry, tone = 'paper', delay = 0 } = Astro.props;
+const external = isExternal(entry);
+const { category, date, title } = entry.data;
+
+/**
+ * Tarjeta de artículo.
+ *
+ * Tres superficies distintas en fila —claro, medio, tinta— para que el bloque
+ * se lea como un conjunto y no como tres cajas repetidas. Los tres tonos salen
+ * de la misma tinta, así que la fila no introduce color nuevo al sistema.
+ *
+ * La muesca de la esquina no es un recorte real: es un anillo del color de la
+ * sección alrededor del botón. Recortar la tarjeta de verdad obligaría a una
+ * máscara por tono y se rompería en cuanto cambiara el fondo.
+ */
+---
+
+<li class="card" data-tone={tone} data-reveal style={`--reveal-delay:${delay}ms`}>
+  <a
+    class="card__link"
+    href={href(entry)}
+    target={external ? '_blank' : undefined}
+    rel={external ? 'noopener noreferrer' : undefined}
+  >
+    <span class="card__top">
+      <span class="card__tag t-eyebrow">
+        <span class="card__dot" aria-hidden="true"></span>
+        {category}
+      </span>
+      <time class="card__date t-eyebrow" datetime={isoDate(date)}>{formatDate(date)}</time>
+    </span>
+
+    <h3 class="t-h3 card__title">{title}</h3>
+
+    <span class="card__foot t-eyebrow">
+      Leer artículo
+      {external && <span class="sr-only"> (se abre en una pestaña nueva)</span>}
+    </span>
+
+    <span class="card__go" aria-hidden="true"><Arrow /></span>
+  </a>
+</li>
+
+<style>
+  .card {
+    position: relative;
+    background: var(--surface);
+    color: var(--text);
+    border-radius: var(--radius-card);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Los tres tonos                                                         */
+  /* --------------------------------------------------------------------- */
+
+  .card[data-tone='paper'] {
+    --surface: var(--paper);
+    --text: var(--ink);
+    --text-muted: var(--graphite);
+  }
+
+  /* El tono medio sale de la tinta tirada hacia el acento: verde, no gris,
+     y sin meter un color nuevo en el sistema. */
+  .card[data-tone='moss'] {
+    --surface: color-mix(in srgb, var(--ink) 86%, var(--signal));
+    --text: var(--paper);
+    --text-muted: color-mix(in srgb, var(--paper) 74%, transparent);
+  }
+
+  .card[data-tone='ink'] {
+    --surface: var(--ink);
+    --text: var(--paper);
+    --text-muted: color-mix(in srgb, var(--paper) 74%, transparent);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Contenido                                                              */
+  /* --------------------------------------------------------------------- */
+
+  /* El enlace ocupa la tarjeta entera: no hay zona muerta dentro del área
+     que parece pulsable. */
+  .card__link {
+    display: grid;
+    /* El título empuja el pie abajo, así que los pies quedan alineados entre
+       tarjetas aunque los títulos midan distinto. */
+    grid-template-rows: auto 1fr auto;
+    gap: var(--space-m);
+    height: 100%;
+    padding: var(--space-s);
+    /* Sitio para el botón de la esquina. */
+    padding-bottom: calc(var(--space-s) + var(--space-xs));
+  }
+
+  .card__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+  }
+
+  /* La categoría va en pastilla; la fecha, suelta. */
+  .card__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7ch;
+    padding: 0.35rem 0.6rem;
+    background: color-mix(in srgb, var(--text) 10%, transparent);
+    border-radius: var(--radius-btn);
+  }
+
+  .card__dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    background: var(--signal);
+  }
+
+  .card__date {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .card__title {
+    align-self: start;
+    text-wrap: balance;
+  }
+
+  .card__foot {
+    align-self: end;
+    /* Deja libre la esquina del botón. */
+    padding-right: var(--tap);
+    color: var(--text);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* El botón de la esquina                                                 */
+  /* --------------------------------------------------------------------- */
+
+  .card__go {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    place-items: center;
+    width: var(--tap);
+    height: var(--tap);
+    background: var(--signal);
+    color: var(--ink);
+    border-radius: var(--radius-btn);
+    /*
+     * El anillo del color de la sección es la muesca. Por la derecha y por
+     * abajo cae fuera de la tarjeta, donde coincide con el fondo y no se ve;
+     * por arriba y por la izquierda muerde la esquina, que es el efecto.
+     *
+     * --notch lo pone la sección. No se puede usar var(--surface) aquí: la
+     * tarjeta lo redefine con su propio tono.
+     */
+    box-shadow: 0 0 0 7px var(--notch, var(--frost));
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .card__link:hover .card__go {
+    transform: translateX(3px);
+  }
+
+  .card__link:focus-visible {
+    outline: 2px solid var(--focus, var(--signal));
+    outline-offset: 3px;
+    border-radius: var(--radius-card);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card__go {
+      transition: none;
+    }
+    .card__link:hover .card__go {
+      transform: none;
+    }
+  }
+</style>

@@ -1,0 +1,473 @@
+---
+import Arrow from './Arrow.astro';
+import Cta from './Cta.astro';
+import { nav, cta, social, legalNav, site } from '../data/site';
+import { footer as footerData } from '../data/home';
+
+const year = new Date().getFullYear();
+const navigate = [...nav, cta];
+const bg = footerData.bg;
+
+/**
+ * Pie: una última pantalla, no una lista de enlaces.
+ *
+ * Lleva el mismo fondo que el hero —un fotograma del vídeo, no otra
+ * reproducción: dos decodificaciones simultáneas por un fondo estático no se
+ * pagan— y cierra con la marca a tamaño de cartel. El fotograma lo extrae
+ * `npm run footer:bg`, que se queda con el más oscuro de seis candidatos.
+ *
+ * El degradado tiene números detrás, no gusto. El fotograma promedia 12.6:1
+ * contra blanco, pero su píxel más claro daría 1.08:1: ahí el texto
+ * desaparecería. Medido contra ese peor caso, sobre negro puro:
+ *
+ *     velo 46% → 3.67:1     velo 58% → 5.6:1
+ *     velo 72% → 9.3:1      velo 82% → 14.8:1
+ *
+ * De ahí las paradas: fuerte arriba y abajo, donde hay texto pequeño y hace
+ * falta 4.5:1; flojo en la banda central, donde solo está la marca de cartel
+ * y basta con 3:1 por ser texto grande. Así la imagen se ve donde puede
+ * verse y la legibilidad no depende del fotograma.
+ */
+---
+
+<footer class="footer" data-surface="void">
+  {
+    bg && (
+      <img
+        class="footer__bg"
+        src={bg}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+      />
+    )
+  }
+  <div class="footer__veil" aria-hidden="true"></div>
+
+  <div class="container footer__inner">
+    <div class="footer__top">
+      <div class="footer__pitch">
+        <p class="t-statement footer__claim">{site.tagline}</p>
+        {/*
+          El envoltorio no es decorativo: los estilos con ámbito de este
+          componente sólo alcanzan a los elementos escritos en su plantilla.
+          Pasando la clase al componente <Cta>, ésta aterriza en su raíz —que
+          lleva el ámbito de Cta, no el del pie— y la regla nunca casa.
+        */}
+        <p class="footer__cta"><Cta label={cta.label} href={cta.href} /></p>
+      </div>
+
+      <div class="footer__cols">
+        <nav class="footer__col" aria-label="Navegación del pie">
+          <h2 class="t-eyebrow footer__title">Navegar</h2>
+          <ul role="list" class="footer__links">
+            {
+              navigate.map((item) => (
+                <li>
+                  <a class="footer__link" href={item.href}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <nav class="footer__col" aria-label="Redes sociales">
+          <h2 class="t-eyebrow footer__title">Conectar</h2>
+          <ul role="list" class="footer__links">
+            {
+              social.map((item) => (
+                <li>
+                  <a
+                    class="footer__link external"
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {item.label}
+                    <span class="sr-only"> (se abre en una pestaña nueva)</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+
+      <button class="footer__up" type="button" data-to-top>
+        <span class="sr-only">Volver arriba</span>
+        <span aria-hidden="true"><Arrow dir="up" /></span>
+      </button>
+    </div>
+
+    <div class="footer__end">
+      {/* Marca a tamaño de cartel. Decorativa: el nombre ya está en el
+          header y en el título del documento. */}
+      <p class="footer__mark" aria-hidden="true">{site.name}</p>
+
+      <div class="footer__base">
+        <ul role="list" class="footer__legal">
+          {
+            legalNav.map((item) => (
+              <li>
+                <a class="footer__link" href={item.href}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="t-eyebrow footer__copy">
+          {site.legalName} · NIT {site.nit} · © {year}. Todos los derechos reservados.
+        </p>
+
+        {
+          /* Crédito de imagen: CC-BY lo exige. Ver src/assets/CREDITOS.md. */
+          site.imageCredit && (
+            <p class="t-eyebrow footer__credit">
+              <a
+                class="footer__creditlink external"
+                href={site.imageCredit.href}
+                target="_blank"
+                rel="noopener noreferrer license"
+              >
+                {site.imageCredit.text}
+                <span class="sr-only"> (se abre en una pestaña nueva)</span>
+              </a>
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    isolation: isolate;
+    background: var(--surface);
+    color: var(--text);
+    /* Recorta la marca de cartel, que sangra por abajo a propósito. */
+    overflow: clip;
+    /*
+     * El fondo llega al borde; el hueco de arriba lo abre la franja, y el
+     * acolchado sólo tiene que despejarla.
+     *
+     * Este número decide si la franja se ve. Con el doble de --space-l, el
+     * contenido mínimo del pie sumaba 909px en una ventana de 911: dos
+     * píxeles de holgura. En cuanto la ventana bajaba de ahí, el pie
+     * desbordaba, su borde superior se salía por arriba y la franja
+     * desaparecía justo detrás del header.
+     */
+    padding-block: calc(var(--space-l) + var(--space-2xs)) 0;
+    /*
+     * Una ventana entera. Al llegar al final del scroll el pie es lo único
+     * que se ve: sin esto asomaba por arriba la sección de cierre, que
+     * también es oscura, y la franja clara dejaba de leerse como el borde
+     * de la página para parecer una costura entre dos bloques.
+     */
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /*
+   * La franja del lienzo, con las esquinas redondeadas ABAJO.
+   *
+   * No es el pie el que se redondea por arriba: es la franja la que se
+   * redondea por abajo, y el matiz cambia el dibujo. Redondeando el pie, lo
+   * oscuro baja en las esquinas y queda más claro en los bordes; redondeando
+   * la franja, lo oscuro sube por los lados y el claro queda encajado en el
+   * centro, que es como se ve en la referencia.
+   *
+   * La franja hace falta además porque la sección anterior también es oscura:
+   * sin ella no habría contra qué recortar.
+   */
+  .footer::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: var(--space-l);
+    background: var(--bone);
+    border-radius: 0 0 var(--radius-block) var(--radius-block);
+  }
+
+  .footer__bg,
+  .footer__veil {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .footer__bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Ver la cabecera del componente: cada parada sale de una medición. */
+  .footer__veil {
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--void) 72%, transparent) 0%,
+      color-mix(in srgb, var(--void) 46%, transparent) 42%,
+      color-mix(in srgb, var(--void) 58%, transparent) 78%,
+      color-mix(in srgb, var(--void) 82%, transparent) 100%
+    );
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Bloque superior                                                        */
+  /* --------------------------------------------------------------------- */
+
+  .footer__top {
+    display: grid;
+    gap: var(--space-l);
+  }
+
+  @media (min-width: 64rem) {
+    .footer__top {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: start;
+      gap: var(--space-xl);
+    }
+  }
+
+  .footer__claim {
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+
+  .footer__cta {
+    /* La caja de línea de la display baja bastante por debajo de la última
+       base, así que el hueco óptico sale menor que el margen: hace falta un
+       escalón más para que el botón no parezca colgado del texto. */
+    margin-top: var(--space-l);
+  }
+
+  .footer__cols {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gutter);
+  }
+
+  @media (min-width: 64rem) {
+    .footer__cols {
+      grid-template-columns: repeat(2, minmax(9rem, auto));
+      gap: var(--space-l);
+    }
+
+    /*
+     * Las columnas arrancan por debajo de la primera línea del titular. A ras
+     * con él, sus rótulos —tipografía pequeña— caían justo bajo la pastilla
+     * del header y se leían pegados a ella. El titular aguanta esa altura
+     * porque es display; ellos no.
+     *
+     * El botón redondo baja lo mismo: comparte fila y borde superior con las
+     * columnas, y bajarlas sin bajarlo rompería esa alineación.
+     */
+    .footer__cols,
+    .footer__up {
+      margin-top: var(--space-s);
+    }
+  }
+
+  /* Filete a la izquierda de cada columna: declara la retícula sin cajas. */
+  .footer__col {
+    padding-left: var(--space-xs);
+    border-left: 1px solid var(--rule);
+  }
+
+  .footer__title {
+    margin-bottom: var(--space-xs);
+    color: var(--text-muted);
+  }
+
+  .footer__links {
+    display: grid;
+    margin: 0;
+    padding: 0;
+  }
+
+  .footer__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    /* "X" mide 22px de texto: el área táctil se garantiza aparte. */
+    min-width: var(--tap);
+    font-family: var(--font-mono);
+    font-size: var(--text-nav);
+    letter-spacing: var(--ls-mono);
+    text-transform: uppercase;
+    color: var(--text);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .footer__link:hover {
+    color: var(--signal);
+  }
+
+  /* Botón redondo de volver arriba, arriba a la derecha. */
+  .footer__up {
+    justify-self: end;
+    display: grid;
+    place-items: center;
+    width: var(--tap);
+    height: var(--tap);
+    border: 1px solid var(--rule-strong);
+    border-radius: 50%;
+    color: var(--text);
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  .footer__up:hover {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Cierre: marca de cartel + letra pequeña                                */
+  /* --------------------------------------------------------------------- */
+
+  .footer__inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Al fondo de la ventana, sea cual sea el alto: entre el bloque de arriba
+     y la marca queda el vídeo a la vista, que es lo que hace de respiro. */
+  .footer__end {
+    position: relative;
+    margin-top: auto;
+    padding-top: var(--space-2xs);
+  }
+
+  /*
+   * La marca ocupa el ancho y sangra por abajo.
+   *
+   * El tamaño se topa por ancho Y por alto: sólo con vw, en una ventana baja
+   * la marca crece hasta que el pie deja de caber y sus esquinas redondeadas
+   * se salen por arriba. Con `min()` el pie nunca desborda la ventana y la
+   * franja del lienzo siempre queda a la vista, sin medir nada con JS.
+   */
+  .footer__mark {
+    font-family: var(--font-display);
+    font-size: min(17vw, 22svh);
+    line-height: 0.86;
+    letter-spacing: var(--ls-display);
+    white-space: nowrap;
+    color: var(--text);
+    /*
+     * Sin sangrado negativo. Lo llevaba para que la marca se cortara contra
+     * el borde, pero al quitar la sección de cierre el pie se comprimió y ese
+     * tiro hacia arriba metía la letra pequeña dentro de las letras grandes:
+     * "PRIVACIDAD · TÉRMINOS" quedaba escrito encima de la marca.
+     */
+    margin-bottom: 0;
+  }
+
+  .footer__base {
+    display: grid;
+    /* Aire entre las tres líneas de letra pequeña y separación de la marca:
+       antes iban pegadas entre sí y a la tipografía de cartel. */
+    gap: var(--space-2xs);
+    margin-top: var(--space-2xs);
+    padding-bottom: var(--space-s);
+  }
+
+  .footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Separador · entre los enlaces legales, sin nodos de texto sueltos. */
+  .footer__legal li + li {
+    position: relative;
+  }
+
+  .footer__legal li + li::before {
+    content: '·';
+    position: absolute;
+    left: calc(var(--space-xs) / -2);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-muted);
+  }
+
+  .footer__copy {
+    color: var(--text-muted);
+  }
+
+  /* Letra pequeña obligatoria, no un elemento de diseño: peso mínimo. */
+  .footer__credit {
+    color: var(--text-muted);
+  }
+
+  .footer__creditlink {
+    display: inline-flex;
+    align-items: center;
+    /* No lleva `min-width: var(--tap)` porque es texto corrido, no un
+       control: WCAG 2.5.5 exime los enlaces dentro de un bloque de texto. */
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-color: var(--rule);
+    transition: text-decoration-color var(--dur-fast) var(--ease-out);
+  }
+
+  .footer__creditlink:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /*
+   * Guarda para ventanas bajas. El pie tiene que caber entero o su borde
+   * superior se sale por arriba y la franja clara —que es lo que enmarca el
+   * header— desaparece. Aquí se recorta lo prescindible antes que dejar que
+   * eso ocurra.
+   */
+  @media (max-height: 46rem) {
+    .footer {
+      padding-block: calc(var(--space-l) + var(--space-3xs)) 0;
+    }
+
+    .footer__cta {
+      margin-top: var(--space-m);
+    }
+
+    .footer__mark {
+      font-size: min(17vw, 18svh);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer__up,
+    .footer__link {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /*
+   * Volver arriba. El scroll suave lo hace el navegador; después movemos
+   * el foco al inicio del contenido para que el teclado no quede
+   * navegando desde el pie.
+   */
+  document.querySelector<HTMLButtonElement>('[data-to-top]')?.addEventListener('click', () => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+
+    const skip = document.querySelector<HTMLAnchorElement>('.skip-link');
+    skip?.focus({ preventScroll: true });
+  });
+</script>

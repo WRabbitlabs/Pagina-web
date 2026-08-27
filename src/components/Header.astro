@@ -1,0 +1,571 @@
+---
+import Logo from './Logo.astro';
+import { nav, cta, site } from '../data/site';
+
+interface Props {
+  /**
+   * ms antes de que los widgets entren. En la home espera a que el marco del
+   * hero termine de abrirse: durante la apertura la pantalla debe estar en
+   * blanco y sin nada más.
+   */
+  enterDelay?: number;
+}
+const { enterDelay = 220 } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+{/*
+  No es una barra. Son dos widgets sueltos flotando sobre el contenido: marca a
+  la izquierda, navegación a la derecha. No hay fondo de extremo a extremo ni
+  desenfoque de banda completa.
+
+  Y arriba del todo tampoco hay superficie: sobre el vídeo del hero los widgets
+  son sólo tipografía. El fondo claro entra al bajar, barrido de izquierda a
+  derecha. Todas las páginas abren con una sección oscura, así que el estado
+  transparente es legible en las siete, no sólo en la home.
+
+  La envoltura repite la estructura del hero (marco + container) para que los
+  widgets queden alineados con el titular y no con el borde de la ventana.
+*/}
+<header class="header" data-header style={`--enter:${enterDelay}ms`}>
+  <div class="header__frame">
+    <div class="container header__row">
+      <a class="widget header__brand" href="/" aria-label={`${site.name} — ir al inicio`}>
+        <Logo />
+      </a>
+
+      <nav class="widget header__nav" aria-label="Principal">
+        <ul class="header__list" role="list">
+          {
+            nav.map((item) => (
+              <li>
+                <a
+                  class="header__link"
+                  href={item.href}
+                  aria-current={path === item.href ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <a class="header__cta" href={cta.href}>{cta.label}</a>
+      </nav>
+
+      <button
+        class="widget header__toggle"
+        type="button"
+        data-menu-toggle
+        aria-expanded="false"
+        aria-controls="menu-mobile"
+      >
+        <span class="sr-only">Abrir el menú</span>
+        <span class="header__bars" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div
+  class="menu"
+  id="menu-mobile"
+  data-menu
+  role="dialog"
+  aria-modal="true"
+  aria-label="Menú de navegación"
+  hidden
+>
+  <div class="menu__inner container">
+    <ul class="menu__list" role="list">
+      {
+        nav.map((item, i) => (
+          <li class="menu__item" style={`--i:${i}`}>
+            <a
+              class="menu__link t-h2"
+              href={item.href}
+              aria-current={path === item.href ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li class="menu__item" style={`--i:${nav.length}`}>
+        <a class="menu__link t-h2" href={cta.href}>{cta.label}</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<style>
+  /* --------------------------------------------------------------------- */
+  /* Envoltura                                                              */
+  /* --------------------------------------------------------------------- */
+
+  .header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: var(--z-header);
+    /* La franja no intercepta el ratón: solo los widgets. */
+    pointer-events: none;
+  }
+
+  /* Misma geometría que el hero: marco por fuera, container por dentro. */
+  .header__frame {
+    padding: var(--pad-frame);
+  }
+
+  .header__row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    padding-block: var(--space-2xs);
+  }
+
+  /*
+   * Entrada: los widgets bajan desde arriba una vez terminada la apertura del
+   * marco del hero. Durante esa apertura la pantalla tiene que estar en blanco
+   * y sin nada más, así que no pueden estar ya puestos.
+   *
+   * Bajo `html.js` para que sin JS estén visibles desde el HTML.
+   */
+  html.js .header__row > * {
+    opacity: 0;
+    transform: translateY(-40px);
+    animation: widget-in var(--dur-slow) var(--ease-out) var(--enter, 220ms) forwards;
+  }
+
+  /* El de la derecha entra un pelo después: lee como un gesto, no como dos. */
+  html.js .header__row > :last-child {
+    animation-delay: calc(var(--enter, 220ms) + 90ms);
+  }
+
+  @keyframes widget-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* El widget                                                              */
+  /* --------------------------------------------------------------------- */
+
+  /*
+   * El widget es una caja clara. La superficie va en el pseudo y no en el
+   * elemento, para poder barrerla sin tocar el contenido.
+   */
+  .widget {
+    position: relative;
+    /* El pseudo va detrás del contenido pero delante del fondo de página. */
+    isolation: isolate;
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-nav);
+    color: var(--ink);
+    /* Roles fijos: lo de dentro no hereda el tono de la sección. */
+    --surface: var(--bone);
+    --text: var(--ink);
+    --focus: var(--ink);
+    transition: color var(--dur-mid) var(--ease-out);
+  }
+
+  .widget::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: color-mix(in srgb, var(--bone) 84%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .widget::before {
+      background: var(--bone);
+    }
+  }
+
+  /*
+   * La marca es la excepción: sobre el hero no lleva caja, sólo tipografía
+   * clara. La superficie entra al bajar, barrida de izquierda a derecha —
+   * 640ms el recorte y 320ms la opacidad, para que el filete se encienda
+   * durante el barrido y no aparezca de golpe al final.
+   *
+   * Todas las páginas abren con una sección oscura, así que el estado sin
+   * caja es legible en las siete, no sólo en la home.
+   */
+  .header__brand {
+    min-height: var(--tap);
+    padding-inline: var(--space-xs);
+    color: var(--paper);
+    --text: var(--paper);
+    --focus: var(--signal);
+  }
+
+  .header__brand::before {
+    clip-path: inset(0 100% 0 0 round var(--radius-nav));
+    opacity: 0;
+    transition:
+      clip-path var(--dur-slow) var(--ease-out),
+      opacity var(--dur-mid) linear;
+  }
+
+  .header.is-scrolled .header__brand {
+    color: var(--ink);
+    --text: var(--ink);
+    --focus: var(--ink);
+  }
+
+  .header.is-scrolled .header__brand::before {
+    clip-path: inset(0 0 0 0 round var(--radius-nav));
+    opacity: 1;
+  }
+
+  /*
+   * La navegación es un solo bloque: los dos enlaces y la llamada a la acción
+   * viven dentro de la misma caja. El acolchado de 4px es lo que deja ver el
+   * bloque alrededor de la píldora oscura.
+   */
+  .header__nav {
+    display: none;
+    padding: 4px;
+    gap: var(--space-3xs);
+  }
+
+  .header__list {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+  }
+
+  /*
+   * Sin estado de hover. El único elemento del header que reacciona al puntero
+   * es la llamada a la acción; estos dos son navegación y se quedan quietos.
+   * El foco de teclado sí es visible — lo pone base.css con --focus.
+   */
+  .header__link {
+    display: inline-flex;
+    align-items: center;
+    /* La misma altura interior que la píldora: las tres piezas del bloque
+       miden lo mismo y ninguna sobresale. */
+    min-height: calc(var(--tap) - 8px);
+    padding-inline: var(--space-2xs);
+    border-radius: calc(var(--radius-nav) - 4px);
+    font-family: var(--font-mono);
+    font-size: var(--text-nav);
+    letter-spacing: var(--ls-mono);
+    text-transform: uppercase;
+  }
+
+  /* Página actual: se llena de acento, como manda el sistema. Es un estado,
+     no una reacción al puntero. */
+  .header__link[aria-current='page'] {
+    background: var(--signal);
+    /* El acento es claro: el texto encima va en tinta en los dos estados. */
+    color: var(--ink);
+  }
+
+  /*
+   * La píldora no sobresale del bloque: lo llena por dentro. Es el contraste
+   * de tono —oscura sobre claro— lo que la hace leer como la acción
+   * principal, no el tamaño.
+   */
+  .header__cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: calc(var(--tap) - 8px);
+    padding-inline: var(--space-xs);
+    background: var(--ink);
+    color: var(--bone);
+    /* El radio interior del bloque: 12 menos los 4 del acolchado. */
+    border-radius: calc(var(--radius-nav) - 4px);
+    font-family: var(--font-mono);
+    font-size: var(--text-nav);
+    letter-spacing: var(--ls-mono);
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition:
+      background-color var(--dur-mid) var(--ease-out),
+      color var(--dur-mid) var(--ease-out);
+  }
+
+  /* El único hover del header: la píldora se pone en blanco. */
+  .header__cta:hover,
+  .header__cta:focus-visible {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  /* Toggle mobile — dos barras que se cruzan al abrir. */
+  .header__toggle {
+    justify-content: center;
+    width: var(--tap);
+    height: var(--tap);
+  }
+
+  .header__bars {
+    position: relative;
+    display: block;
+    width: 20px;
+    height: 11px;
+  }
+
+  .header__bars i {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform var(--dur-mid) var(--ease-out);
+  }
+
+  .header__bars i:first-child {
+    top: 0;
+  }
+  .header__bars i:last-child {
+    bottom: 0;
+  }
+
+  [aria-expanded='true'] .header__bars i:first-child {
+    transform: translateY(4.75px) rotate(45deg);
+  }
+  [aria-expanded='true'] .header__bars i:last-child {
+    transform: translateY(-4.75px) rotate(-45deg);
+  }
+
+  @media (min-width: 48rem) {
+    .header__nav {
+      display: inline-flex;
+    }
+    .header__toggle {
+      display: none;
+    }
+  }
+
+  /* Sin JS no hay clase de scroll: la superficie se queda puesta. */
+  html:not(.js) .widget::before {
+    clip-path: none;
+    opacity: 1;
+  }
+
+  html:not(.js) .widget {
+    color: var(--ink);
+    --text: var(--ink);
+    --focus: var(--ink);
+  }
+
+  html:not(.js) .header__cta {
+    border-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .header__row > * {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+    /* El barrido se cambia por un fundido: el estado sigue siendo legible. */
+    .widget::before {
+      clip-path: none;
+      transition: opacity var(--dur-mid) linear;
+    }
+    .widget,
+    .header__cta,
+    .header__bars i {
+      transition: none;
+    }
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Menú mobile a pantalla completa                                        */
+  /* --------------------------------------------------------------------- */
+
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-menu);
+    display: grid;
+    align-content: center;
+    background: var(--ink);
+    color: var(--paper);
+    --focus: var(--signal);
+    opacity: 0;
+    transition: opacity var(--dur-mid) var(--ease-out);
+  }
+
+  .menu.is-open {
+    opacity: 1;
+  }
+
+  .menu__list {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  /* Entrada escalonada — 90ms entre items, máximo 3 items. */
+  .menu__item {
+    overflow: clip;
+  }
+
+  .menu__link {
+    display: block;
+    padding-block: var(--space-3xs);
+    min-height: var(--tap);
+    transform: translateY(110%);
+    transition: transform var(--dur-slow) var(--ease-out);
+    transition-delay: calc(var(--i) * var(--stagger));
+  }
+
+  .menu.is-open .menu__link {
+    transform: none;
+  }
+
+  .menu__link[aria-current='page'] {
+    color: var(--signal);
+  }
+
+  @media (min-width: 48rem) {
+    .menu {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu,
+    .menu__link {
+      transition: none;
+    }
+    .menu {
+      opacity: 1;
+    }
+    .menu__link {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+
+  /* ------------------------------------------------------------------ */
+  /* Superficie de los widgets                                           */
+  /* ------------------------------------------------------------------ */
+
+  /*
+   * Banda muerta: entra a 40px y no se retira hasta los 16. Con un único
+   * umbral, el rebote elástico de iOS enciende y apaga el barrido en bucle.
+   */
+  if (header) {
+    let raf = 0;
+    let on = false;
+
+    const apply = () => {
+      raf = 0;
+      const y = scrollY;
+      const next = on ? y > 16 : y > 40;
+      if (next === on) return;
+      on = next;
+      header.classList.toggle('is-scrolled', next);
+    };
+
+    addEventListener(
+      'scroll',
+      () => {
+        if (!raf) raf = requestAnimationFrame(apply);
+      },
+      { passive: true },
+    );
+
+    /* Una recarga a media página ya nace desplazada. */
+    apply();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Menú mobile                                                         */
+  /* ------------------------------------------------------------------ */
+
+  if (toggle && menu) {
+    const FOCUSABLE =
+      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    let open = false;
+
+    const focusables = () => Array.from(menu.querySelectorAll<HTMLElement>(FOCUSABLE));
+
+    const lockScroll = (on: boolean) => {
+      const bar = innerWidth - document.documentElement.clientWidth;
+      document.documentElement.style.overflow = on ? 'hidden' : '';
+      document.documentElement.style.paddingRight = on && bar > 0 ? `${bar}px` : '';
+    };
+
+    const set = (next: boolean) => {
+      open = next;
+      toggle.setAttribute('aria-expanded', String(next));
+      toggle.querySelector('.sr-only')!.textContent = next
+        ? 'Cerrar el menú'
+        : 'Abrir el menú';
+      lockScroll(next);
+
+      if (next) {
+        menu.hidden = false;
+        /* Reflujo forzado: sin esto el elemento aún no es enfocable y el
+           foco no entra al panel. Un rAF no basta. */
+        void menu.offsetHeight;
+        focusables()[0]?.focus();
+        requestAnimationFrame(() => menu.classList.add('is-open'));
+      } else {
+        menu.classList.remove('is-open');
+        toggle.focus();
+        const hide = () => {
+          if (!open) menu.hidden = true;
+        };
+        menu.addEventListener('transitionend', hide, { once: true });
+        setTimeout(hide, 400);
+      }
+    };
+
+    toggle.addEventListener('click', () => set(!open));
+
+    addEventListener('keydown', (e) => {
+      if (!open) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        set(false);
+        return;
+      }
+
+      if (e.key !== 'Tab') return;
+
+      /* Trap de foco en ambas direcciones. */
+      const items = focusables();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    /* Al pasar a escritorio el panel deja de existir: no puede quedar abierto. */
+    matchMedia('(min-width: 48rem)').addEventListener('change', (e) => {
+      if (e.matches && open) set(false);
+    });
+  }
+</script>

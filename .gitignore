@@ -1,0 +1,25 @@
+# build
+dist/
+.astro/
+.output/
+.vercel/
+.netlify/
+
+# deps
+node_modules/
+
+# fuentes copiadas por scripts/fonts.mjs — se regeneran en postinstall
+public/fonts/*.woff2
+public/fonts/*LICENSE*
+
+# entorno
+.env
+.env.local
+.env.production
+!.env.example
+
+# sistema
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*

@@ -1,0 +1,194 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Picture } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Arrow from '../../components/Arrow.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { byDateDesc, published, formatDate, isoDate } from '../../lib/newsroom';
+import { site } from '../../data/site';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('newsroom');
+  // Los que viven fuera del sitio no generan página propia.
+  return entries
+    .filter((e) => !e.data.externalUrl)
+    .map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+/** Claro, medio, tinta, y vuelta a empezar. */
+const TONES = ['paper', 'moss', 'ink'] as const;
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, category, date, excerpt, image, imageAlt } = entry.data;
+
+const more = byDateDesc(published(await getCollection('newsroom')))
+  .filter((e) => e.id !== entry.id)
+  .slice(0, 3);
+
+const article = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description: excerpt,
+  datePublished: date.toISOString(),
+  dateModified: date.toISOString(),
+  inLanguage: 'es-CO',
+  articleSection: category,
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': new URL(`/newsroom/${entry.id}`, site.url).href,
+  },
+  author: { '@type': 'Organization', name: site.name, url: site.url },
+  publisher: {
+    '@type': 'Organization',
+    name: site.name,
+    logo: { '@type': 'ImageObject', url: new URL('/icon-512.png', site.url).href },
+  },
+};
+---
+
+<Base title={title} description={excerpt} ogType="article" jsonLd={[article]}>
+  <article class="article">
+    <header class="section article__head" data-surface="dark">
+      <div class="container">
+        <p class="t-eyebrow article__meta">
+          <span class="article__dot" aria-hidden="true"></span>
+          {category}
+          <span aria-hidden="true"> · </span>
+          <time datetime={isoDate(date)}>{formatDate(date)}</time>
+        </p>
+
+        <h1 class="t-h1 article__title">{title}</h1>
+        <p class="t-lead article__excerpt">{excerpt}</p>
+      </div>
+    </header>
+
+    {
+      image && (
+        <div class="container article__media">
+          <Picture
+            src={image}
+            formats={['avif', 'webp']}
+            widths={[640, 960, 1280, 1600]}
+            sizes="(min-width: 64rem) 70vw, 92vw"
+            alt={imageAlt ?? ''}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="article__img"
+          />
+        </div>
+      )
+    }
+
+    <div class="section section--tight">
+      <div class="container">
+        <div class="prose article__body">
+          <Content />
+        </div>
+      </div>
+    </div>
+  </article>
+
+  {
+    more.length > 0 && (
+      <section class="section" data-surface="frost" aria-labelledby="more">
+        <div class="container">
+          <div class="more__head">
+            <h2 class="t-h3" id="more">Seguir leyendo</h2>
+            <a class="link-arrow" href="/newsroom">
+              Ver todo
+              <Arrow />
+            </a>
+          </div>
+          <ul class="more__list" role="list">
+            {more.map((e, i) => (
+              <ArticleCard entry={e} tone={TONES[i % TONES.length]} delay={i * 100} />
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .article__head {
+    padding-top: calc(var(--header-h) + var(--space-xl));
+  }
+
+  .article__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4ch;
+  }
+
+  .article__dot {
+    width: 6px;
+    height: 6px;
+    margin-right: 0.4ch;
+    background: var(--signal);
+    border-radius: 50%;
+    flex: none;
+  }
+
+  .article__title {
+    margin-top: var(--space-s);
+    max-width: 22ch;
+  }
+
+  .article__excerpt {
+    margin-top: var(--space-m);
+    max-width: var(--measure);
+  }
+
+  .article__media {
+    margin-top: var(--space-xl);
+  }
+
+  .article__img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-img);
+  }
+
+  /* El cuerpo del artículo hereda .prose: medida 62ch, line-height 1.6. */
+  .article__body :global(h2) {
+    margin-top: 2em;
+    font-size: var(--text-h3);
+    line-height: var(--lh-h3);
+    letter-spacing: var(--ls-heading);
+    color: var(--text);
+  }
+
+  .article__body :global(h3) {
+    margin-top: 1.8em;
+    font-size: var(--text-lead);
+    line-height: var(--lh-lead);
+    color: var(--text);
+  }
+
+  .more__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-xs);
+  }
+
+  .more__list {
+    display: grid;
+    gap: var(--gutter);
+    margin: var(--space-m) 0 0;
+    padding: 0;
+    /* Ver ArticleCard: la muesca se pinta con el fondo de la sección. */
+    --notch: var(--surface);
+  }
+
+  @media (min-width: 48rem) {
+    .more__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

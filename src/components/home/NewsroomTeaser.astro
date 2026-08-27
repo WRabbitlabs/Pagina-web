@@ -1,0 +1,78 @@
+---
+import { getCollection } from 'astro:content';
+import Arrow from '../Arrow.astro';
+import FeaturedArticle from '../FeaturedArticle.astro';
+import ArticleCard from '../ArticleCard.astro';
+import { splitFeatured } from '../../lib/newsroom';
+import { newsroom } from '../../data/home';
+
+/*
+ * Un destacado con extracto + 3 tarjetas sin extracto.
+ * La asimetría es intencional: marca cuál es la pieza que importa hoy.
+ */
+const { featured, rest } = splitFeatured(await getCollection('newsroom'), 3);
+
+/** Claro, medio, tinta. La fila se lee como un conjunto, no como tres copias. */
+const TONES = ['paper', 'moss', 'ink'] as const;
+---
+
+<section class="section news" data-surface="frost" aria-labelledby="news-title">
+  <div class="container">
+    <div class="news__head">
+      <h2 class="t-h3" id="news-title">{newsroom.eyebrow}</h2>
+      <a class="link-arrow" href={newsroom.cta.href}>
+        {newsroom.cta.label}
+        <Arrow />
+      </a>
+    </div>
+
+    {featured && <FeaturedArticle entry={featured} />}
+
+    {
+      rest.length > 0 && (
+        <ul class="news__cards" role="list">
+          {rest.map((entry, i) => (
+            <ArticleCard entry={entry} tone={TONES[i] ?? 'paper'} delay={i * 100} />
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .news {
+    border-radius: var(--radius-block);
+    /*
+     * El color con el que las tarjetas muerden su esquina. Se declara aquí y
+     * no dentro de la tarjeta porque cada tarjeta redefine --surface con su
+     * propio tono: preguntarle a la tarjeta por el fondo de la sección
+     * devolvería el suyo.
+     */
+    --notch: var(--surface);
+  }
+
+  .news__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    padding-bottom: var(--space-s);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: var(--space-m);
+  }
+
+  .news__cards {
+    display: grid;
+    gap: var(--gutter);
+    margin: var(--gutter) 0 0;
+    padding: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .news__cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

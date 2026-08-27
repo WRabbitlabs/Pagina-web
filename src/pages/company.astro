@@ -1,0 +1,229 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Cta from '../components/Cta.astro';
+import Trazado from '../components/Trazado.astro';
+import PillarIcon from '../components/icons/PillarIcon.astro';
+import { site } from '../data/site';
+import { platform, company, closing } from '../data/home';
+
+const team = (await getCollection('team')).sort((a, b) => a.data.order - b.data.order);
+const founders = team.filter((m) => m.data.founder);
+const rest = team.filter((m) => !m.data.founder);
+
+const title = 'La compañía';
+const description =
+  'Quiénes somos, cómo trabajamos y por qué construimos automatización que deja evidencia. Equipo, fundadores y marco técnico de WRabbit AI.';
+---
+
+<Base title={title} description={description}>
+  <section class="section page-head" data-surface="dark">
+    <div class="container">
+      <p class="t-eyebrow">{title}</p>
+      <h1 class="t-h1 page-head__title" data-text-reveal>{company.heading}</h1>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="historia">
+    <div class="container split">
+      <div><h2 class="t-eyebrow" id="historia">Historia</h2></div>
+      <div class="prose">
+        {company.paragraphs.map((p) => <p set:html={p} />)}
+        <p>
+          Operamos desde {site.city}. Trabajamos por contrato directo y a través de
+          convenios marco, y publicamos nuestro método en el
+          <a href="/newsroom">newsroom</a> para que pueda revisarse antes de contratarnos.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="plataforma" aria-labelledby="plataforma-title" data-surface="dark">
+    <div class="container">
+      <div class="split">
+        <div><h2 class="t-eyebrow" id="plataforma-title">{platform.eyebrow}</h2></div>
+        <div data-reveal>
+          <p class="t-h2 lede" data-text-reveal>{platform.heading}</p>
+          <p class="prose lede__body">{platform.body}</p>
+        </div>
+      </div>
+
+      {/*
+        El Trazado — el signature del sitio. Aquí, y no de fondo tras el hero:
+        ilustra exactamente la secuencia que describe el texto de arriba
+        (entrada, transformación, validación, salida). Decorativo, porque los
+        tres pilares de debajo dicen lo mismo en texto.
+      */}
+      <div class="plataforma__diagrama" data-reveal>
+        <Trazado inline />
+      </div>
+
+      <ol class="pillars" role="list">
+        {
+          platform.pillars.map((p, i) => (
+            <li class="pillar" data-reveal style={`--reveal-delay:${i * 100}ms`}>
+              <p class="t-eyebrow pillar__n">{p.n}.</p>
+              <p class="pillar__icon">
+                <PillarIcon name={p.icon} />
+              </p>
+              <h3 class="t-h3 pillar__title">{p.title}</h3>
+              <p class="t-body pillar__body">{p.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="equipo">
+    <div class="container">
+      <div class="split">
+        <div><h2 class="t-eyebrow" id="equipo">Equipo</h2></div>
+        <div>
+          <p class="t-h2 lede">
+            Ingeniería y criterio jurídico en la misma mesa, desde el primer día.
+          </p>
+        </div>
+      </div>
+
+      <h3 class="t-eyebrow group-title">Fundadores</h3>
+      <ul class="people" role="list">
+        {
+          founders.map((m, i) => (
+            <li class="person" data-reveal style={`--reveal-delay:${i * 100}ms`}>
+              <h4 class="t-h3">{m.data.name}</h4>
+              <p class="t-eyebrow person__role">{m.data.role}</p>
+              {m.data.links.map((l) => (
+                <a
+                  class="link-arrow external person__link"
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {l.label}
+                  <span class="sr-only"> de {m.data.name} (se abre en una pestaña nueva)</span>
+                </a>
+              ))}
+            </li>
+          ))
+        }
+      </ul>
+
+      {
+        rest.length > 0 && (
+          <>
+            <h3 class="t-eyebrow group-title">Dirección</h3>
+            <ul class="people" role="list">
+              {rest.map((m, i) => (
+                <li class="person" data-reveal style={`--reveal-delay:${i * 100}ms`}>
+                  <h4 class="t-h3">{m.data.name}</h4>
+                  <p class="t-eyebrow person__role">{m.data.role}</p>
+                </li>
+              ))}
+            </ul>
+          </>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="section closing" data-surface="dark">
+    <div class="container closing__inner" data-reveal>
+      <p class="t-h2 closing__title" data-text-reveal>{closing.heading}</p>
+      <p><Cta label={closing.cta.label} href={closing.cta.href} /></p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-top: calc(var(--header-h) + var(--space-2xl));
+  }
+
+  .page-head__title {
+    margin-top: var(--space-s);
+    max-width: 20ch;
+  }
+
+  .lede {
+    max-width: 20ch;
+  }
+
+  .lede__body {
+    margin-top: var(--space-m);
+  }
+
+  .plataforma__diagrama {
+    margin: var(--space-xl) auto 0;
+    /* Medida propia: a ancho completo los nodos quedan demasiado separados
+       para leerse como una secuencia. */
+    max-width: 68rem;
+  }
+
+  .pillars {
+    display: grid;
+    gap: var(--space-l) var(--gutter);
+    margin: var(--space-xl) 0 0;
+    padding: var(--space-l) 0 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  @media (min-width: 48rem) {
+    .pillars {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .pillar__n {
+    font-variant-numeric: tabular-nums;
+  }
+  .pillar__icon {
+    margin-top: var(--space-m);
+  }
+  .pillar__title {
+    margin-top: var(--space-s);
+  }
+  .pillar__body {
+    margin-top: var(--space-2xs);
+    max-width: 32ch;
+    color: var(--text-muted);
+  }
+
+  .group-title {
+    margin-top: var(--space-xl);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .people {
+    display: grid;
+    gap: var(--space-l) var(--gutter);
+    margin: var(--space-l) 0 0;
+    padding: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .people {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .person__role {
+    margin-top: var(--space-3xs);
+  }
+
+  .person__link {
+    margin-top: var(--space-2xs);
+  }
+
+  .closing__inner {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: var(--space-l);
+  }
+
+  .closing__title {
+    max-width: 24ch;
+  }
+</style>

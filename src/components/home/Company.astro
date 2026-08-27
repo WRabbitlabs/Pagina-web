@@ -1,0 +1,210 @@
+---
+import { Picture } from 'astro:assets';
+import Cta from '../Cta.astro';
+import { company } from '../../data/home';
+import companyImage from '../../assets/company.png';
+
+/**
+ * Compañía: imagen a la izquierda, discurso a la derecha.
+ *
+ * La imagen era antes una banda a sangre de ancho completo. A ese tamaño
+ * dejaba de ser un apoyo y pasaba a ser la sección entera: un bastidor de
+ * servidores ocupando la pantalla no dice nada de la compañía y empuja el
+ * texto fuera de vista. Aquí es una tarjeta que comparte fila con lo que
+ * tiene que leerse.
+ */
+---
+
+<section class="section section--tight company" aria-labelledby="company-title">
+  <div class="container company__grid">
+    {/*
+      widths tope en 1024: es el ancho real de la fuente accesible en
+      rawpixel. Pedir más sólo genera ampliaciones borrosas y bytes de más.
+    */}
+    <figure class="company__figure" data-parallax>
+      <Picture
+        src={companyImage}
+        formats={['avif', 'webp']}
+        widths={[480, 720, 1024]}
+        sizes="(min-width: 64rem) 44vw, 92vw"
+        alt={company.image.alt}
+        loading="lazy"
+        decoding="async"
+        class="company__img"
+      />
+    </figure>
+
+    <div class="company__side">
+      <h2 class="t-eyebrow" id="company-title">{company.eyebrow}</h2>
+
+      {/*
+        t-statement y no t-h2. A 76px el titular se come cuatro líneas y
+        empuja el cuerpo fuera de la ventana; la sección tiene que leerse
+        entera de una vez. Es un escalón de la misma escala, no un valor
+        suelto.
+      */}
+      <p class="t-statement company__heading" data-text-reveal>{company.heading}</p>
+
+      {/*
+        Dos columnas por flujo, no por reparto a mano: con `columns` el texto
+        baja por la primera y sigue por la segunda en orden de lectura, y el
+        navegador equilibra las alturas. Repartir los párrafos a dedo deja una
+        columna al doble que la otra en cuanto se edite el copy.
+      */}
+      <div class="prose company__cols" data-reveal>
+        {company.paragraphs.map((p) => <p set:html={p} />)}
+      </div>
+
+      <p class="company__cta" data-reveal>
+        <Cta label={company.cta.label} href={company.cta.href} />
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+   * Aire propio, por debajo del de `.section--tight`. Esta sección tiene que
+   * caber entera en una ventana de 800px de alto y el acolchado por defecto
+   * se lleva 186 de esos 800.
+   */
+  .company {
+    padding-block: var(--space-l);
+  }
+
+  .company__grid {
+    display: grid;
+    gap: var(--space-l) var(--gutter);
+  }
+
+  .company__figure {
+    margin: 0;
+    border-radius: var(--radius-img);
+    overflow: clip;
+    /* Proporción propia, más cerrada que el 16:9 del original: la ventana
+       recorta y la imagen, más alta, se desplaza dentro. */
+    aspect-ratio: 5 / 4;
+  }
+
+  /*
+   * <Picture> envuelve el <img> en un <picture>, que por defecto es inline y
+   * de alto automático. Sin darle alto definida aquí, el 112% del <img> no
+   * tiene contra qué resolverse y la imagen se queda a su alto intrínseco:
+   * la tarjeta aparece con un hueco vacío debajo de la foto.
+   */
+  .company__figure > :global(picture) {
+    display: block;
+    height: 100%;
+  }
+
+  .company__img {
+    width: 100%;
+    height: 112%;
+    object-fit: cover;
+    will-change: transform;
+  }
+
+  @media (min-width: 64rem) {
+    .company__grid {
+      /* La imagen algo por debajo de la mitad: el peso cae en el texto. */
+      grid-template-columns: minmax(0, 0.88fr) minmax(0, 1fr);
+      /* stretch, no start: la tarjeta iguala el alto de la columna de texto y
+         las dos mitades leen como una sola fila. Con `start` la imagen se
+         queda corta y la fila se ve descuadrada. */
+      align-items: stretch;
+      gap: var(--space-xl);
+    }
+
+    .company__figure {
+      /* La proporción la marca ahora la fila; el mínimo evita que un copy muy
+         corto deje la imagen como una franja. */
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 26rem;
+    }
+  }
+
+  .company__heading {
+    margin-top: var(--space-2xs);
+    /* 24ch a este cuerpo son tres líneas en la columna de texto. Con 20ch
+       salían cuatro y la sección dejaba de caber en una pantalla. */
+    max-width: 24ch;
+  }
+
+  .company__cols {
+    margin-top: var(--space-s);
+  }
+
+  @media (min-width: 48rem) {
+    .company__cols {
+      columns: 2;
+      column-gap: var(--gutter);
+    }
+
+    /* Un párrafo partido entre dos columnas se lee fatal a este cuerpo. */
+    .company__cols :global(p) {
+      break-inside: avoid;
+    }
+  }
+
+  .company__cta {
+    margin-top: var(--space-s);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .company__img {
+      transform: none !important;
+      will-change: auto;
+      height: 100%;
+    }
+  }
+</style>
+
+<script>
+  /*
+   * Parallax de la imagen. 8% de recorrido: dentro de una tarjeta, más que
+   * eso se nota como un fallo de encuadre. Solo transform, y solo si hay
+   * movimiento permitido.
+   */
+  const figure = document.querySelector<HTMLElement>('[data-parallax]');
+  const img = figure?.querySelector<HTMLElement>('img');
+
+  if (figure && img && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let raf = 0;
+    let last = -1;
+
+    const render = () => {
+      raf = 0;
+      const rect = figure.getBoundingClientRect();
+      /* 0 cuando el borde superior toca el fondo del viewport;
+         1 cuando el inferior sale por arriba. */
+      const span = innerHeight + rect.height;
+      const p = Math.min(1, Math.max(0, (innerHeight - rect.top) / span));
+
+      const y = Math.round(-8 * p * 1000) / 1000;
+      if (y === last) return;
+      last = y;
+      img.style.transform = `translate3d(0,${y}%,0)`;
+    };
+
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(render);
+    };
+
+    /* Solo escucha mientras la figura está en pantalla. */
+    new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          addEventListener('scroll', onScroll, { passive: true });
+          render();
+        } else {
+          removeEventListener('scroll', onScroll);
+        }
+      },
+      { rootMargin: '15% 0px' },
+    ).observe(figure);
+
+    addEventListener('resize', onScroll, { passive: true });
+    render();
+  }
+</script>

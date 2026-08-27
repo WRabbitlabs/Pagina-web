@@ -1,0 +1,82 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import FeaturedArticle from '../../components/FeaturedArticle.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { splitFeatured, byDateDesc, published } from '../../lib/newsroom';
+
+const all = byDateDesc(published(await getCollection('newsroom')));
+const { featured } = splitFeatured(all, 0);
+const rest = all.filter((e) => e.id !== featured?.id);
+
+/** Claro, medio, tinta, y vuelta a empezar. */
+const TONES = ['paper', 'moss', 'ink'] as const;
+
+const title = 'Newsroom';
+const description =
+  'Publicaciones, anuncios y prensa de WRabbit AI. Método, resultados y marco técnico de nuestra automatización auditable.';
+---
+
+<Base title={title} description={description}>
+  <section class="section page-head" data-surface="dark">
+    <div class="container">
+      <p class="t-eyebrow">{title}</p>
+      <h1 class="t-h1 page-head__title" data-text-reveal>
+        Publicamos el método antes de que nos lo pidan.
+      </h1>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Artículos">
+    <div class="container">
+      {featured && <FeaturedArticle entry={featured} as="h2" />}
+
+      {
+        rest.length > 0 ? (
+          <ul class="cards" role="list">
+            {rest.map((entry, i) => (
+              <ArticleCard
+                entry={entry}
+                tone={TONES[i % TONES.length]}
+                delay={Math.min(i, 3) * 100}
+              />
+            ))}
+          </ul>
+        ) : (
+          !featured && <p class="t-body empty">Todavía no hay publicaciones.</p>
+        )
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-top: calc(var(--header-h) + var(--space-2xl));
+  }
+
+  .page-head__title {
+    margin-top: var(--space-s);
+    max-width: 18ch;
+  }
+
+  .cards {
+    display: grid;
+    gap: var(--gutter);
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    /* El color con el que las tarjetas muerden su esquina: el de esta página,
+       no el de la tarjeta, que redefine --surface con su tono. */
+    --notch: var(--surface);
+  }
+
+  @media (min-width: 48rem) {
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .empty {
+    color: var(--text-muted);
+  }
+</style>

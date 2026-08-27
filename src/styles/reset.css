@@ -1,0 +1,151 @@
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Suavizado nativo de anclas. Es el estado por defecto y el único en
+       móvil, donde el scroll con inercia no se carga. */
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + var(--space-xs));
+  }
+
+  /*
+   * Con el scroll de inercia montado (clase que pone la librería) el suavizado
+   * nativo tiene que apagarse: son dos animaciones peleando por la misma
+   * posición y el resultado es un scroll pastoso. `height: auto` evita que un
+   * `100%` heredado le corte el recorrido.
+   */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  html.lenis {
+    scroll-behavior: auto;
+  }
+
+  /*
+   * Garantía dura de "cero scroll horizontal a ningún ancho".
+   * `clip` en vez de `hidden` para no romper position:sticky en los hijos.
+   */
+  html,
+  body {
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
+  body {
+    min-height: 100svh;
+    line-height: var(--lh-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  img,
+  video {
+    height: auto;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    overflow-wrap: break-word;
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: var(--weight);
+    text-wrap: balance;
+  }
+
+  ul[role='list'],
+  ol[role='list'] {
+    list-style: none;
+    padding: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  /* Foco propio, nunca el del navegador, nunca ausente. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  ::selection {
+    background: var(--signal);
+    color: var(--ink);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  /*
+   * prefers-reduced-motion no es opcional (DESIGN.md §7).
+   * Se neutraliza todo aquí y, además, el JS de motion ni se descarga.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

@@ -1,0 +1,116 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+
+/**
+ * ⚠ BORRADOR. Pendiente de revisión y aprobación jurídica del cliente.
+ */
+const updated = '2026-08-26';
+
+const title = 'Términos de uso';
+const description =
+  'Términos de uso del sitio institucional de WRabbit AI: alcance, propiedad intelectual, enlaces externos y ley aplicable.';
+---
+
+<Base title={title} description={description}>
+  <section class="section page-head" data-surface="dark">
+    <div class="container">
+      <p class="t-eyebrow">Legal</p>
+      <h1 class="t-h1 page-head__title">{title}</h1>
+      <p class="t-eyebrow page-head__date">
+        Última actualización: <time datetime={updated}>26 de agosto de 2026</time>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="notice t-small" role="note">
+        <strong>Borrador pendiente de revisión jurídica.</strong> Debe ser revisado y
+        aprobado por el área jurídica de {site.legalName} antes de publicarse.
+      </div>
+
+      <div class="prose legal">
+        <h2>1. Objeto</h2>
+        <p>
+          Estos términos regulan el acceso y uso del sitio web de {site.legalName}. El
+          acceso al sitio implica la aceptación de estos términos.
+        </p>
+
+        <h2>2. Naturaleza del contenido</h2>
+        <p>
+          El contenido de este sitio tiene carácter informativo. No constituye asesoría
+          jurídica, técnica ni comercial, ni una oferta vinculante. Cualquier relación
+          contractual se rige exclusivamente por el contrato que las partes suscriban.
+        </p>
+
+        <h2>3. Propiedad intelectual</h2>
+        <p>
+          Los textos, marcas, logotipos, diagramas y demás elementos del sitio son
+          propiedad de {site.legalName} o se usan bajo licencia. Las tipografías
+          empleadas se distribuyen bajo sus propias licencias, disponibles junto a los
+          archivos de fuente.
+        </p>
+
+        <h2>4. Enlaces externos</h2>
+        <p>
+          El sitio enlaza contenido alojado por terceros. {site.legalName} no controla
+          ese contenido ni responde por él. Los enlaces externos se señalan visualmente
+          y se abren en una pestaña nueva.
+        </p>
+
+        <h2>5. Disponibilidad</h2>
+        <p>
+          Procuramos que el sitio esté disponible de forma continua, pero no garantizamos
+          ausencia de interrupciones. Podemos modificar o retirar contenido en cualquier
+          momento.
+        </p>
+
+        <h2>6. Datos personales</h2>
+        <p>
+          El tratamiento de datos personales se rige por la
+          <a href="/privacidad">Política de Tratamiento de Datos Personales</a>.
+        </p>
+
+        <h2>7. Ley aplicable</h2>
+        <p>
+          Estos términos se rigen por la ley colombiana. Cualquier controversia se
+          someterá a los jueces de la República de Colombia.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-top: calc(var(--header-h) + var(--space-2xl));
+  }
+
+  .page-head__title {
+    margin-top: var(--space-s);
+    max-width: 22ch;
+  }
+
+  .page-head__date {
+    margin-top: var(--space-m);
+  }
+
+  .notice {
+    max-width: var(--measure);
+    margin-bottom: var(--space-l);
+    padding: var(--space-xs);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-btn);
+    background: var(--tissue);
+    color: var(--ink);
+  }
+
+  .legal h2 {
+    margin-top: 2.2em;
+    font-size: var(--text-h3);
+    line-height: var(--lh-h3);
+    letter-spacing: var(--ls-heading);
+    color: var(--text);
+  }
+</style>

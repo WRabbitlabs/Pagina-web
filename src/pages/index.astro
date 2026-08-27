@@ -1,0 +1,64 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/home/Hero.astro';
+import Stage from '../components/home/Stage.astro';
+import Statements from '../components/home/Statements.astro';
+import Platform from '../components/home/Platform.astro';
+import Marquee from '../components/home/Marquee.astro';
+import Company from '../components/home/Company.astro';
+import NewsroomTeaser from '../components/home/NewsroomTeaser.astro';
+import { site, social } from '../data/site';
+import { hero } from '../data/home';
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  legalName: site.legalName,
+  url: site.url,
+  logo: new URL('/icon-512.png', site.url).href,
+  description: site.description,
+  email: site.email,
+  telephone: site.phone,
+  foundingDate: site.founded,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.address.street,
+    addressLocality: site.address.city,
+    addressRegion: site.address.region,
+    addressCountry: site.address.country,
+  },
+  sameAs: social.map((s) => s.href),
+};
+
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: site.name,
+  url: site.url,
+  inLanguage: 'es-CO',
+  publisher: { '@type': 'Organization', name: site.name },
+};
+---
+
+<Base
+  title={`${site.name} — ${hero.headlineFlat}`}
+  description={site.description}
+  isHome
+  jsonLd={[organization, website]}
+>
+  <!--
+    Hero y declaraciones comparten un único fondo de vídeo fijado. El marco se
+    abre al cargar y se suelta a sangre completa al bajar. Ver Stage.astro.
+  -->
+  <Stage>
+    <Hero />
+    <Statements />
+  </Stage>
+
+  <Platform />
+  <Marquee />
+  <Company />
+  <NewsroomTeaser />
+</Base>
+

@@ -1,0 +1,251 @@
+---
+import Campo from './Campo.astro';
+import { hero } from '../../data/home';
+
+/**
+ * Escenario: el fondo que comparten el hero y las declaraciones.
+ *
+ * Un único elemento de vídeo, fijado con `position: sticky`, para los dos
+ * bloques. Duplicarlo costaría dos decodificaciones simultáneas durante la
+ * transición.
+ *
+ * El marco se dibuja con `clip-path`, gobernado por dos variables que no se
+ * pisan:
+ *
+ *   --open   la apertura al cargar (34% → 0%), animación CSS, una sola vez.
+ *   --bleed  el paso a sangre completa (0 → 1), lo escribe el scroll.
+ *
+ * Recortar en vez de escalar deja intactos el radio y la relación de aspecto
+ * del vídeo.
+ */
+
+const { media } = hero;
+const hasVideo = Boolean(media.video);
+---
+
+<div class="stage" data-stage>
+  <div class="stage__bg" aria-hidden="true">
+    <div class="stage__pin">
+      <div class="stage__frame" data-stage-frame>
+      {
+        hasVideo ? (
+          <video
+            class="stage__video"
+            data-video
+            muted
+            loop
+            playsinline
+            preload="none"
+            poster={media.poster ?? undefined}
+            tabindex="-1"
+          >
+            {media.webm && <source src={media.webm} type="video/webm" />}
+            <source src={media.video!} type="video/mp4" />
+          </video>
+        ) : (
+          <Campo inFrame />
+        )
+      }
+      </div>
+    </div>
+  </div>
+
+  <slot />
+</div>
+
+<style>
+  /*
+   * Dos capas, y la separación importa.
+   *
+   * `.stage__pin` es el hueso: solo un viewport de alto, fijado arriba. Es el
+   * lienzo blanco sobre el que se abre el marco.
+   * `.stage__frame` es la tinta con el vídeo: se encoge dentro del hueso
+   * mientras dura el hero y se suelta a sangre al bajar.
+   *
+   * El hueso NO puede cubrir todo el escenario. Cuando lo hacía, quedaba una
+   * capa `#f7f7f5` superpuesta al texto blanco de las declaraciones, y eso no
+   * era un tecnicismo de la herramienta: si la capa de tinta no llegara a
+   * pintarse, el texto sería blanco sobre hueso. Limitando el hueso a un
+   * viewport, lo que hay detrás de las declaraciones es siempre `.stage`.
+   */
+  .stage {
+    position: relative;
+    background: var(--ink);
+  }
+
+  .stage__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .stage__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    /* El lienzo de página que se ve alrededor del marco del hero. */
+    background: var(--bone);
+  }
+
+  .stage__frame {
+    position: absolute;
+    /* El margen y el radio del marco, gobernados por el scroll. */
+    inset: calc((1 - var(--bleed, 0)) * var(--pad-frame));
+    border-radius: calc((1 - var(--bleed, 0)) * var(--r-frame));
+    /* clip, no hidden: hidden rompe position:sticky en los hijos. */
+    overflow: clip;
+    background: var(--ink);
+  }
+
+  /*
+   * Se registra --open como porcentaje para que el navegador pueda
+   * interpolarlo. Sin @property la propiedad no existe, `clip-path` queda
+   * inválida y el marco aparece completo desde el principio — degradación
+   * correcta: se pierde la apertura, no el contenido.
+   */
+  @property --open {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 34%;
+  }
+
+  /*
+   * El radio del recorte tiene que seguir a --bleed igual que el de
+   * `border-radius`. Si se deja fijo en --r-frame, la apertura termina pero el
+   * recorte sigue redondeando: al pasar a sangre completa el marco cubre toda
+   * la pantalla salvo cuatro esquinas, por las que se ve el hueso de debajo.
+   */
+  html.js .stage__frame {
+    clip-path: inset(var(--open) round calc((1 - var(--bleed, 0)) * var(--r-frame)));
+    animation: stage-open 900ms var(--ease-out) 100ms forwards;
+  }
+
+  @keyframes stage-open {
+    to {
+      --open: 0%;
+    }
+  }
+
+  .stage__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /*
+     * Sin opacidad y sin velo: el vídeo se ve tal cual es. Decisión del
+     * cliente, con una consecuencia que conviene dejar escrita: la
+     * legibilidad del texto blanco pasa a depender del contenido del vídeo y
+     * no del sistema. Si algún día se sustituye por uno más claro hay que
+     * volver a mirar el contraste a mano — ninguna herramienta automática
+     * sabe leer fotogramas.
+     */
+    transform: scale(1.06);
+    animation: stage-settle 1400ms var(--ease-out) 100ms forwards;
+  }
+
+  @keyframes stage-settle {
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .stage__frame {
+      clip-path: none;
+      animation: none;
+    }
+
+    .stage__video {
+      transform: none;
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const stage = document.querySelector<HTMLElement>('[data-stage]');
+  const frame = document.querySelector<HTMLElement>('[data-stage-frame]');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* ------------------------------------------------------------------ */
+  /* Paso a sangre completa                                              */
+  /* ------------------------------------------------------------------ */
+
+  if (stage && frame && !reduced.matches) {
+    let raf = 0;
+    let last = -1;
+
+    const apply = () => {
+      raf = 0;
+      /* El marco se suelta a lo largo del primer viewport, que es el hero. */
+      const t = Math.min(1, Math.max(0, scrollY / innerHeight));
+      const v = Math.round(t * 100) / 100;
+      if (v === last) return;
+      last = v;
+      frame.style.setProperty('--bleed', String(v));
+    };
+
+    addEventListener(
+      'scroll',
+      () => {
+        if (!raf) raf = requestAnimationFrame(apply);
+      },
+      { passive: true },
+    );
+
+    apply();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Reproducción                                                        */
+  /* ------------------------------------------------------------------ */
+
+  const video = document.querySelector<HTMLVideoElement>('[data-video]');
+
+  if (video) {
+    /*
+     * play() rechaza por dos motivos que no se tratan igual:
+     *
+     *   AbortError      — otra carga lo interrumpió. Transitorio: se reintenta.
+     *   NotAllowedError — la política del navegador lo bloquea de verdad.
+     *
+     * Tratar los dos como bloqueo definitivo deja el vídeo congelado en el
+     * póster sin motivo.
+     */
+    const tryPlay = () => {
+      video.play().catch((err: DOMException) => {
+        if (err.name !== 'NotAllowedError') return;
+        addEventListener('pointerdown', () => void video.play().catch(() => {}), {
+          once: true,
+        });
+      });
+    };
+
+    /*
+     * La descarga arranca cuando la página ya cargó del todo: con 2 MB
+     * compitiendo por el ancho de banda el LCP se degrada. Hasta entonces se
+     * ve el póster, que es exactamente el primer fotograma.
+     */
+    let started = false;
+    const start = () => {
+      started = true;
+      video.addEventListener('canplay', tryPlay, { once: true });
+      video.load();
+    };
+
+    if (document.readyState === 'complete') start();
+    else addEventListener('load', start, { once: true });
+
+    /* Un bucle reproduciéndose fuera de pantalla gasta batería para nada. */
+    new IntersectionObserver(
+      ([e]) => {
+        if (!started) return;
+        if (e.isIntersecting) tryPlay();
+        else video.pause();
+      },
+      { threshold: 0.01 },
+    ).observe(video);
+  }
+</script>

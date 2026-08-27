@@ -1,0 +1,215 @@
+---
+import Arrow from './Arrow.astro';
+
+interface Props {
+  label: string;
+  href: string;
+  /** ms antes de la entrada. Sin valor, entra sin animación de aparición. */
+  enter?: number | null;
+  class?: string;
+}
+const { label, href, enter = null, class: className } = Astro.props;
+
+/**
+ * La llamada a la acción del sitio: dos piezas cortadas por la misma diagonal
+ * con el hueco entre ellas. No es una píldora y un cuadro: es un rectángulo
+ * partido en sesgo, y por eso el hueco se lee como el trazo del corte.
+ *
+ * Vive aquí y no dentro del hero porque la usan el hero y la plataforma, y la
+ * geometría de los polígonos no puede estar escrita dos veces: si se toca el
+ * sesgo en un sitio y no en el otro, dejan de ser el mismo objeto.
+ */
+---
+
+<a class:list={['cta', className]} href={href} style={enter === null ? undefined : `--d:${enter}ms`}>
+  <span class="cta__label">
+    <span class="cta__text">{label}</span>
+  </span>
+  <span class="cta__mark" aria-hidden="true">
+    {/* Dos flechas en un carril: la de turno sale por la derecha y la
+        siguiente entra por la izquierda. Nunca hay hueco. */}
+    <span class="cta__track">
+      <span class="cta__slot"><Arrow /></span>
+      <span class="cta__slot"><Arrow /></span>
+    </span>
+  </span>
+</a>
+
+<style>
+  /*
+   * `border-radius` y `clip-path` se componen: lo visible es la intersección
+   * de las dos formas. De ahí que las esquinas de fuera queden redondeadas
+   * como el resto del sistema y sólo el lado del corte quede recto.
+   */
+  .cta {
+    /* Profundidad del sesgo, atada al radio del sistema. */
+    --cut: calc(var(--radius-btn) * 1.75);
+    display: inline-flex;
+    align-items: stretch;
+    gap: 0.375rem;
+  }
+
+  .cta__label {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    /* El lado del corte necesita el ancho del sesgo de más, o el texto lo
+       toca en uno de los dos estados. */
+    padding-inline: var(--space-xs) calc(var(--space-xs) + var(--cut));
+    background: var(--ink);
+    border-radius: var(--radius-btn);
+    clip-path: polygon(0 0, 100% 0, calc(100% - var(--cut)) 100%, 0 100%);
+    transition:
+      clip-path var(--dur-slow) var(--ease-out),
+      background-color var(--dur-mid) var(--ease-out);
+  }
+
+  .cta__text {
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-size: var(--text-eyebrow);
+    letter-spacing: var(--ls-mono);
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: color var(--dur-mid) var(--ease-out);
+  }
+
+  /* El relleno de acento: un cuadro táctil más el sesgo. */
+  .cta__mark {
+    display: inline-flex;
+    align-items: center;
+    width: calc(var(--tap) + var(--cut));
+    min-height: var(--tap);
+    background: var(--signal);
+    color: var(--ink);
+    border-radius: var(--radius-btn);
+    clip-path: polygon(var(--cut) 0, 100% 0, 100% 100%, 0 100%);
+    /* Recorta el relevo de flechas. */
+    overflow: clip;
+    transition:
+      clip-path var(--dur-slow) var(--ease-out),
+      background-color var(--dur-mid) var(--ease-out);
+  }
+
+  /*
+   * Carril de doble ancho. En reposo va corrido media longitud, así que la
+   * flecha visible es la segunda; al pasar el puntero vuelve a cero: la
+   * segunda sale por la derecha del todo y la primera se centra donde estaba.
+   *
+   * `flex: none` no es opcional: como hijo de un flex el carril se encogería
+   * al ancho del contenedor y el relevo se quedaría a medio camino.
+   */
+  .cta__track {
+    display: flex;
+    flex: none;
+    width: 200%;
+    transform: translateX(-50%);
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  .cta__slot {
+    flex: 0 0 50%;
+    display: grid;
+    place-items: center;
+    /* Compensa el sesgo: centra la flecha en la parte recta, no en la caja. */
+    padding-left: calc(var(--cut) / 2);
+  }
+
+  /*
+   * Al puntero: cambia el color y el corte gira al otro lado, en las dos
+   * piezas a la vez, mientras la flecha hace el relevo.
+   */
+  @media (hover: hover) {
+    .cta:hover .cta__label,
+    .cta:focus-visible .cta__label {
+      background: var(--paper);
+      clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% 100%, 0 100%);
+    }
+
+    .cta:hover .cta__text,
+    .cta:focus-visible .cta__text {
+      color: var(--ink);
+    }
+
+    /* Las dos piezas reaccionan, no sólo la del texto: la píldora se pone en
+       blanco y el cuadro de acento pasa del verde al cálido. */
+    .cta:hover .cta__mark,
+    .cta:focus-visible .cta__mark {
+      background: var(--ember);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, var(--cut) 100%);
+    }
+
+    .cta:hover .cta__track,
+    .cta:focus-visible .cta__track {
+      transform: translateX(0);
+    }
+  }
+
+  /* Un solo anillo de foco alrededor del conjunto, no uno por pieza. */
+  .cta:focus-visible {
+    outline: 2px solid var(--focus, var(--signal));
+    outline-offset: 3px;
+    border-radius: var(--radius-btn);
+  }
+
+  /*
+   * Entrada propia, sólo donde se pide un retardo. La píldora entra desde la
+   * izquierda y el cuadro de acento cae después: el botón se construye en dos
+   * tiempos en vez de aparecer entero.
+   *
+   * No puede usar `clip-path`: esa propiedad ya la ocupa el sesgo.
+   */
+  html.js .cta[style*='--d'] .cta__label {
+    opacity: 0;
+    animation: cta-label var(--dur-slow) var(--ease-out) calc(var(--d) + 120ms) forwards;
+  }
+
+  html.js .cta[style*='--d'] .cta__mark {
+    opacity: 0;
+    animation: cta-mark var(--dur-mid) var(--ease-spring) calc(var(--d) + 420ms) forwards;
+  }
+
+  @keyframes cta-label {
+    from {
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes cta-mark {
+    from {
+      opacity: 0;
+      transform: scale(0.55);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .cta[style*='--d'] .cta__label,
+    html.js .cta[style*='--d'] .cta__mark {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+
+    /* El sesgo se queda: es forma, no movimiento. Lo que se apaga es el giro. */
+    .cta__label,
+    .cta__text,
+    .cta__mark,
+    .cta__track {
+      transition: none;
+    }
+
+    /* Sin movimiento el relevo sobra: manda una flecha quieta. */
+    .cta__track {
+      transform: translateX(-50%);
+    }
+  }
+</style>

@@ -1,0 +1,425 @@
+---
+import Base from '../layouts/Base.astro';
+import Arrow from '../components/Arrow.astro';
+import { ORG_TYPES, HONEYPOT_FIELD } from '../lib/contact';
+import { site } from '../data/site';
+
+const title = 'Trabaja con nosotros';
+const description =
+  'Cuéntenos qué proceso quiere automatizar. Respondemos dentro de los dos días hábiles siguientes.';
+
+const fields = [
+  { name: 'nombre', label: 'Nombre completo', type: 'text', autocomplete: 'name', required: true },
+  { name: 'organizacion', label: 'Organización', type: 'text', autocomplete: 'organization', required: true },
+  { name: 'email', label: 'Correo', type: 'email', autocomplete: 'email', required: true },
+  { name: 'telefono', label: 'Teléfono (opcional)', type: 'tel', autocomplete: 'tel', required: false },
+] as const;
+---
+
+<Base title={title} description={description}>
+  <section class="section page-head" data-surface="dark">
+    <div class="container">
+      <p class="t-eyebrow">{title}</p>
+      <h1 class="t-h1 page-head__title" data-text-reveal>Cuéntenos qué proceso quiere automatizar.</h1>
+      <p class="t-lead page-head__sub">
+        Respondemos dentro de los dos días hábiles siguientes. Si prefiere escribir
+        directamente: <a class="mail" href={`mailto:${site.email}`}>{site.email}</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <form class="form" method="post" action="/api/contacto" novalidate data-form>
+        <!-- Trampa para bots. Fuera del flujo de tabulación y del lector. -->
+        <div class="hp" aria-hidden="true">
+          <label for={HONEYPOT_FIELD}>No rellenar</label>
+          <input
+            id={HONEYPOT_FIELD}
+            name={HONEYPOT_FIELD}
+            type="text"
+            tabindex="-1"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form__grid">
+          {
+            fields.map((f) => (
+              <p class="field">
+                <label class="t-eyebrow field__label" for={f.name}>
+                  {f.label}
+                  {f.required && <span aria-hidden="true"> *</span>}
+                </label>
+                <input
+                  class="field__input"
+                  id={f.name}
+                  name={f.name}
+                  type={f.type}
+                  autocomplete={f.autocomplete}
+                  required={f.required}
+                  aria-describedby={`${f.name}-error`}
+                />
+                <span class="field__error t-small" id={`${f.name}-error`} />
+              </p>
+            ))
+          }
+
+          <p class="field">
+            <label class="t-eyebrow field__label" for="tipo">
+              Tipo de organización<span aria-hidden="true"> *</span>
+            </label>
+            <select class="field__input" id="tipo" name="tipo" required aria-describedby="tipo-error">
+              <option value="">Seleccione una opción</option>
+              {ORG_TYPES.map((t) => <option value={t}>{t}</option>)}
+            </select>
+            <span class="field__error t-small" id="tipo-error"></span>
+          </p>
+        </div>
+
+        <p class="field field--wide">
+          <label class="t-eyebrow field__label" for="mensaje">
+            Mensaje<span aria-hidden="true"> *</span>
+          </label>
+          <textarea
+            class="field__input field__textarea"
+            id="mensaje"
+            name="mensaje"
+            rows="6"
+            required
+            aria-describedby="mensaje-hint mensaje-error"></textarea>
+          <span class="field__hint t-small" id="mensaje-hint">
+            Qué proceso, quién lo hace hoy y qué le gustaría que cambiara.
+          </span>
+          <span class="field__error t-small" id="mensaje-error"></span>
+        </p>
+
+        <!-- Ley 1581 de 2012. Sin esto, el formulario no envía. -->
+        <p class="consent">
+          <input
+            class="consent__box"
+            id="consentimiento"
+            name="consentimiento"
+            type="checkbox"
+            required
+            aria-describedby="consentimiento-error"
+          />
+          <label class="t-small consent__label" for="consentimiento">
+            Autorizo a {site.legalName} a tratar mis datos personales para responder
+            esta solicitud, conforme a la
+            <a href="/privacidad">Política de Tratamiento de Datos Personales</a> y a
+            la Ley 1581 de 2012.<span aria-hidden="true"> *</span>
+          </label>
+          <span class="field__error t-small" id="consentimiento-error"></span>
+        </p>
+
+        <div class="form__foot">
+          <button class="btn btn--primary form__submit" type="submit" data-submit>
+            <span data-submit-label>Enviar mensaje</span>
+            <Arrow />
+          </button>
+          <p class="t-small form__required">Los campos con * son obligatorios.</p>
+        </div>
+
+        <!--
+          Estado del envío. role=status para que el lector anuncie el
+          resultado sin robar el foco.
+        -->
+        <p class="form__status t-body" role="status" aria-live="polite" data-status></p>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-top: calc(var(--header-h) + var(--space-2xl));
+  }
+
+  .page-head__title {
+    margin-top: var(--space-s);
+    max-width: 20ch;
+  }
+
+  .page-head__sub {
+    margin-top: var(--space-m);
+    max-width: var(--measure);
+  }
+
+  .mail {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .form {
+    max-width: 46rem;
+  }
+
+  .form__grid {
+    display: grid;
+    gap: var(--space-m) var(--gutter);
+  }
+
+  @media (min-width: 48rem) {
+    .form__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .field {
+    display: grid;
+    gap: var(--space-3xs);
+    margin: 0;
+  }
+
+  .field--wide {
+    margin-top: var(--space-m);
+  }
+
+  .field__label {
+    color: var(--text);
+  }
+
+  .field__input {
+    width: 100%;
+    min-height: var(--tap);
+    padding: var(--space-2xs) var(--space-xs);
+    background: var(--paper);
+    color: var(--text);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-btn);
+    font-size: var(--text-body);
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .field__input:hover {
+    border-color: var(--text);
+  }
+
+  .field__textarea {
+    min-height: 10rem;
+    resize: vertical;
+    line-height: var(--lh-body);
+  }
+
+  .field__hint {
+    color: var(--text-muted);
+  }
+
+  .field__error {
+    display: none;
+    color: var(--error);
+  }
+
+  /* El error se marca con color y con texto, nunca solo con color. */
+  .field.has-error .field__input {
+    border-color: var(--error);
+    border-width: 2px;
+  }
+
+  .field.has-error .field__error {
+    display: block;
+  }
+
+  .consent {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: var(--space-2xs);
+    margin-top: var(--space-m);
+    max-width: var(--measure);
+  }
+
+  .consent__box {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    accent-color: var(--ink);
+    /* El área táctil real la da el label, que es mucho mayor. */
+    flex: none;
+  }
+
+  .consent__label {
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .consent__label a {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .consent .field__error {
+    grid-column: 1 / -1;
+  }
+
+  .consent.has-error .consent__box {
+    outline: 2px solid var(--error);
+    outline-offset: 2px;
+  }
+
+  .consent.has-error .field__error {
+    display: block;
+  }
+
+  .form__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-top: var(--space-l);
+  }
+
+  .form__submit[aria-disabled='true'] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .form__required {
+    color: var(--text-muted);
+  }
+
+  .form__status {
+    margin-top: var(--space-m);
+    padding: var(--space-xs);
+    border-radius: var(--radius-btn);
+    border: 1px solid transparent;
+  }
+
+  .form__status:empty {
+    display: none;
+  }
+
+  .form__status[data-state='ok'] {
+    border-color: var(--rule-strong);
+    background: var(--tissue);
+    color: var(--ink);
+  }
+
+  .form__status[data-state='error'] {
+    border-color: var(--error);
+    color: var(--error);
+  }
+
+  /* Honeypot: fuera de pantalla, nunca display:none (los bots lo detectan). */
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  import { normalize, validate, hasErrors, type FieldErrors } from '../lib/contact';
+
+  const form = document.querySelector<HTMLFormElement>('[data-form]');
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const label = form.querySelector<HTMLElement>('[data-submit-label]')!;
+    const idle = label.textContent ?? 'Enviar mensaje';
+
+    const wrapperOf = (name: string) =>
+      form.querySelector<HTMLElement>(`#${CSS.escape(name)}`)?.closest<HTMLElement>('.field, .consent');
+
+    const clearErrors = () => {
+      form.querySelectorAll('.has-error').forEach((el) => el.classList.remove('has-error'));
+      form.querySelectorAll<HTMLElement>('.field__error').forEach((el) => {
+        el.textContent = '';
+      });
+      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+    };
+
+    const showErrors = (errors: FieldErrors) => {
+      let first: HTMLElement | null = null;
+      for (const [name, message] of Object.entries(errors)) {
+        const wrapper = wrapperOf(name);
+        const control = form.querySelector<HTMLElement>(`#${CSS.escape(name)}`);
+        if (!wrapper || !message) continue;
+        wrapper.classList.add('has-error');
+        control?.setAttribute('aria-invalid', 'true');
+        const slot = wrapper.querySelector<HTMLElement>('.field__error');
+        if (slot) slot.textContent = message;
+        if (!first) first = control;
+      }
+      // El foco va al primer campo con problema, no al principio del form.
+      first?.focus();
+    };
+
+    const setStatus = (message: string, state: 'ok' | 'error' | '') => {
+      status.textContent = message;
+      if (state) status.dataset.state = state;
+      else delete status.dataset.state;
+    };
+
+    const setBusy = (busy: boolean) => {
+      submit.setAttribute('aria-disabled', String(busy));
+      label.textContent = busy ? 'Enviando…' : idle;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearErrors();
+      setStatus('', '');
+
+      const data = new FormData(form);
+
+      // Literalmente el mismo módulo que corre en el servidor.
+      const localErrors = validate(normalize(Object.fromEntries(data)));
+
+      if (hasErrors(localErrors)) {
+        showErrors(localErrors);
+        setStatus('Revise los campos marcados y vuelva a enviar.', 'error');
+        return;
+      }
+
+      setBusy(true);
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: data,
+          headers: { accept: 'application/json' },
+        });
+
+        const result = (await response.json()) as {
+          ok: boolean;
+          message: string;
+          errors?: FieldErrors;
+        };
+
+        if (result.ok) {
+          form.reset();
+          setStatus(result.message, 'ok');
+          status.focus?.();
+        } else {
+          if (result.errors) showErrors(result.errors);
+          setStatus(result.message, 'error');
+        }
+      } catch {
+        setStatus(
+          'No pudimos conectar con el servidor. Revise su conexión y vuelva a intentar, o escríbanos a contacto@wrabbit.ai.',
+          'error',
+        );
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    // Al corregir un campo, su error desaparece de inmediato.
+    form.addEventListener('input', (event) => {
+      const target = event.target as HTMLElement;
+      const wrapper = target.closest<HTMLElement>('.field, .consent');
+      if (!wrapper?.classList.contains('has-error')) return;
+      wrapper.classList.remove('has-error');
+      target.removeAttribute('aria-invalid');
+      const slot = wrapper.querySelector<HTMLElement>('.field__error');
+      if (slot) slot.textContent = '';
+    });
+  }
+</script>

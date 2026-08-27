@@ -1,0 +1,143 @@
+---
+import Cta from '../Cta.astro';
+import { hero } from '../../data/home';
+
+/**
+ * Hero: solo contenido. El fondo, el marco y su apertura los pone Stage,
+ * que es el mismo para el hero y para las declaraciones.
+ */
+
+/** Retardo base: el texto entra mientras el marco termina de abrirse. */
+const BASE = 700;
+const STEP = 110;
+const after = hero.headline.length * STEP;
+---
+
+<section class="hero" data-surface="dark" aria-labelledby="hero-title">
+  <div class="container hero__inner">
+    <h1 class="t-display hero__title" id="hero-title">
+      <span class="sr-only">{hero.headlineFlat}</span>
+      <span aria-hidden="true">
+        {
+          hero.headline.map((line, i) => (
+            <span class="line-mask" style={`--d:${BASE + i * STEP}ms`}>
+              <span>{line}</span>
+            </span>
+          ))
+        }
+      </span>
+    </h1>
+
+    <div class="hero__foot">
+      <p class="t-lead hero__sub" style={`--d:${BASE + after + 80}ms`}>
+        {hero.subtitle}
+      </p>
+
+      <p class="hero__actions" style={`--d:${BASE + after + 180}ms`}>
+        {/*
+          Un solo enlace: la píldora y el cuadro de acento son dos caras del
+          mismo destino, así que deben ser un único objetivo de foco y no dos
+          paradas de tabulador que van al mismo sitio.
+        */}
+        <Cta label={hero.cta.label} href={hero.cta.href} enter={BASE + after + 180} />
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    z-index: 1;
+    /* svh, no vh: la barra de URL de iOS rompe vh. */
+    min-height: 100svh;
+    display: grid;
+    color: var(--paper);
+    /* El marco del escenario se ve por debajo; el contenido respeta su borde. */
+    padding: var(--pad-frame);
+  }
+
+  .hero__inner {
+    display: grid;
+    align-content: space-between;
+    gap: var(--space-l);
+    padding-block: calc(var(--header-h) + var(--space-l)) var(--space-m);
+  }
+
+  .hero__title {
+    max-width: 16ch;
+  }
+
+  /*
+   * El titular entra al cargar, no al hacer scroll: está sobre la línea de
+   * flotación. base.css deja las líneas enmascaradas esperando un ancestro
+   * .is-revealed que aquí nunca llega, así que la animación la da este
+   * componente. Bajo `html.js` para que sin JS mande el fallback de base.css.
+   */
+  html.js .hero__title .line-mask > span {
+    transition: none;
+    animation: line-in var(--dur-slow) var(--ease-out) forwards;
+    animation-delay: var(--d);
+  }
+
+  @keyframes line-in {
+    from {
+      transform: translateY(110%);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  /* Pie: enunciado a la izquierda, acción a la derecha. */
+  .hero__foot {
+    display: grid;
+    gap: var(--space-m);
+    align-items: end;
+  }
+
+  @media (min-width: 48rem) {
+    .hero__foot {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-l);
+    }
+  }
+
+  .hero__sub {
+    max-width: 42ch;
+    color: color-mix(in srgb, var(--paper) 82%, var(--ink));
+  }
+
+  .hero__sub,
+  .hero__actions {
+    opacity: 0;
+    animation: rise var(--dur-slow) var(--ease-out) forwards;
+    animation-delay: var(--d);
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .hero__title .line-mask > span {
+      transform: none;
+      animation: none;
+    }
+
+    .hero__sub,
+    .hero__actions {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+
+  }
+</style>

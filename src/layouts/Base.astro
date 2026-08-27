@@ -1,0 +1,131 @@
+---
+import '../styles/tokens.css';
+import '../styles/reset.css';
+import '../styles/base.css';
+
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+
+interface Props {
+  /** Único por página. Se le añade el sufijo de marca salvo en la home. */
+  title: string;
+  description: string;
+  /** Ruta absoluta a la imagen OG. 1200×630. */
+  ogImage?: string;
+  /** OG type: `website` o `article`. */
+  ogType?: 'website' | 'article';
+  /** Marca la home para no repetir el nombre en el <title>. */
+  isHome?: boolean;
+  /** Bloques JSON-LD ya serializados. */
+  jsonLd?: Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  ogImage = '/og/default.png',
+  ogType = 'website',
+  isHome = false,
+  jsonLd = [],
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = isHome ? title : `${title} — ${site.name}`;
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site).href;
+const ogImageUrl = new URL(ogImage, Astro.site).href;
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Preload solo la display latin: es la que pinta el LCP. -->
+    <link
+      rel="preload"
+      href="/fonts/inter-tight-latin-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={site.locale} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={description} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#222f30" />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {
+      jsonLd.map((block) => (
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={JSON.stringify(block)}
+        />
+      ))
+    }
+
+    <!--
+      Marca que hay JS antes de pintar. El CSS usa `html:not(.js)` para que,
+      sin JS, nada quede invisible esperando un reveal que nunca llega.
+    -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Saltar al contenido</a>
+
+    <Header enterDelay={isHome ? 1000 : 220} />
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      import '../scripts/reveal';
+      import { textReveal } from '../scripts/text-reveal';
+      import { smoothScroll } from '../scripts/smooth-scroll';
+      textReveal();
+      smoothScroll();
+    </script>
+  </body>
+</html>
+
+<style>
+  main:focus {
+    outline: none;
+  }
+</style>

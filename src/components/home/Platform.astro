@@ -1,0 +1,208 @@
+---
+import Cta from '../Cta.astro';
+import PillarIcon from '../icons/PillarIcon.astro';
+import { platform } from '../../data/home';
+
+/**
+ * Las tres superficies del sistema, una por pilar: acento, tinta y escarcha.
+ * Van a sangre y sin separación entre ellas — el corte de color es el único
+ * divisor. Es el gesto cromático más fuerte de la página y el único sitio
+ * donde el acento ocupa una superficie grande.
+ */
+const SURFACES = ['signal', 'ink', 'frost'] as const;
+---
+
+<section class="section platform" aria-labelledby="platform-title">
+  <div class="container">
+    <div class="split platform__intro">
+      <div class="platform__col">
+        <h2 class="t-eyebrow platform__tag" id="platform-title">
+          <span class="platform__dot" aria-hidden="true"></span>
+          {platform.eyebrow}
+        </h2>
+      </div>
+
+      <div class="platform__col platform__lede">
+        {/*
+          El titular no lleva data-reveal de sección: se revela solo, palabra a
+          palabra, con las tapas de text-reveal. Envolverlo en otro reveal
+          duplicaría la animación.
+        */}
+        <p class="t-h2 platform__heading" data-text-reveal>
+          {platform.heading} <span class="platform__soft">{platform.headingTail}</span>
+        </p>
+        <p class="prose platform__body" data-reveal>{platform.body}</p>
+        <p class="platform__cta" data-reveal>
+          <Cta label={platform.cta.label} href={platform.cta.href} />
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <ol class="pillars full-bleed" role="list">
+    {
+      platform.pillars.map((p, i) => (
+        <li
+          class="pillar"
+          data-tone={SURFACES[i] ?? 'frost'}
+          data-reveal
+          style={`--reveal-delay:${i * 100}ms`}
+        >
+          <div class="pillar__head">
+            <span class="pillar__icon">
+              <PillarIcon name={p.icon} size={40} />
+            </span>
+            <span class="pillar__n t-eyebrow">{p.n}.</span>
+          </div>
+
+          <div class="pillar__foot">
+            <h3 class="t-h3 pillar__title">{p.title}</h3>
+            <p class="t-body pillar__body">{p.body}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .platform__intro {
+    margin-bottom: var(--space-xl);
+  }
+
+  /* Filete sobre cada columna: son dos, con el canalón de por medio, y es lo
+     que declara la retícula antes de que empiece el contenido. */
+  .platform__col {
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* La etiqueta es una pastilla, no texto suelto: le da el mismo peso de
+     objeto que tienen los widgets del header. */
+  .platform__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7ch;
+    padding: 0.4rem 0.7rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-btn);
+  }
+
+  .platform__dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    background: var(--signal);
+  }
+
+  .platform__heading {
+    max-width: 22ch;
+  }
+
+  /* El segundo tono. Sale de la tinta y de la superficie, así que sigue
+     siendo correcto si la sección cambia de fondo. */
+  .platform__soft {
+    color: color-mix(in srgb, var(--ink) 32%, var(--surface));
+  }
+
+  .platform__body {
+    margin-top: var(--space-m);
+  }
+
+  .platform__cta {
+    margin-top: var(--space-m);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Las tres superficies                                                */
+  /* ------------------------------------------------------------------ */
+
+  .pillars {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    /* Sin gap y sin radio: el cambio de color es el divisor. */
+    gap: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .pillars {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .pillar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-xl);
+    /* 40px de la referencia, con aire extra en pantallas grandes. */
+    padding: clamp(1.75rem, 1.2rem + 1.8vw, 2.5rem);
+    min-height: clamp(20rem, 16rem + 12vw, 26.25rem);
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  /*
+   * Cada tarjeta redefine los roles de color, así que el icono, el índice y
+   * el cuerpo se recolorean solos sin una sola regla por tono.
+   */
+  .pillar[data-tone='signal'] {
+    --surface: var(--signal);
+    --text: var(--ink);
+    --text-muted: color-mix(in srgb, var(--ink) 78%, var(--signal));
+  }
+
+  .pillar[data-tone='ink'] {
+    --surface: var(--ink);
+    --text: var(--paper);
+    --text-muted: color-mix(in srgb, var(--paper) 72%, var(--ink));
+  }
+
+  .pillar[data-tone='frost'] {
+    --surface: var(--frost);
+    --text: var(--ink);
+    --text-muted: var(--graphite);
+  }
+
+  .pillar__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-xs);
+  }
+
+  .pillar__icon {
+    display: block;
+    color: var(--text);
+    transition: transform var(--dur-mid) var(--ease-out);
+  }
+
+  .pillar__n {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pillar__body {
+    margin-top: var(--space-2xs);
+    max-width: 34ch;
+    color: var(--text-muted);
+  }
+
+  /* El icono avanza un paso de retícula. Nada más: el sistema es plano. */
+  @media (hover: hover) {
+    .pillar:hover .pillar__icon {
+      transform: translateX(4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pillar__icon {
+      transition: none;
+    }
+    .pillar:hover .pillar__icon {
+      transform: none;
+    }
+  }
+</style>

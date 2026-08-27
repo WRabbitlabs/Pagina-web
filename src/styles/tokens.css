@@ -1,0 +1,267 @@
+/**
+ * WRabbit AI — tokens del sistema de diseño.
+ *
+ * Fuente de verdad: DESIGN.md
+ * Ningún componente puede declarar un color, un tamaño de fuente, un
+ * espaciado, un radio ni una curva de easing que no esté aquí.
+ */
+
+@layer tokens {
+  /* ------------------------------------------------------------------ */
+  /* Fuentes                                                             */
+  /* ------------------------------------------------------------------ */
+
+  /*
+   * Display + texto. Un solo peso: 400.
+   * Para cambiar a Aspekta: sustituir los dos @font-face de abajo y las
+   * métricas de --font-display-fallback. Nada más del sistema depende de esto.
+   */
+  @font-face {
+    font-family: 'Inter Tight';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/inter-tight-latin-400.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+      U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: 'Inter Tight';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/inter-tight-latin-ext-400.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+      U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+      U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+      U+A720-A7FF;
+  }
+
+  /*
+   * Fallback con métricas ajustadas. Evita el CLS del swap: la fallback
+   * ocupa el mismo alto de línea y el mismo ancho medio que la real.
+   */
+  @font-face {
+    font-family: 'Display Fallback';
+    src: local('Arial'), local('Helvetica Neue'), local('Segoe UI');
+    size-adjust: 97%;
+    ascent-override: 96%;
+    descent-override: 24%;
+    line-gap-override: 0%;
+  }
+
+  /* Labels, contadores, fechas, texto de botón. */
+  @font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/roboto-mono-latin-400.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+      U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+      U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/roboto-mono-latin-ext-400.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+      U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+      U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+      U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: 'Mono Fallback';
+    src: local('Consolas'), local('Menlo'), local('DejaVu Sans Mono');
+    size-adjust: 101%;
+    ascent-override: 102%;
+    descent-override: 27%;
+    line-gap-override: 0%;
+  }
+
+  :root {
+    --font-display: 'Inter Tight', 'Display Fallback', system-ui, sans-serif;
+    --font-mono: 'Roboto Mono', 'Mono Fallback', ui-monospace, monospace;
+
+    /* Peso único. El sistema no admite otro. Ver DESIGN.md §2. */
+    --weight: 400;
+
+    /* ---------------------------------------------------------------- */
+    /* Color                                                             */
+    /* ---------------------------------------------------------------- */
+
+    /* Núcleo */
+    --ink: #222f30; /* tinta abisal — lienzo oscuro y texto sobre claro    */
+    --bone: #f7f7f5; /* lienzo claro                                       */
+    --paper: #ffffff; /* tarjetas sobre bone, texto sobre tinta            */
+    --graphite: #4d5757; /* texto secundario  = ink al 80% sobre bone      */
+    --signal: #cef79e; /* acento — SOLO micro-superficies de relleno       */
+    /*
+     * Acento cálido. Existe SOLO para el estado de puntero de la llamada a la
+     * acción: no aparece en reposo en ninguna parte del sitio. El tono sale de
+     * los cobres del propio vídeo del hero, así que no introduce un color
+     * ajeno. Sobre él, la flecha en tinta da 6.8:1.
+     */
+    --ember: #f3a469;
+
+    /* Derivados utilitarios */
+    --lichen: #c9cbbe; /* hairline 1px, decorativo. 1.53:1 — nunca texto   */
+    --tissue: #e7e8e1; /* tarjeta alterna cálida                          */
+    --frost: #eeeeee; /* banda del newsroom                               */
+    --void: #000000; /* solo footer                                       */
+
+    /*
+     * Estado de error. NO es un segundo acento: es color funcional, y el
+     * error nunca se comunica solo con color (texto + borde + aria-invalid).
+     * Óxido desaturado, dentro de la familia. 7.59:1 sobre bone.
+     */
+    --error: #8e2f22;
+
+    /*
+     * Roles semánticos. Los componentes usan ESTOS, no los de arriba,
+     * para que un bloque oscuro solo tenga que redefinir los roles.
+     */
+    --surface: var(--bone);
+    --surface-raised: var(--paper);
+    --text: var(--ink);
+    --text-muted: var(--graphite);
+    --rule: var(--lichen);
+    --rule-strong: var(--graphite);
+    --focus: var(--ink);
+
+    /* ---------------------------------------------------------------- */
+    /* Tipografía — escala fluida 375 → 1600px                          */
+    /* ---------------------------------------------------------------- */
+
+    --text-display: clamp(3.125rem, 1.939rem + 5.061vw, 8.25rem);
+    --text-h1: clamp(2.625rem, 1.726rem + 3.837vw, 5.5625rem);
+    --text-h2: clamp(1.75rem, 0.832rem + 3.918vw, 4.75rem);
+    --text-statement: clamp(1.75rem, 1.176rem + 2.449vw, 3.625rem);
+    --text-h3: clamp(1.375rem, 1.107rem + 1.143vw, 2.25rem);
+    --text-lead: clamp(1.25rem, 1.173rem + 0.327vw, 1.5rem);
+    --text-body: clamp(1.0625rem, 1.024rem + 0.163vw, 1.1875rem);
+    --text-small: clamp(0.9375rem, 0.918rem + 0.082vw, 1rem);
+    --text-eyebrow: clamp(0.8125rem, 0.774rem + 0.163vw, 0.9375rem);
+    /* Navegación del header. Fijo y no fluido: el bloque tiene que caber
+       entero al lado del titular a cualquier ancho, y 13px es donde la
+       mono sigue leyéndose en versalita sin alargar la caja. */
+    --text-nav: 0.8125rem;
+    --text-marquee: clamp(4.5rem, 2.854rem + 7.02vw, 9.875rem);
+
+    /* Line-height */
+    --lh-display: 1;
+    --lh-h1: 1.05;
+    --lh-h2: 1.1;
+    --lh-h3: 1.15;
+    --lh-lead: 1.2;
+    --lh-body: 1.3;
+    --lh-small: 1.4;
+    --lh-prose: 1.6; /* SOLO el ensayo de Compañía */
+
+    /* Tracking — se aprieta a medida que crece el tamaño */
+    --ls-display: -0.03em;
+    --ls-h1: -0.025em;
+    --ls-heading: -0.02em;
+    --ls-body: -0.006em;
+    --ls-mono: 0;
+
+    /* ---------------------------------------------------------------- */
+    /* Espaciado — 8 pasos, base 4px                                    */
+    /* ---------------------------------------------------------------- */
+
+    --space-3xs: 0.5rem; /*  8px */
+    --space-2xs: 0.75rem; /* 12px */
+    --space-xs: 1.25rem; /* 20px */
+    --space-s: 2rem; /* 32px */
+    --space-m: clamp(2.5rem, 2rem + 1.6vw, 3.75rem); /* 40 → 60 */
+    --space-l: clamp(3.5rem, 2.5rem + 2.6vw, 5.5rem); /* 56 → 88 */
+    --space-xl: clamp(4.5rem, 3rem + 3.5vw, 7.5rem); /* 72 → 120 */
+    --space-2xl: clamp(5.5rem, 3.5rem + 5.2vw, 10rem); /* 88 → 160 */
+
+    /* ---------------------------------------------------------------- */
+    /* Layout                                                            */
+    /* ---------------------------------------------------------------- */
+
+    --container-max: 101.25rem; /* 1620px — medido en la referencia */
+    --pad-page: clamp(1.25rem, 1.25rem + 1.6vw, 3rem); /* 20 → 48 */
+    --gutter: 1.25rem; /* 20px */
+    --row-gap: 2.75rem; /* 44px */
+    --measure: 62ch;
+    --header-h: 4.5rem; /* 72px */
+
+    /*
+     * Marco del escenario: el margen y el radio del bloque oscuro del hero.
+     * Viven aquí y no en el componente porque los widgets del header tienen
+     * que alinearse con el contenido de dentro del marco, no con el borde de
+     * la ventana. Sin esto el header queda desplazado respecto al titular.
+     */
+    --pad-frame: clamp(0.5rem, 0.2rem + 1vw, 1.125rem);
+    --r-frame: clamp(1rem, 0.6rem + 1.4vw, 1.75rem);
+
+    /* Radios */
+    --radius-btn: 0.5rem; /*  8px */
+    --radius-nav: 0.75rem; /* 12px */
+    --radius-img: 1rem; /* 16px */
+    --radius-card: 1.25rem; /* 20px */
+    --radius-block: 2.5rem; /* 40px */
+    --radius-pill: 9999px;
+
+    /* Área táctil mínima — WCAG 2.5.5 */
+    --tap: 2.75rem; /* 44px */
+
+    /* ---------------------------------------------------------------- */
+    /* Motion                                                            */
+    /* ---------------------------------------------------------------- */
+
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --dur-fast: 180ms; /* micro-interacciones      */
+    --dur-mid: 320ms; /* estados y transiciones   */
+    --dur-slow: 640ms; /* reveals de sección       */
+
+    --stagger: 90ms; /* entre elementos de un grupo */
+
+    --z-header: 100;
+    --z-menu: 200;
+    --z-skip: 300;
+  }
+
+  /*
+   * Inversión de superficie. Cualquier bloque oscuro se marca con
+   * data-surface="dark" y todo lo de dentro se recolorea solo.
+   */
+  [data-surface='dark'] {
+    --surface: var(--ink);
+    --surface-raised: var(--ink);
+    --text: var(--paper);
+    --text-muted: color-mix(in srgb, var(--paper) 72%, var(--ink));
+    --rule: var(--graphite);
+    --rule-strong: color-mix(in srgb, var(--paper) 45%, var(--ink));
+    --focus: var(--signal);
+    /* El óxido oscuro no se lee sobre tinta: sobre oscuro sube a 5.21:1. */
+    --error: #e8836f;
+  }
+
+  [data-surface='void'] {
+    --surface: var(--void);
+    --surface-raised: var(--void);
+    --text: var(--paper);
+    --text-muted: color-mix(in srgb, var(--paper) 68%, var(--void));
+    --rule: color-mix(in srgb, var(--paper) 22%, var(--void));
+    --rule-strong: color-mix(in srgb, var(--paper) 45%, var(--void));
+    --focus: var(--signal);
+    --error: #e8836f;
+  }
+
+  [data-surface='frost'] {
+    --surface: var(--frost);
+  }
+}

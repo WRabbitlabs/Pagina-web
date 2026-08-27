@@ -1,0 +1,293 @@
+---
+/**
+ * Campo — fondo ambiental animado.
+ *
+ * Suplente del vídeo del hero mientras el archivo no exista, y original: un
+ * canvas dibuja un campo de rutas ortogonales con pulsos que las recorren. Es
+ * el lenguaje del Trazado a escala ambiental — proceso, ruta, evidencia.
+ *
+ * Coste: ~2.6KB de JS, un rAF, cero dependencias. Se apaga cuando sale de
+ * pantalla y no arranca con prefers-reduced-motion.
+ */
+interface Props {
+  /**
+   * Dentro del marco del hero el canvas solo tiene que rellenarlo. Suelto
+   * sobre un bloque largo se fija con sticky para acompañar el scroll.
+   */
+  inFrame?: boolean;
+}
+const { inFrame = false } = Astro.props;
+---
+
+<div class={`campo${inFrame ? ' campo--frame' : ''}`} aria-hidden="true">
+  <div class="campo__pin">
+    <canvas class="campo__canvas" data-campo></canvas>
+    <div class="campo__veil"></div>
+  </div>
+</div>
+
+<style>
+  .campo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .campo__pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: clip;
+  }
+
+  /* Dentro del marco no hay nada que fijar: se limita a rellenarlo. */
+  .campo--frame .campo__pin {
+    position: absolute;
+    inset: 0;
+    height: auto;
+  }
+
+  .campo__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* Igual que la referencia: el fondo vive por debajo del texto, no compite. */
+    opacity: 0.55;
+    /* La escala evita que los bordes del campo se lean como un recuadro. */
+    transform: scale(1.15);
+  }
+
+  /* Sin JS el canvas queda vacío: no debe dejar un rectángulo raro. */
+  html:not(.js) .campo__canvas {
+    opacity: 0;
+  }
+
+  /*
+   * Viñeta: apaga las esquinas para que el titular conserve contraste por
+   * encima pase lo que pase en el canvas.
+   */
+  .campo__veil {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      120% 90% at 20% 30%,
+      transparent 0%,
+      color-mix(in srgb, var(--ink) 82%, transparent) 100%
+    );
+  }
+</style>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-campo]');
+  const ctx = canvas?.getContext('2d', { alpha: true });
+
+  if (canvas && ctx) {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+    /** Paso de la retícula en px CSS. Las rutas solo giran en sus nodos. */
+    const STEP = 88;
+    /** Cuántos pulsos viajan a la vez. Pocos: es ambiente, no tráfico. */
+    const PULSES = 7;
+    /** px por segundo de un pulso. Lento a propósito. */
+    const SPEED = 62;
+    /** Largo del rastro encendido, en px. */
+    const TAIL = 240;
+
+    type Pt = { x: number; y: number };
+    type Route = { pts: Pt[]; len: number; segs: number[] };
+
+    let routes: Route[] = [];
+    let pulses: { r: number; d: number }[] = [];
+    let w = 0;
+    let h = 0;
+    let raf = 0;
+    let last = 0;
+    let visible = true;
+
+    /*
+     * Generador determinista: el campo se ve igual en cada carga, así que un
+     * cambio visual siempre es un cambio de código, nunca azar.
+     */
+    let seed = 0x5f3a;
+    const rnd = () => {
+      seed = (seed * 1664525 + 1013904223) & 0x7fffffff;
+      return seed / 0x7fffffff;
+    };
+
+    /** Ruta ortogonal: solo tramos horizontales o verticales, alternando. */
+    const makeRoute = (cols: number, rows: number): Route => {
+      let cx = Math.floor(rnd() * cols);
+      let cy = Math.floor(rnd() * rows);
+      const pts: Pt[] = [{ x: cx, y: cy }];
+      let horizontal = rnd() > 0.5;
+
+      const turns = 3 + Math.floor(rnd() * 4);
+      for (let i = 0; i < turns; i++) {
+        const run = 1 + Math.floor(rnd() * 4);
+        const dir = rnd() > 0.5 ? 1 : -1;
+        if (horizontal) cx = Math.max(0, Math.min(cols, cx + run * dir));
+        else cy = Math.max(0, Math.min(rows, cy + run * dir));
+        pts.push({ x: cx, y: cy });
+        horizontal = !horizontal;
+      }
+
+      const segs: number[] = [];
+      let len = 0;
+      for (let i = 1; i < pts.length; i++) {
+        const s =
+          (Math.abs(pts[i].x - pts[i - 1].x) + Math.abs(pts[i].y - pts[i - 1].y)) * STEP;
+        segs.push(s);
+        len += s;
+      }
+      return { pts, len, segs };
+    };
+
+    /** Punto a distancia d del inicio de la ruta, en px CSS. */
+    const at = (r: Route, d: number): Pt => {
+      let rest = d;
+      for (let i = 0; i < r.segs.length; i++) {
+        if (rest <= r.segs[i]) {
+          const a = r.pts[i];
+          const b = r.pts[i + 1];
+          const t = r.segs[i] === 0 ? 0 : rest / r.segs[i];
+          return {
+            x: (a.x + (b.x - a.x) * t) * STEP,
+            y: (a.y + (b.y - a.y) * t) * STEP,
+          };
+        }
+        rest -= r.segs[i];
+      }
+      const e = r.pts[r.pts.length - 1];
+      return { x: e.x * STEP, y: e.y * STEP };
+    };
+
+    const build = () => {
+      const rect = canvas.getBoundingClientRect();
+      w = rect.width;
+      h = rect.height;
+      if (!w || !h) return;
+
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const cols = Math.ceil(w / STEP);
+      const rows = Math.ceil(h / STEP);
+      seed = 0x5f3a;
+      routes = Array.from({ length: 14 }, () => makeRoute(cols, rows));
+      pulses = Array.from({ length: PULSES }, (_, i) => ({
+        r: i % routes.length,
+        d: rnd() * routes[i % routes.length].len,
+      }));
+    };
+
+    /** Traza una ruta, o el tramo [from, to] de ella. */
+    const line = (r: Route, alpha: number, width: number, from = 0, to = r.len) => {
+      ctx.beginPath();
+      let acc = 0;
+      let started = false;
+      for (let i = 1; i < r.pts.length; i++) {
+        const segStart = acc;
+        const segEnd = acc + r.segs[i - 1];
+        if (segEnd >= from && segStart <= to) {
+          const a = at(r, Math.max(from, segStart));
+          const b = at(r, Math.min(to, segEnd));
+          if (!started) {
+            ctx.moveTo(a.x, a.y);
+            started = true;
+          }
+          ctx.lineTo(b.x, b.y);
+        }
+        acc = segEnd;
+      }
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    };
+
+    /** La retícula latente: rutas y nodos, siempre visibles y muy tenues. */
+    const grid = () => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.strokeStyle = '#4d5757';
+      ctx.lineCap = 'square';
+      routes.forEach((r) => line(r, 0.5, 1));
+
+      ctx.fillStyle = '#4d5757';
+      ctx.globalAlpha = 0.75;
+      routes.forEach((r) =>
+        r.pts.forEach((p) => ctx.fillRect(p.x * STEP - 1.5, p.y * STEP - 1.5, 3, 3)),
+      );
+      ctx.globalAlpha = 1;
+    };
+
+    const frame = (now: number) => {
+      raf = 0;
+      const dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
+      last = now;
+
+      grid();
+
+      ctx.strokeStyle = '#cef79e';
+      pulses.forEach((p) => {
+        const r = routes[p.r];
+        p.d += SPEED * dt;
+        if (p.d > r.len + TAIL) {
+          p.d = -TAIL;
+          p.r = Math.floor(rnd() * routes.length);
+        }
+        const head = Math.min(p.d, r.len);
+        const tail = Math.max(0, p.d - TAIL);
+        if (head > tail) line(r, 0.85, 1.5, tail, head);
+      });
+
+      ctx.globalAlpha = 1;
+      if (visible && !reduced.matches) raf = requestAnimationFrame(frame);
+    };
+
+    const stop = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    const start = () => {
+      /* Con reduced-motion se dibuja un único fotograma y ahí se queda. */
+      if (reduced.matches) return grid();
+      if (!raf) {
+        last = 0;
+        raf = requestAnimationFrame(frame);
+      }
+    };
+
+    /* Ni un fotograma cuando el bloque no está en pantalla. */
+    new IntersectionObserver(
+      ([e]) => {
+        visible = e.isIntersecting;
+        if (visible) start();
+        else stop();
+      },
+      { rootMargin: '10% 0px' },
+    ).observe(canvas);
+
+    let resizeRaf = 0;
+    new ResizeObserver(() => {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        stop();
+        build();
+        start();
+      });
+    }).observe(canvas);
+
+    reduced.addEventListener('change', () => {
+      stop();
+      start();
+    });
+
+    addEventListener('pagehide', stop);
+
+    build();
+    start();
+  }
+</script>

@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import Arrow from '../components/Arrow.astro';
+---
+
+<Base
+  title="Página no encontrada"
+  description="La dirección que buscaba no existe en este sitio."
+  noindex
+>
+  <section class="nf" data-surface="dark">
+    <div class="container nf__inner">
+      <p class="t-eyebrow nf__code">Error 404</p>
+
+      <h1 class="t-h1 nf__title">Esta dirección no existe.</h1>
+
+      <p class="t-lead nf__body">
+        El enlace puede estar mal escrito, o el contenido cambió de dirección.
+        Desde el inicio se llega a todo lo demás.
+      </p>
+
+      <p class="nf__actions">
+        <a class="btn btn--primary" href="/">
+          Ir al inicio
+          <Arrow />
+        </a>
+        <a class="btn btn--ghost" href="/newsroom">Ver el newsroom</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    min-height: 100svh;
+    display: grid;
+    align-content: center;
+    background: var(--surface);
+    color: var(--text);
+    padding-block: calc(var(--header-h) + var(--space-2xl)) var(--space-2xl);
+  }
+
+  .nf__title {
+    margin-top: var(--space-s);
+    max-width: 16ch;
+  }
+
+  .nf__body {
+    margin-top: var(--space-m);
+    max-width: 46ch;
+  }
+
+  .nf__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-top: var(--space-l);
+  }
+</style>

@@ -1,0 +1,172 @@
+---
+import { marquee } from '../../data/home';
+
+/**
+ * Decorativo: aria-hidden. La frase-tesis ya se dice en texto real en el
+ * hero y en el cierre, así que el lector de pantalla no pierde nada.
+ *
+ * Dos colecciones idénticas: cuando la primera sale por la izquierda, la
+ * segunda ya ocupa su lugar. El salto es invisible.
+ */
+const REPEATS = 3;
+const phrase = `${marquee.text} ${marquee.separator} `;
+---
+
+<section class="marquee" aria-hidden="true">
+  <div class="marquee__track" data-marquee>
+    {
+      [0, 1].map((c) => (
+        <div class="marquee__collection" data-collection={c}>
+          {Array.from({ length: REPEATS }).map(() => (
+            <span class="marquee__item">{phrase}</span>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .marquee {
+    padding-block: var(--space-2xl);
+    background: var(--surface);
+    color: var(--text);
+    overflow: clip;
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+
+  .marquee__collection {
+    display: flex;
+  }
+
+  .marquee__item {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-marquee);
+    font-weight: var(--weight);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  /*
+   * Se detiene por completo con reduced-motion: la frase queda quieta,
+   * legible, sin recorte artificial.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      transform: none !important;
+      will-change: auto;
+    }
+  }
+</style>
+
+<script>
+  const track = document.querySelector<HTMLElement>('[data-marquee]');
+
+  if (track && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const first = track.querySelector<HTMLElement>('[data-collection="0"]')!;
+
+    /**
+     * La cinta tiene dos motores sumados.
+     *
+     *   BASE   deriva constante hacia la izquierda. Es el pulso de fondo.
+     *   boost  lo que aporta el scroll, y decae solo.
+     *
+     * Bajar empuja la cinta hacia atrás (izquierda) y subir hacia adelante
+     * (derecha). Como el empuje se acumula en una velocidad en vez de moverla
+     * directamente, el gesto sigue un momento después de soltar: la cinta
+     * arranca al empezar a rodar y frena sola, no se para en seco.
+     *
+     * Subiendo, el empuje vence a la deriva y la cinta se va de verdad a la
+     * derecha; para eso KICK tiene que ser bastante mayor que BASE.
+     */
+    const BASE = 46;
+    const KICK = 16;
+    /** Tope: un golpe de rueda muy fuerte, si no, deja la frase ilegible. */
+    const MAX = 2200;
+    /** Fracción de boost que sobrevive a cada fotograma de 60 Hz. */
+    const DAMP = 0.94;
+
+    let width = 0;
+    let x = 0;
+    let last = 0;
+    let raf = 0;
+    let boost = 0;
+    let lastY = scrollY;
+
+    const measure = () => {
+      width = first.getBoundingClientRect().width;
+    };
+
+    const onScroll = () => {
+      const dy = scrollY - lastY;
+      lastY = scrollY;
+      /* dy > 0 (bajando) resta: la cinta se va a la izquierda. */
+      boost = Math.max(-MAX, Math.min(MAX, boost - dy * KICK));
+    };
+
+    const frame = (now: number) => {
+      if (!last) last = now;
+      const dt = Math.min(now - last, 64) / 1000; // ignora saltos de pestaña
+      last = now;
+
+      x += (-BASE + boost) * dt;
+
+      /* Amortiguación por tiempo y no por fotograma: a 120 Hz el decaimiento
+         tiene que ser el mismo que a 60. */
+      boost *= Math.pow(DAMP, dt * 60);
+      if (Math.abs(boost) < 0.5) boost = 0;
+
+      /* Ahora envuelve en los dos sentidos: la cinta puede ir hacia atrás. */
+      if (width > 0) {
+        if (x <= -width) x += width;
+        else if (x >= 0) x -= width;
+      }
+
+      track.style.transform = `translate3d(${x}px,0,0)`;
+      raf = requestAnimationFrame(frame);
+    };
+
+    const start = () => {
+      if (raf) return;
+      last = 0;
+      lastY = scrollY;
+      /*
+       * El impulso se descarta al reanudar. Sin esto, el empuje acumulado
+       * justo antes de que la cinta saliera de pantalla queda guardado en el
+       * cierre y se suelta entero al volver a entrar: la cinta reaparece
+       * disparada en el sentido del scroll anterior, que suele ser el
+       * contrario al que el usuario acaba de hacer.
+       */
+      boost = 0;
+      addEventListener('scroll', onScroll, { passive: true });
+      raf = requestAnimationFrame(frame);
+    };
+
+    const stop = () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      removeEventListener('scroll', onScroll);
+    };
+
+    measure();
+    new ResizeObserver(measure).observe(first);
+
+    // No gastar frames mientras el marquee no está en pantalla.
+    new IntersectionObserver(
+      ([e]) => (e.isIntersecting ? start() : stop()),
+      { threshold: 0 },
+    ).observe(track);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+      else if (track.getBoundingClientRect().top < innerHeight) start();
+    });
+  }
+</script>

@@ -1,0 +1,256 @@
+---
+/**
+ * EL TRAZADO — el signature del sitio. Ver DESIGN.md §8.
+ *
+ * Un diagrama de proceso real que se dibuja una vez y se queda quieto.
+ * Aristas solo ortogonales. Sin partículas, sin glow, sin curvas orgánicas.
+ * Debe leerse como el anexo técnico de un contrato.
+ *
+ * Decorativo en contexto: la misma información se dice en texto en los
+ * tres pilares de La plataforma. Por eso va aria-hidden.
+ *
+ * Animación 100% CSS — no consume del presupuesto de JS.
+ */
+
+interface Props {
+  /**
+   * Suelto sobre un bloque largo va fijado de fondo. Contenido, se limita a
+   * ocupar su hueco en el flujo — que es como vive dentro de La plataforma.
+   */
+  inline?: boolean;
+}
+const { inline = false } = Astro.props;
+
+const nodes = [
+  { id: 'ingesta', label: 'INGESTA', x: 110, y: 150 },
+  { id: 'extraccion', label: 'EXTRACCIÓN', x: 400, y: 150 },
+  { id: 'validacion', label: 'VALIDACIÓN', x: 690, y: 300 },
+  { id: 'radicacion', label: 'RADICACIÓN', x: 980, y: 150 },
+  { id: 'auditoria', label: 'AUDITORÍA', x: 980, y: 470 },
+];
+
+const W = 190;
+const H = 54;
+
+/** Ruta principal. Solo segmentos H y V. */
+const MAIN = 'M300 177 H640 V327 H930 V177 H1075 V470';
+/** Retorno por rechazo: validación → extracción. */
+const REJECT = 'M785 354 V620 H495 V204';
+---
+
+<div class={`trazado${inline ? ' trazado--inline' : ''}`} aria-hidden="true">
+  <div class="trazado__stick">
+    <svg
+      class="trazado__svg"
+      viewBox="0 0 1440 820"
+      preserveAspectRatio="xMidYMid slice"
+      fill="none"
+      focusable="false"
+    >
+      <!-- Retorno por rechazo. Secundario: se dibuja después. -->
+      <path class="trazado__reject" d={REJECT} />
+      <text class="trazado__tag" x="640" y="612">RECHAZO</text>
+
+      <!-- Ruta principal. -->
+      <path class="trazado__main" d={MAIN} />
+
+      <!-- Nodos. Relleno en la superficie para que la línea entre y salga. -->
+      {
+        nodes.map((n, i) => (
+          <g class="trazado__node" style={`--i:${i}`}>
+            <rect x={n.x} y={n.y} width={W} height={H} rx="2" />
+            <text x={n.x + W / 2} y={n.y + H / 2}>
+              {n.label}
+            </text>
+          </g>
+        ))
+      }
+
+      <!-- El token que recorre la ruta y se detiene en auditoría. -->
+      <rect class="trazado__token" x="-5" y="-5" width="10" height="10" rx="1" />
+
+      <!-- Evidencia: lo único que --signal rellena aquí, 16px. -->
+      <rect class="trazado__proof" x="1147" y="486" width="16" height="16" rx="2" />
+    </svg>
+  </div>
+</div>
+
+<style>
+  .trazado {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: clip;
+  }
+
+  .trazado__stick {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+  }
+
+  /*
+   * Modo contenido: ni absoluto ni fijado. Ocupa su hueco y conserva la
+   * relación del viewBox, así que el diagrama no se deforma.
+   */
+  .trazado--inline {
+    position: relative;
+    inset: auto;
+    overflow: visible;
+  }
+
+  .trazado--inline .trazado__stick {
+    position: static;
+    height: auto;
+    aspect-ratio: 1200 / 620;
+  }
+
+  /* Aquí es el contenido, no el fondo: se ve entero. */
+  .trazado--inline .trazado__svg {
+    opacity: 1;
+  }
+
+  .trazado__svg {
+    width: 100%;
+    height: 100%;
+    /* Fondo: nunca compite con el titular. */
+    opacity: 0.5;
+  }
+
+  /* --lichen desaparece sobre tinta; en oscuro la hairline es --graphite. */
+  .trazado__main,
+  .trazado__reject {
+    stroke: var(--rule);
+    stroke-width: 1.25;
+    stroke-linecap: square;
+    fill: none;
+  }
+
+  .trazado__reject {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: draw var(--dur-slow) var(--ease-out) 900ms forwards;
+  }
+
+  .trazado__main {
+    stroke-dasharray: 1400;
+    stroke-dashoffset: 1400;
+    /* Arranca cuando la secuencia del hero ya terminó de leerse. */
+    animation: draw 800ms var(--ease-out) 500ms forwards;
+  }
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .trazado__node rect {
+    fill: var(--surface);
+    stroke: var(--rule);
+    stroke-width: 1.25;
+  }
+
+  .trazado__node text {
+    fill: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  .trazado__node {
+    opacity: 0;
+    animation: fade var(--dur-mid) var(--ease-out) forwards;
+    animation-delay: calc(400ms + var(--i) * 60ms);
+  }
+
+  .trazado__tag {
+    fill: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    text-anchor: middle;
+    opacity: 0;
+    animation: fade var(--dur-mid) var(--ease-out) 1200ms forwards;
+  }
+
+  @keyframes fade {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .trazado__token {
+    fill: var(--signal);
+    offset-path: path('M300 177 H640 V327 H930 V177 H1075 V470');
+    offset-rotate: 0deg;
+    offset-distance: 0%;
+    opacity: 0;
+    animation:
+      travel 700ms var(--ease-in-out) 1300ms forwards,
+      fade 1ms linear 1300ms forwards;
+  }
+
+  @keyframes travel {
+    from {
+      offset-distance: 0%;
+    }
+    to {
+      offset-distance: 100%;
+    }
+  }
+
+  .trazado__proof {
+    fill: var(--signal);
+    opacity: 0;
+    animation: fade var(--dur-fast) var(--ease-out) 2000ms forwards;
+  }
+
+  /*
+   * Sin offset-path el token no puede viajar: se oculta y la evidencia
+   * aparece igual. El diagrama sigue leyéndose completo.
+   */
+  @supports not (offset-path: path('M0 0 H1')) {
+    .trazado__token {
+      display: none;
+    }
+  }
+
+  /* En pantallas pequeñas el diagrama se recorta: los labels sobran. */
+  @media (max-width: 47.99rem) {
+    .trazado__svg {
+      opacity: 0.38;
+    }
+    .trazado__node text,
+    .trazado__tag {
+      display: none;
+    }
+  }
+
+  /*
+   * reduced-motion: el diagrama aparece dibujado y terminado.
+   * Nada se mueve, nada se dibuja, no falta información.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .trazado__main,
+    .trazado__reject {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+
+    .trazado__node,
+    .trazado__tag,
+    .trazado__proof {
+      opacity: 1;
+      animation: none;
+    }
+
+    .trazado__token {
+      offset-distance: 100%;
+      opacity: 1;
+      animation: none;
+    }
+  }
+</style>
