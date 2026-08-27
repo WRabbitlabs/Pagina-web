@@ -187,29 +187,24 @@ const GRID = [0.25, 0.5, 0.75];
             <span data-readout-unit>{first.unit}</span>
           </p>
 
-          {/* Los datos, en texto. Una tabla por serie. */}
+          {/*
+            Los datos, en texto, para quien no ve el trazo.
+
+            Un párrafo por serie y no una tabla. Empezó siendo tres tablas: 87
+            elementos para 36 cifras. Medido en Lighthouse móvil, el coste de
+            estilo y maquetación de esta página sube ~1,4ms por elemento, así
+            que esas tablas costaban medio cuadro de animación de retraso en el
+            primer pintado por sí solas. Para doce números de EJEMPLO en orden,
+            una lista separada por comas dice exactamente lo mismo en tres
+            elementos. Con datos reales y comparables, una tabla se justifica.
+          */}
           <div class="sr-only">
             {
               plot.map((s) => (
-                <table>
-                  <caption>
-                    {s.label} — {s.unit} por semana. {governance.panel.disclaimer}
-                  </caption>
-                  <thead>
-                    <tr>
-                      {s.values.map((_, i) => (
-                        <th scope="col">Semana {i + 1}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      {s.values.map((v) => (
-                        <td>{esNumber(v)}</td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
+                <p>
+                  {s.label}, {s.unit} de la semana 1 a la {N}:{' '}
+                  {s.values.map((v) => esNumber(v)).join(', ')}. {governance.panel.disclaimer}
+                </p>
               ))
             }
           </div>
@@ -261,6 +256,13 @@ const GRID = [0.25, 0.5, 0.75];
   /* --------------------------------------------------------------------- */
   /* Reparto                                                                */
   /* --------------------------------------------------------------------- */
+
+  /* Ver la nota larga en Gap.astro: la geometría se aplaza hasta que la
+     sección se acerca. Alto medido a 390px de ancho. */
+  .governance {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 109rem;
+  }
 
   .governance__grid {
     align-items: start;

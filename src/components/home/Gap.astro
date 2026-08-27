@@ -221,6 +221,28 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
 </section>
 
 <style>
+  /*
+   * El navegador no maqueta esta sección hasta que se acerca.
+   *
+   * No es optimización preventiva: está medido. Las tres secciones nuevas
+   * añaden 359 elementos a la home, y en Lighthouse móvil —CPU a 1/4— eso
+   * subía `styleLayout` de 993 a 1483ms y con él el primer pintado, de 1,45
+   * a 1,96s. El contenido está entero en el HTML y sigue indexándose y
+   * buscándose con Ctrl+F; lo único que se aplaza es calcular su geometría.
+   *
+   * El alto declarado es el real medido a 390px de ancho. Con la palabra
+   * clave `auto`, el navegador lo sustituye por el verdadero en cuanto la
+   * sección se dibuja una vez, así que la estimación solo importa para la
+   * primera barra de desplazamiento.
+   *
+   * NO se aplica al escenario ni a las declaraciones: los dos dependen de
+   * `position: sticky`, y `content-visibility` rompe el pegado.
+   */
+  .gap {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 105rem;
+  }
+
   /* --------------------------------------------------------------------- */
   /* Encabezado                                                             */
   /* --------------------------------------------------------------------- */
