@@ -1,0 +1,323 @@
+---
+import { craft } from '../data/company';
+
+/**
+ * NUESTRA HISTORIA — del telar al software.
+ *
+ * Cuatro fechas públicas: 1804, 1890, 1946 y hoy. No llevan nota de fuente y
+ * es a propósito: son hechos de manual, no mediciones de nuestro portafolio.
+ * La única sección del sitio con cifras que no necesitan citarse.
+ *
+ * La tarjeta perforada de cada hito NO es un icono decorativo repetido cuatro
+ * veces: cada una lleva su propio año escrito en binario, doce bits en dos
+ * filas de seis, agujero perforado = 1. Es el mismo gesto que cuenta la
+ * sección —el patrón ES la instrucción— aplicado a su propio dibujo. Va
+ * aria-hidden porque el año ya está impreso al lado en cifras.
+ */
+
+/** Doce bits, dos filas de seis. Cubre hasta el año 4095. */
+const BITS = 12;
+const COLS = 6;
+
+const bits = (year: number) =>
+  year
+    .toString(2)
+    .padStart(BITS, '0')
+    .split('')
+    .map((b, i) => ({
+      on: b === '1',
+      x: 7 + (i % COLS) * 8,
+      y: i < COLS ? 9 : 19,
+      i,
+    }));
+
+const milestones = craft.milestones.map((m) => ({ ...m, holes: bits(m.year) }));
+
+/** Tarjeta con la esquina cortada, como las de verdad. */
+const CARD = 'M1 1 H55 L63 9 V33 H1 Z';
+---
+
+<section class="section story" data-surface="dark" aria-labelledby="story-title" id="historia">
+  <div class="container story__grid">
+    <div class="story__side">
+      <h2 class="t-eyebrow story__tag" id="story-title">
+        <span class="story__dot" aria-hidden="true"></span>
+        {craft.eyebrow}
+      </h2>
+      <p class="t-h2 story__heading" data-text-reveal>{craft.heading}</p>
+    </div>
+
+    <div class="prose story__body" data-reveal>
+      {craft.body.map((p) => <p>{p}</p>)}
+    </div>
+  </div>
+
+  <div class="container">
+    <ol class="loom" role="list">
+      {
+        milestones.map((m, i) => (
+          <li class="mile" data-reveal style={`--i:${i};--reveal-delay:${i * 110}ms`}>
+            <span class="mile__node" aria-hidden="true" />
+
+            <div class="mile__head">
+              <p class="mile__year">{m.year}</p>
+
+              {/* La tarjeta del año, en binario. */}
+              <svg
+                class="card"
+                viewBox="0 0 64 34"
+                aria-hidden="true"
+                fill="none"
+                focusable="false"
+              >
+                <path class="card__edge" d={CARD} />
+                {
+                  m.holes.map((h) => (
+                    <rect
+                      class="card__hole"
+                      data-on={h.on ? '' : undefined}
+                      x={h.x}
+                      y={h.y}
+                      width="5"
+                      height="5"
+                      rx="0.5"
+                      style={`--h:${h.i}`}
+                    />
+                  ))
+                }
+              </svg>
+            </div>
+
+            <h3 class="t-h3 mile__title">{m.title}</h3>
+            <p class="mile__body">
+              {m.body.map((line) => <span class="mile__line">{line}</span>)}
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  /*
+   * Regla del sitio: una sección, una pantalla. El aire vertical va en `svh`
+   * porque lo que desborda es el alto, no el ancho — ver la nota larga de
+   * Gap.astro.
+   */
+  .story {
+    --pad-v: clamp(var(--space-s), 7svh, var(--space-l));
+    --step: clamp(var(--space-2xs), 2.2svh, var(--space-s));
+
+    padding-block: var(--pad-v);
+    content-visibility: auto;
+    contain-intrinsic-size: auto 96rem;
+  }
+
+  @media (max-width: 47.9375rem) {
+    .story {
+      --pad-v: clamp(var(--space-s), 5svh, var(--space-m));
+      --step: clamp(var(--space-2xs), 1.8svh, var(--space-s));
+    }
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Entrada                                                                */
+  /* --------------------------------------------------------------------- */
+
+  .story__grid {
+    display: grid;
+    gap: var(--step) var(--gutter);
+    align-items: start;
+  }
+
+  @media (min-width: 64rem) {
+    .story__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  .story__side {
+    padding-top: var(--step);
+    border-top: 1px solid var(--rule);
+  }
+
+  .story__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7ch;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-btn);
+  }
+
+  .story__dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    background: var(--signal);
+  }
+
+  .story__heading {
+    font-size: min(var(--text-h2), 7.4svh);
+    margin-top: var(--step);
+    max-width: 16ch;
+  }
+
+  .story__body {
+    padding-top: var(--step);
+    border-top: 1px solid var(--rule);
+    max-width: 58ch;
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* La línea de hitos                                                      */
+  /* --------------------------------------------------------------------- */
+
+  .loom {
+    display: grid;
+    gap: var(--step) var(--gutter);
+    margin: var(--step) 0 0;
+    padding: 0;
+  }
+
+  @media (min-width: 56rem) {
+    .loom {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .mile {
+    position: relative;
+    padding-top: var(--space-s);
+  }
+
+  /*
+   * La línea que une los hitos. Va en cada uno y no en el contenedor: así
+   * arranca y termina en su nodo, y al pasar a una columna en móvil
+   * desaparece sola sin una regla que la apague.
+   */
+  @media (min-width: 56rem) {
+    .mile::before {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 0;
+      right: calc(var(--gutter) * -1);
+      height: 1px;
+      background: var(--rule);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform var(--dur-slow) var(--ease-out);
+      transition-delay: calc(var(--i) * 110ms);
+    }
+
+    .mile.is-revealed::before {
+      transform: scaleX(1);
+    }
+
+    /* El último no tiene a quién unirse. */
+    .mile:last-child::before {
+      right: 0;
+    }
+  }
+
+  .mile__node {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 11px;
+    height: 11px;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+  }
+
+  /* Sólo el último está lleno: es el único que todavía está pasando. */
+  .mile:last-child .mile__node {
+    background: var(--signal);
+    border-color: var(--signal);
+  }
+
+  .mile__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+  }
+
+  .mile__year {
+    font-family: var(--font-display);
+    font-size: min(var(--text-h1), 9svh);
+    line-height: 1;
+    letter-spacing: var(--ls-h1);
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .mile__title {
+    margin-top: var(--step);
+  }
+
+  .mile__body {
+    display: grid;
+    gap: 0.15em;
+    margin-top: var(--space-3xs);
+    max-width: 30ch;
+    color: var(--text-muted);
+    font-size: var(--text-small);
+    line-height: var(--lh-small);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* La tarjeta perforada                                                   */
+  /* --------------------------------------------------------------------- */
+
+  .card {
+    width: clamp(3rem, 4.5vw, 4rem);
+    height: auto;
+    flex: none;
+  }
+
+  .card__edge {
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+
+  /* Sin perforar: sólo el contorno del sitio donde iría el agujero. */
+  .card__hole {
+    fill: none;
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+
+  /* Perforado. El relleno entra escalonado, como si la tarjeta se picara. */
+  .card__hole[data-on] {
+    fill: var(--text);
+    stroke: var(--text);
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease-out);
+    transition-delay: calc(320ms + var(--h) * 45ms);
+  }
+
+  .mile.is-revealed .card__hole[data-on] {
+    opacity: 1;
+  }
+
+  html:not(.js) .card__hole[data-on] {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mile::before {
+      transform: scaleX(1);
+      transition: none;
+    }
+
+    .card__hole[data-on] {
+      opacity: 1;
+      transition: none;
+    }
+  }
+</style>

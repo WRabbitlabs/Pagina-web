@@ -3,9 +3,11 @@ import Base from '../layouts/Base.astro';
 import Hero from '../components/home/Hero.astro';
 import Stage from '../components/home/Stage.astro';
 import Statements from '../components/home/Statements.astro';
+import Story from '../components/Story.astro';
 import Gap from '../components/home/Gap.astro';
 import Platform from '../components/home/Platform.astro';
 import Governance from '../components/home/Governance.astro';
+import Method from '../components/Method.astro';
 import Marquee from '../components/home/Marquee.astro';
 import Results from '../components/home/Results.astro';
 import Company from '../components/home/Company.astro';
@@ -60,13 +62,19 @@ const website = {
   </Stage>
 
   {/*
-    Orden de lectura: problema → respuesta → operación → prueba → quiénes
-    somos. La brecha va inmediatamente después de las declaraciones porque es
-    lo que justifica que exista la plataforma; la evidencia va después del
-    respiro del marquee, para que las cifras no lleguen pegadas a la consola.
+    Orden de lectura: de dónde venimos → qué problema hay → qué hacemos →
+    cómo se contrata → cómo se opera → la prueba → quiénes somos.
+
+    La historia abre porque explica el nombre y el oficio antes de pedir nada,
+    y porque la brecha se entiende mejor sabiendo que llevamos doscientos años
+    tejiendo instrucciones. El método va pegado a la plataforma: primero qué
+    es, después cómo se contrata. La evidencia va tras el respiro del marquee,
+    para que las cifras no lleguen pegadas a la consola.
   */}
+  <Story />
   <Gap />
   <Platform />
+  <Method />
   <Governance />
   <Marquee />
   <Results />

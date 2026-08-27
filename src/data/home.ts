@@ -316,16 +316,16 @@ export const planStates = {
 /* ------------------------------------------------------------------------ */
 
 /**
- * ⚠ PLACEHOLDER CRÍTICO. Las cifras son plausibles; las fuentes, NO están
- * verificadas.
+ * ⚠ La FUENTE ya está confirmada por el cliente: Portafolio WRabbit AI 2026.
+ * Va escrita bajo el eje, que es donde manda para las cinco filas.
  *
- * Esta sección afirma por escrito que ninguna cifra existe sin su fuente, así
- * que es la única del sitio donde publicar sin confirmar convierte el propio
- * argumento en falso. Antes de salir a producción, el cliente tiene que
- * confirmar cada `value` y reescribir cada `source` con la base real: cuántas
- * implantaciones, en qué periodo y contra qué línea base se mide.
+ * Lo que sigue siendo PLACEHOLDER es la línea `source` de cada fila —la base
+ * concreta de cada medición—: la redacté yo a partir de la cifra, y hay que
+ * contrastarla contra el portafolio. Esta sección afirma por escrito que
+ * ninguna cifra existe sin su fuente, así que es la única del sitio donde
+ * publicar algo sin confirmar convierte su propio argumento en falso.
  *
- * `source` es obligatorio por tipo: si se borra, la tarjeta no compila.
+ * `source` es obligatorio por tipo: si se borra, la fila no compila.
  */
 export const results = {
   eyebrow: 'Evidencia',
@@ -344,7 +344,8 @@ export const results = {
 
   /** Rótulo del eje común. Sin él, cinco barras sueltas no dicen sobre qué. */
   axis: {
-    caption: 'Todas las cifras sobre la línea base del propio proceso, antes de la implantación.',
+    caption:
+      'Todas las cifras sobre la línea base del propio proceso, antes de la implantación. Fuente: Portafolio WRabbit AI 2026.',
     ticks: [0, 25, 50, 75, 100],
   },
 

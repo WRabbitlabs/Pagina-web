@@ -2,10 +2,13 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Cta from '../components/Cta.astro';
+import Arrow from '../components/Arrow.astro';
+import Method from '../components/Method.astro';
 import Trazado from '../components/Trazado.astro';
 import PillarIcon from '../components/icons/PillarIcon.astro';
 import { site } from '../data/site';
 import { platform, company, closing } from '../data/home';
+import { intro } from '../data/company';
 
 const team = (await getCollection('team')).sort((a, b) => a.data.order - b.data.order);
 const founders = team.filter((m) => m.data.founder);
@@ -18,9 +21,58 @@ const description =
 
 <Base title={title} description={description}>
   <section class="section page-head" data-surface="dark">
-    <div class="container">
-      <p class="t-eyebrow">{title}</p>
-      <h1 class="t-h1 page-head__title" data-text-reveal>{company.heading}</h1>
+    <div class="container page-head__grid">
+      <div>
+        <p class="t-eyebrow">{intro.eyebrow}</p>
+        <h1 class="t-h1 page-head__title" data-text-reveal>{intro.heading}</h1>
+
+        {/*
+          El lema va en inglés. `lang` propio para que un lector de pantalla
+          en español no lo pronuncie como si fuera castellano.
+        */}
+        <p class="page-head__motto" lang="en">{intro.motto}</p>
+
+        <p class="prose page-head__body" data-reveal>{intro.body}</p>
+
+        {/*
+          Una sola llamada fuerte por bloque: la segunda va como enlace con
+          flecha. Dos botones del mismo peso compiten y no dirigen a nada.
+        */}
+        <p class="page-head__ctas" data-reveal>
+          {
+            intro.ctas.map((c) =>
+              c.primary ? (
+                <Cta label={c.label} href={c.href} />
+              ) : (
+                <a class="link-arrow" href={c.href}>
+                  {c.label}
+                  <Arrow />
+                </a>
+              ),
+            )
+          }
+        </p>
+      </div>
+
+      {/*
+        Dos de las cinco cifras de la portada, no unas nuevas: repetir la
+        misma medición con otro número sería el modo más rápido de perder la
+        credibilidad que la sección de evidencia construye.
+      */}
+      <ul class="figures" role="list" data-reveal>
+        {
+          intro.stats.map((s) => (
+            <li class="figure">
+              <p class="figure__n">
+                {s.prefix && <span class="t-eyebrow figure__prefix">{s.prefix}</span>}
+                {s.figure}
+              </p>
+              <p class="t-small figure__label">{s.label}</p>
+              <p class="t-eyebrow figure__source">{intro.source}</p>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -37,6 +89,9 @@ const description =
       </div>
     </div>
   </section>
+
+  {/* El método completo. En la portada va la versión de una línea. */}
+  <Method variant="full" headingLevel="h2" />
 
   <section class="section" id="plataforma" aria-labelledby="plataforma-title" data-surface="dark">
     <div class="container">
@@ -136,13 +191,126 @@ const description =
 </Base>
 
 <style>
+  /* Regla del sitio: una sección, una pantalla. El aire va en `svh` porque lo
+     que desborda es el alto. Ver la nota larga de Gap.astro. */
   .page-head {
-    padding-top: calc(var(--header-h) + var(--space-2xl));
+    --step: clamp(var(--space-2xs), 2.2svh, var(--space-s));
+
+    padding-top: calc(var(--header-h) + clamp(var(--space-s), 6svh, var(--space-xl)));
+    padding-bottom: clamp(var(--space-s), 7svh, var(--space-l));
+  }
+
+  .page-head__grid {
+    display: grid;
+    gap: var(--step) var(--gutter);
+    align-items: end;
+  }
+
+  @media (min-width: 64rem) {
+    .page-head__grid {
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
   }
 
   .page-head__title {
-    margin-top: var(--space-s);
-    max-width: 20ch;
+    font-size: min(var(--text-h1), 11svh);
+    margin-top: var(--step);
+    max-width: 14ch;
+  }
+
+  /*
+   * El lema. Sin serif de imprenta: el sistema tiene una sola familia de texto
+   * y meter otra por una línea costaría un archivo de fuente entero. Lo que lo
+   * separa del cuerpo es el filete y la caja baja, no un tipo distinto.
+   */
+  .page-head__motto {
+    display: flex;
+    align-items: center;
+    gap: 1ch;
+    margin-top: var(--step);
+    font-size: var(--text-lead);
+    line-height: var(--lh-lead);
+    letter-spacing: var(--ls-heading);
+    color: var(--text-muted);
+  }
+
+  .page-head__motto::before {
+    content: '';
+    width: clamp(1.5rem, 3vw, 2.75rem);
+    height: 1px;
+    flex: none;
+    background: var(--rule-strong);
+  }
+
+  .page-head__body {
+    margin-top: var(--step);
+    max-width: 52ch;
+  }
+
+  .page-head__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-top: var(--step);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Las dos cifras de portada                                             */
+  /* --------------------------------------------------------------------- */
+
+  .figures {
+    display: grid;
+    /* El hilo de 1px entre celdas es el `gap` sobre el borde. */
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  @media (min-width: 30rem) {
+    .figures {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .figure {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3xs);
+    padding: var(--space-xs);
+    background: var(--surface);
+  }
+
+  .figure__n {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.7ch;
+    font-size: var(--text-h3);
+    line-height: 1.05;
+    letter-spacing: var(--ls-heading);
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .figure__prefix {
+    color: var(--text-muted);
+  }
+
+  .figure__label {
+    color: var(--text-muted);
+    max-width: 30ch;
+  }
+
+  /* La fuente, a la vista y no en una nota al pie. */
+  .figure__source {
+    margin-top: var(--space-3xs);
+    padding-top: var(--space-3xs);
+    border-top: 1px solid var(--rule);
+    color: var(--text-muted);
   }
 
   .lede {

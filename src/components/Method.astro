@@ -1,0 +1,249 @@
+---
+import Cta from './Cta.astro';
+import { method } from '../data/company';
+
+interface Props {
+  /**
+   * `compact` es la de portada: una línea por fase. `full` es la de /company,
+   * que tiene sitio para el párrafo entero. Mismo componente y mismos datos
+   * para que las dos versiones no se separen con el tiempo.
+   */
+  variant?: 'compact' | 'full';
+  /** El titular de la portada ya lo pone la sección; en /company va aquí. */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { variant = 'compact', headingLevel = 'h2' } = Astro.props;
+const compact = variant === 'compact';
+const Heading = headingLevel;
+
+/**
+ * EL MÉTODO — cuatro tiempos.
+ *
+ * Nombres llanos, sin la metáfora del telar: la historia del oficio se cuenta
+ * una vez, en su sección, y vestir también el método de urdimbre y trama
+ * convertiría la metáfora en disfraz. Lo que aquí necesita saber quien
+ * contrata es cuándo ve la primera entrega y cuándo se cierra el presupuesto.
+ *
+ * El plazo de cada fase va en una pastilla monoespaciada y no en el cuerpo:
+ * es el dato que se busca de un vistazo cuando se compara con otra propuesta.
+ */
+---
+
+<section
+  class:list={['section', 'method', { 'method--full': !compact }]}
+  data-surface={compact ? undefined : 'frost'}
+  aria-labelledby="method-title"
+  id="metodo"
+>
+  <div class="container method__head">
+    <div class="method__intro">
+      <p class="t-eyebrow method__tag">
+        <span class="method__dot" aria-hidden="true"></span>
+        {method.eyebrow}
+      </p>
+      <Heading class="t-h2 method__heading" id="method-title" data-text-reveal>
+        {method.heading}
+      </Heading>
+    </div>
+
+    <div class="method__aside" data-reveal>
+      <p class="method__body">{method.body}</p>
+      {!compact && <p class="method__cta"><Cta label={method.cta.label} href={method.cta.href} /></p>}
+    </div>
+  </div>
+
+  <div class="container">
+    <ol class="phases" role="list">
+      {
+        method.phases.map((p, i) => (
+          <li class="phase" data-reveal style={`--i:${i};--reveal-delay:${i * 80}ms`}>
+            <span class="phase__rail" aria-hidden="true" />
+
+            <div class="phase__top">
+              <span class="t-eyebrow phase__n">{p.n}</span>
+              <span class="t-eyebrow phase__when">{p.when}</span>
+            </div>
+
+            <h3 class="t-h3 phase__title">{p.title}</h3>
+            <p class="phase__body">{compact ? p.short : p.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  /* Regla del sitio: una sección, una pantalla. Ver la nota de Gap.astro. */
+  .method {
+    --pad-v: clamp(var(--space-s), 7svh, var(--space-l));
+    --step: clamp(var(--space-2xs), 2.2svh, var(--space-s));
+
+    padding-block: var(--pad-v);
+    content-visibility: auto;
+    contain-intrinsic-size: auto 88rem;
+  }
+
+  @media (max-width: 47.9375rem) {
+    .method {
+      --pad-v: clamp(var(--space-s), 5svh, var(--space-m));
+      --step: clamp(var(--space-2xs), 1.8svh, var(--space-s));
+    }
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Encabezado                                                             */
+  /* --------------------------------------------------------------------- */
+
+  .method__head {
+    display: grid;
+    gap: var(--step) var(--gutter);
+    align-items: end;
+    padding-bottom: var(--step);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  @media (min-width: 64rem) {
+    .method__head {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  .method__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7ch;
+    padding: 0.4rem 0.7rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-btn);
+  }
+
+  .method__dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    background: var(--signal);
+  }
+
+  .method__heading {
+    font-size: min(var(--text-h2), 7.4svh);
+    margin-top: var(--step);
+    max-width: 14ch;
+  }
+
+  .method__body {
+    max-width: 46ch;
+    color: var(--text-muted);
+    font-size: var(--text-body);
+    line-height: var(--lh-body);
+  }
+
+  .method__cta {
+    margin-top: var(--step);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Las cuatro fases                                                       */
+  /* --------------------------------------------------------------------- */
+
+  .phases {
+    display: grid;
+    gap: var(--step) var(--gutter);
+    margin: var(--step) 0 0;
+    padding: 0;
+  }
+
+  @media (min-width: 56rem) {
+    .phases {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .phase {
+    position: relative;
+    padding-top: var(--step);
+  }
+
+  /*
+   * El filete de arriba se llena de izquierda a derecha, una fase tras otra:
+   * es la única señal de que las cuatro son una secuencia con plazos y no
+   * cuatro servicios paralelos.
+   */
+  .phase__rail {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: var(--rule);
+    overflow: clip;
+  }
+
+  .phase__rail::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--text);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--dur-slow) var(--ease-out);
+    transition-delay: calc(var(--i) * 130ms);
+  }
+
+  .phase.is-revealed .phase__rail::after {
+    transform: scaleX(1);
+  }
+
+  html:not(.js) .phase__rail::after {
+    transform: scaleX(1);
+  }
+
+  .phase__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3xs);
+  }
+
+  .phase__n {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* El plazo, en pastilla: es lo que se busca de un vistazo. */
+  .phase__when {
+    padding: 0.3rem 0.55rem;
+    background: color-mix(in srgb, var(--text) 8%, transparent);
+    border-radius: var(--radius-btn);
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .phase__title {
+    margin-top: var(--step);
+    text-wrap: balance;
+  }
+
+  .phase__body {
+    margin-top: var(--space-3xs);
+    max-width: 34ch;
+    color: var(--text-muted);
+    font-size: var(--text-small);
+    line-height: var(--lh-small);
+  }
+
+  /* En /company hay sitio para el párrafo entero. */
+  .method--full .phase__body {
+    font-size: var(--text-body);
+    line-height: var(--lh-body);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .phase__rail::after {
+      transform: scaleX(1);
+      transition: none;
+    }
+  }
+</style>
