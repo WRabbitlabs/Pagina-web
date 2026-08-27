@@ -1,5 +1,9 @@
 # build
 dist/
+# estado local de miniflare/workerd que genera el adaptador de Cloudflare.
+# Son sqlite de varios MB y no son del sitio: en una rama anterior se colaron
+# al repositorio y hubo que sacarlos.
+.wrangler/
 .astro/
 .output/
 .vercel/
