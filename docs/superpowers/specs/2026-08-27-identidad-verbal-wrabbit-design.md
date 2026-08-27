@@ -209,8 +209,10 @@ incumple, no es una regla y no está aquí.
 24. **Una sola etiqueta por destino.** «Trabajemos juntos» en las cuatro
     apariciones; nunca «Hablar con nosotros» en paralelo.
 25. **Un solo idioma en el cuerpo.** Cero cadenas en inglés. No cuentan como
-    inglés: la marca, los nombres de plataforma (LinkedIn, X, SECOP II) y las
-    siglas normativas.
+    inglés: la marca, los nombres de plataforma (LinkedIn, X, SECOP II), las
+    siglas normativas y **«Newsroom»**, que por decisión de §12.4 se conserva
+    como nombre propio de sección. La excepción se escribe aquí precisamente
+    para que no se lea como un descuido.
 
 ---
 
@@ -246,24 +248,34 @@ hoy, no hipótesis.
 
 ### Siempre — el idioma del comprador
 
+**El orden de esta lista es el orden de prioridad del comprador** (§12.3):
+empresas reguladas primero, bufetes después, Estado en tercer lugar. Cuando haya
+que recortar, se recorta desde abajo.
+
+- **Sectores regulados** — *el primer comprador*: marco regulatorio, reporte
+  regulatorio, área de cumplimiento, riesgo operativo, matriz de riesgos,
+  control interno, revisoría fiscal, circular externa, conciliación,
+  Superintendencia Financiera, Superintendencia de Servicios Públicos,
+  Superintendencia de Sociedades.
+- **Control y auditoría** — común a los tres compradores: hallazgo,
+  requerimiento, auditoría interna y externa, papel de trabajo, plan de
+  remediación, ente de control.
+- **Datos personales** — común a los tres: habeas data, tratamiento, finalidad,
+  autorización, Ley 1581 de 2012, Decreto 1377 de 2013, RNBD, Superintendencia
+  de Industria y Comercio.
 - **Gestión documental**: radicación, radicado, expediente electrónico, anexo,
   minuta, término, traslado.
-- **Contratación pública**: SECOP II, RUP, requisitos habilitantes, códigos
-  UNSPSC, estudio de mercado, pliego, certificación de experiencia, supervisión
-  del contrato.
-- **Control**: ente de control, requerimiento, hallazgo, auditoría interna y
-  externa, Contraloría, Procuraduría, Personería.
-- **Cumplimiento**: marco regulatorio, reporte regulatorio, área de cumplimiento.
-- **Datos personales**: habeas data, tratamiento, finalidad, autorización,
-  Ley 1581 de 2012, Decreto 1377 de 2013, RNBD, Superintendencia de Industria y
-  Comercio.
+- **Práctica jurídica** — *el segundo comprador*: bufete, firma de práctica
+  corporativa, dirección jurídica, litigio, derecho de petición, tutela.
+- **Contratación pública** — *el tercer comprador*: SECOP II, RUP, requisitos
+  habilitantes, códigos UNSPSC, estudio de mercado, pliego, certificación de
+  experiencia, supervisión del contrato; entidad del orden nacional, entidad
+  territorial, alcaldía, gobernación, establecimiento público.
 - **Estado digital**: MinTIC, MSPI, MIPG, Ley 1712 de 2014, Gobierno Digital.
-- **Sujetos**: entidad del orden nacional, entidad territorial, alcaldía,
-  gobernación, establecimiento público, Superfinanciera, Superservicios,
-  Supersociedades; bufete, firma de práctica corporativa, dirección jurídica.
-- **Lo nuestro**: trazabilidad, evidencia, registro de ejecución, marca temporal,
-  regla declarada, versión, reconstrucción, corrida; automatización auditable,
-  capa de ejecución, proceso de punta a punta, secuencia declarada.
+- **Lo nuestro** — transversal, nunca se recorta: trazabilidad, evidencia,
+  registro de ejecución, marca temporal, regla declarada, versión,
+  reconstrucción, corrida; automatización auditable, capa de ejecución, proceso
+  de punta a punta, secuencia declarada.
 - **Los cinco nodos del Trazado**, siempre en este orden: ingesta, extracción,
   validación, radicación, auditoría.
 
@@ -308,23 +320,34 @@ hoy, no hipótesis.
 
 ## 6. El inventario de prueba
 
-Lo que sustituye a *Nature* y al MIT, en orden de menos a más comprable. Ninguno
-requiere un cofundador del MIT y **ninguno se usa hoy**.
+Lo que sustituye a *Nature* y al MIT. Ninguno requiere un cofundador del MIT y
+**ninguno se usa hoy**.
 
-1. **SECOP II** — número de proceso o de contrato, entidad, objeto y fecha, con
-   enlace al expediente público. Es el «*Cell*, 4 de septiembre de 2025» de
-   WRabbit y se comprueba en treinta segundos.
-2. **Certificaciones de experiencia** firmadas por la entidad contratante. Es
-   literalmente el documento que un pliego pide como requisito habilitante:
-   mostrar que existen habla el idioma del comprador.
-3. **RUP**, con los códigos UNSPSC de inscripción y la capacidad organizacional.
-   El funcionario los va a verificar de todos modos.
-4. **Normas y auditorías con número y fecha**: la alineación con el MSPI del
-   MinTIC, el registro de bases de datos en el RNBD ante la SIC, ISO/IEC 27001
-   si llega.
-5. **Personas** con nombre, apellido, LinkedIn activo y trayectoria institucional
+El orden responde al comprador decidido en §12.3. Una empresa regulada no
+pregunta primero «¿a quién le ha vendido?»: pregunta **«¿pasa mi evaluación de
+proveedores y entiende a mi superintendencia?»**. Por eso la certificación va
+antes que la referencia.
+
+1. **Certificaciones y auditorías con número y fecha** — ISO/IEC 27001, SOC 2 si
+   llega, la alineación con el MSPI del MinTIC. Es lo primero que pide un área
+   de riesgo antes de dejar entrar a un proveedor a sus datos.
+2. **Registro en el RNBD ante la SIC**, con fecha. Un banco o una aseguradora
+   responde solidariamente por el tratamiento que hace su encargado: es un
+   requisito, no un adorno.
+3. **Referencias de cliente nombradas**, con autorización escrita. En el sector
+   privado la existencia del contrato es confidencial por defecto — al revés que
+   en el público. Cuesta más conseguirla y por eso vale más.
+4. **SECOP II** — número de proceso o de contrato, entidad, objeto y fecha, con
+   enlace al expediente público. Baja del primer puesto, pero **no se descarta:
+   es la única prueba del inventario que un tercero verifica en treinta segundos
+   sin pedirnos permiso**, porque la Ley 1712 de 2014 la hace pública. Sirve
+   doble: acredita ante el Estado y le demuestra a un privado que la compañía
+   pasó un listón de contratación ajeno.
+5. **RUP**, con los códigos UNSPSC de inscripción y la capacidad organizacional.
+   Solo relevante ante el comprador público.
+6. **Personas** con nombre, apellido, LinkedIn activo y trayectoria institucional
    verificable.
-6. **Solo al final**, testimonio nominado de un director de entidad.
+7. **Solo al final**, testimonio nominado de un director.
 
 ---
 
@@ -422,8 +445,8 @@ ventana**.
 
 | # | Sección | Qué hace | Palabras |
 |---|---|---|---|
-| 01 | **Hero** | Planta la bandera y se aparta. Tesis literal, sin promesa de resultado. Subtítulo en orden método → terreno. Un solo enlace. | 14–18 |
-| 02 | **Qué hacemos** | Tres enunciados de una idea cada uno: qué construimos, qué deja cada ejecución, dónde trabajamos. Los cuatro terrenos jurídicos salen del turno rotativo y quedan estáticos. | ≤50 |
+| 01 | **Hero** | Planta la bandera y se aparta. Tesis literal, sin promesa de resultado. Subtítulo en orden **método → terreno**, y el terreno abre por empresas reguladas (§12.3). Un solo enlace. | 14–18 |
+| 02 | **Qué hacemos** | Tres enunciados de una idea cada uno: qué construimos, qué deja cada ejecución, dónde trabajamos. Los cuatro terrenos salen del turno rotativo y quedan estáticos, **en este orden** (§12.3): cumplimiento normativo, reporte regulatorio, litigio y contratación pública. | ≤50 |
 | 03 | **La plataforma** | El mecanismo. Primero el diagnóstico, después la secuencia declarada, y la coda del ente de control en frase propia: «Cuando un ente de control pregunta qué pasó el 14 de marzo a las 09:42, la respuesta existe y se puede imprimir.» | ≤60 |
 | 04 | **Tres pilares** | Integración → automatización → trazabilidad. Es una secuencia real, por eso van numerados. Una frase de ≤14 palabras cada uno. | ≤45 |
 | 05 | **Marquee** | Repetición literal del H1. Cero información nueva. Junta de dilatación entre el bloque técnico y el de identidad. | 3–6 |
@@ -564,46 +587,80 @@ sale a producción.
 
 ---
 
-## 12. Decisiones abiertas
+## 12. Decisiones
 
-No las puede tomar este documento.
+### Cerradas — 27 de agosto de 2026
 
-1. **¿Hay contratos con entidades públicas citables en SECOP II?** De esto depende
-   la sección de prueba entera y la regla de canje 3 : 1. Si no los hay, la
-   portada se apoya solo en el MSPI y el RNBD, y hay que aceptar que la prueba es
-   normativa y no de experiencia.
+**12.1 · La tesis única.** Hoy compiten tres: `hero.headlineFlat` («IA aplicada,
+resultados medibles.»), `site.tagline` («Automatización auditable para
+instituciones.») y `marquee.text` («Automatización auditable»). Se descartan las
+tres: **ninguna es la forma final**. La redacción exacta está pendiente, pero el
+terreno ya no es «instituciones» sino sectores regulados, por 12.3. Cuando se
+fije, va palabra por palabra en los tres sitios.
+
+**12.2 · «Newsroom» no se traduce.** Se conserva como nombre propio de sección y
+queda **declarado como excepción expresa** a la regla de un solo idioma (§3.25),
+para que no se lea como un descuido. Consecuencia: es la única palabra inglesa
+del cuerpo, así que no puede haber una segunda. Las dos taxonomías de §7.5
+—Prensa/Anuncio y Publicación— viven dentro de ese rótulo.
+
+**12.3 · El sitio le habla primero a las empresas reguladas.** Financiero,
+asegurador e infraestructura. Los bufetes van segundos y el Estado tercero.
+
+Es la decisión de mayor alcance de todo el documento, porque reordena tres cosas
+que ya estaban escritas:
+
+- **El léxico** (§5) se reordena: reporte regulatorio, área de cumplimiento,
+  riesgo operativo, revisoría fiscal, circular externa y las tres
+  superintendencias suben al primer bloque. El vocabulario de contratación
+  pública baja al tercero, y es lo primero que se recorta cuando falte sitio.
+- **El inventario de prueba** (§6) se reordena: la certificación y el RNBD van
+  antes que la referencia de cliente, porque una empresa regulada pregunta
+  primero si el proveedor pasa su evaluación de riesgo, no a quién le ha
+  vendido. SECOP II baja al cuarto puesto pero **no se descarta**, por la razón
+  que se explica ahí.
+- **Los cuatro terrenos** (§8, bloque 02) quedan en este orden: cumplimiento
+  normativo, reporte regulatorio, litigio y contratación pública.
+
+Aviso: buena parte del copy actual está escrito para el comprador público
+—`governance.plan` habla de RNBD y SIC, el newsroom abre con MinTIC y con
+radicación territorial, `whatWeDo` pone la contratación pública primera—. Ese
+material **no se tira**: se reordena y el registro del Estado pasa a ser el
+segundo plano, no el primero.
+
+### Abiertas — dependen del cliente
+
+1. **¿Hay contratos con entidades públicas citables en SECOP II?** *Pendiente de
+   consultar.* De esto depende cuánto peso carga el punto 4 del inventario de
+   prueba. Con la decisión 12.3 tomada ya no es bloqueante de la sección de
+   prueba —la certificación y el RNBD pueden sostenerla—, pero sigue siendo la
+   única prueba que un tercero verifica sin pedirnos permiso, así que vale la
+   pena averiguarlo antes de escribir esa sección.
 2. **¿El MSPI y el RNBD están cerrados y verificables hoy, con fecha y
-   documento?** Son las dos únicas anclas que el sitio tiene. Si son
-   aspiracionales, se retira la pieza del newsroom y la afirmación de `/company`,
-   y el sitio se queda sin ningún verificador externo.
-3. **La tesis única.** Hoy compiten tres: `hero.headlineFlat` («IA aplicada,
-   resultados medibles.»), `site.tagline` («Automatización auditable para
-   instituciones.») y `marquee.text` («Automatización auditable»). Hay que elegir
-   una y ponerla en los tres sitios palabra por palabra.
-4. **¿A quién le habla primero el sitio: al Estado o a los bufetes?** Ordena el
-   subtítulo del hero, el orden de los cuatro terrenos y qué pieza abre el
-   newsroom. Sin decidirlo, el sitio le habla a los dos a medias.
-5. **¿«follow what others don't see» es marca registrada?** Si lo es, vive solo
+   documento?** Ahora son las dos anclas **principales**, no las de reserva. Si
+   son aspiracionales, se retira la pieza del newsroom y la afirmación de
+   `/company`, y el sitio se queda sin ningún verificador externo.
+3. **La redacción exacta de la tesis** (ver 12.1).
+4. **¿«follow what others don't see» es marca registrada?** Si lo es, vive solo
    dentro del lockup del logo. Si no, se elimina y se adopta una sola forma en
-   español.
-6. **¿«Newsroom» se traduce?** Es inglés en el nav, en el `<title>`, en el H1 y en
-   la portada — cuerpo, no lockup. Candidatas: *Sala de prensa*, *Publicaciones*.
-7. **¿Hay vacantes abiertas?** Si las hay, necesitan ruta propia enlazada solo
+   español. Nota: con «Newsroom» ya gastando la única excepción de idioma, un
+   lema en inglés en el cuerpo pasa a ser insostenible.
+5. **¿Hay vacantes abiertas?** Si las hay, necesitan ruta propia enlazada solo
    desde el pie, y `/contact` deja de titularse «Trabaja con nosotros», que en
    español significa empleo. Hoy el botón promete negocio y la página aterriza
    con un titular de reclutamiento.
-8. **¿Existe un trimestre real de operación publicable anonimizado?** De eso
+6. **¿Existe un trimestre real de operación publicable anonimizado?** De eso
    depende que la consola recupere números de verdad.
-9. **¿La operación sostiene los plazos publicados?** Dos semanas de diagnóstico,
+7. **¿La operación sostiene los plazos publicados?** Dos semanas de diagnóstico,
    primera entrega el viernes de la quinta semana, acompañamiento desde la
    semana trece. Son el mejor activo del sitio y lo único que lo distingue de
    cualquier otra consultora, pero comprometen. Se publican solo si el cliente
    los confirma.
-10. **La fotografía.** Las imágenes del newsroom son de The National Archives del
-    Reino Unido, CC-BY, con atribución obligatoria en el pie. Un sitio sobre
-    instituciones colombianas ilustrado con archivos británicos, y la atribución
-    lo confiesa. O material propio, o se asume y se escribe la atribución en la
-    voz de la casa.
+8. **La fotografía.** Las imágenes del newsroom son de The National Archives del
+   Reino Unido, CC-BY, con atribución obligatoria en el pie. Un sitio sobre
+   compañías y entidades colombianas ilustrado con archivos británicos, y la
+   atribución lo confiesa en el pie. O material propio, o se asume y se escribe
+   la atribución en la voz de la casa.
 
 ---
 
