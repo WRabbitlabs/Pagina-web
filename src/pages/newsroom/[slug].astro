@@ -22,16 +22,6 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { title, category, date, excerpt, image, imageAlt, imageCredit } = entry.data;
 
-/*
- * La imagen del articulo es tambien su tarjeta social. Sin esto los cuatro
- * articulos compartian la og:image por defecto de la portada, asi que en
- * LinkedIn o WhatsApp los cuatro enlaces se veian identicos.
- *
- * `image.src` es la ruta ya procesada por el pipeline de assets; Base la
- * resuelve contra Astro.site para dejarla absoluta, que es lo que exige og.
- */
-const ogImage = image?.src;
-
 const more = byDateDesc(published(await getCollection('newsroom')))
   .filter((e) => e.id !== entry.id)
   .slice(0, 3);
@@ -58,13 +48,19 @@ const article = {
 };
 ---
 
-<Base
-  title={title}
-  description={excerpt}
-  ogType="article"
-  ogImage={ogImage}
-  jsonLd={[article]}
->
+{/*
+  Sin `ogImage`: los articulos usan la tarjeta por defecto.
+
+  Se intento darle a cada uno la suya con `image.src`, y fue un error: esa
+  ruta no la emite el pipeline de assets —Astro solo escribe las variantes
+  que genera <Picture>— asi que las cuatro og:image devolvian 404. Y aunque
+  existieran, pesan de 400 KB a 2,2 MB: WhatsApp descarta la vista previa
+  por encima de 300 KB y deja el enlace pelado.
+
+  Para volver a intentarlo hace falta generar una tarjeta de 1200x630 por
+  articulo, como hace scripts/og.mjs con la de por defecto.
+*/}
+<Base title={title} description={excerpt} ogType="article" jsonLd={[article]}>
   <article class="article">
     <header class="section article__head" data-surface="dark">
       <div class="container">
