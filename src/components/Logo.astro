@@ -38,36 +38,60 @@ const word = parts.join(' ');
   a la línea base sale sola.
 */}
 <span class="mark">
-  <RabbitMark class="mark__symbol" size={26} />{' '}
-  <span class="mark__word">{word}</span>{
-    suffix && (
-      <>
-        {' '}
-        <span class="mark__rule" aria-hidden="true" />
-        {' '}
-        <span class="mark__suffix">{suffix}</span>
-      </>
-    )
-  }
+  {/*
+    El símbolo va envuelto y no suelto. Los estilos con ámbito de Astro compilan
+    a `.mark__symbol[data-astro-cid-…]`, y ese atributo lo llevan los elementos
+    de ESTA plantilla: el <svg> lo dibuja RabbitMark, otro componente, así que
+    nunca lo recibía. Las reglas de colocación y la animación de entrada se
+    escribían contra un selector que no casaba con nada, y por eso la marca
+    aparecía encima del nombre en vez de a su izquierda.
+  */}
+  <span class="mark__symbol">
+    <RabbitMark size={30} />
+  </span>
+
+  <span class="mark__type">
+    <span class="mark__word">{word}</span>{
+      suffix && (
+        <>
+          {' '}
+          <span class="mark__rule" aria-hidden="true" />
+          {' '}
+          <span class="mark__suffix">{suffix}</span>
+        </>
+      )
+    }
+  </span>
 </span>
 
 <style>
+  /*
+   * Fila: símbolo a la izquierda, logotipo a la derecha, centrados entre sí.
+   *
+   * El flex vive AQUÍ y no dentro del logotipo. La distinción importa: el
+   * espacio entre «WRabbit AI», el filete y «Labs» sigue siendo un nodo de
+   * texto de verdad dentro de .mark__type, no un `gap`. Con `gap` el nombre
+   * visible se calcularía como «WRabbit AILabs», dejaría de estar contenido en
+   * el nombre accesible del enlace y rompería el criterio de etiqueta en el
+   * nombre (WCAG 2.5.3) para quien navega por voz.
+   */
   .mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.62em;
     /* Medida fija: un logotipo no escala con el viewport. */
     line-height: 1;
     white-space: nowrap;
   }
 
   /*
-   * El símbolo es alto y estrecho, así que a la misma altura que la caja de
-   * mayúsculas se vería enorme al lado del nombre. Se alinea por la línea base
-   * y se baja un pelo: lo que tiene que cuadrar ópticamente no son las cajas,
-   * son las masas.
+   * `flex` y no `inline-block`: como caja flex, el <svg> de dentro deja de ser
+   * una caja en línea y no arrastra el hueco de la línea base, que es lo que
+   * descuadraba el centrado vertical.
    */
   .mark__symbol {
-    display: inline-block;
-    vertical-align: -0.42em;
-    margin-right: 0.1em;
+    display: flex;
+    flex: none;
   }
 
   .mark__word {
