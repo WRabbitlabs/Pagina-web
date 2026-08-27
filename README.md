@@ -1,11 +1,75 @@
 # WRabbit AI — sitio institucional
 
-Sitio estático en Astro. Todo el contenido vive en archivos de datos y
-colecciones tipadas; ningún componente lleva copy hardcodeado.
+**Creado por Moshe Rafael Manrique.**
 
-El sistema de diseño (tokens, escala, motion, decisiones) está en
-[`DESIGN.md`](./DESIGN.md). Cualquier valor que aparezca en un componente y
-no esté ahí es un bug.
+Sitio institucional de WRabbit AI, compañía colombiana de automatización y
+software dedicado para empresas reguladas, firmas de abogados y entidades del
+Estado. Vive en **[wrailabs.com](https://wrailabs.com)**.
+
+---
+
+## Qué es esto
+
+No es una landing de agencia. Es un sitio que **describe una compañía y su
+método**, deliberadamente construido para no leerse como un folleto de ventas:
+no hay precios, no hay testimonios, no hay cifras que la propia empresa se
+adjudique, y ningún botón dice «agenda una demo». Lo que hay es una tesis, un
+proceso explicado paso a paso, y evidencia publicada en el newsroom para que
+cualquiera pueda revisarla antes de contratar.
+
+Esa decisión no es estética. El comprador de WRabbit AI —un jefe de
+cumplimiento, un socio de un bufete, un ordenador del gasto público— no compra
+por entusiasmo: compra por trazabilidad. Un sitio que promete mucho y prueba
+poco es exactamente el que ese comprador descarta.
+
+### Lo que el sitio cuenta, en orden
+
+1. **El hero** — la tesis de la compañía sobre un vídeo fijado, en un marco que
+   se abre al cargar y se suelta a sangre completa al empezar a bajar.
+2. **Qué hacemos** — tres declaraciones que se iluminan línea a línea con el
+   scroll, con su contador `01/03`.
+3. **La historia** — doscientos años de instrucciones perforadas, del telar de
+   Jacquard al software, contados en tarjetas cuyos agujeros codifican cada año
+   en binario. Explica el oficio antes de pedir nada.
+4. **La plataforma** — el motor de ejecución auditable y sus tres pilares:
+   integrar, ejecutar, dejar evidencia.
+5. **El método** — las cuatro fases de un encargo, con sus plazos.
+6. **Gobierno continuo** — una consola oscura que enseña la forma de la
+   operación: qué se registra y cómo se ve mientras corre.
+7. **La compañía, el newsroom y el cierre.**
+
+### Cómo está construido
+
+| | |
+|---|---|
+| **Framework** | Astro 7 — HTML pre-construido, islas de JavaScript mínimas |
+| **Estilos** | CSS nativo con custom properties y `@layer`. Sin Tailwind, sin frameworks de UI |
+| **Tipografía** | `.woff2` alojadas en el propio dominio, sin llamadas a Google Fonts |
+| **Imágenes** | AVIF y WebP con `srcset`, generadas en el build |
+| **Movimiento** | CSS y ~24 KB de JavaScript propio. Cero librerías de animación |
+| **Despliegue** | Cloudflare — estático desde el CDN, más una función para el formulario |
+
+Dos reglas gobiernan el código y no se negocian:
+
+- **Cero valores escritos a mano en los componentes.** Todo color, medida,
+  duración y curva sale de un token en `src/styles/tokens.css`. Un valor suelto
+  dentro de un componente es un bug, no una excepción.
+- **Cero contenido dentro de los componentes.** Todo el texto vive en
+  `src/data/*` o en colecciones tipadas de `src/content/*`. Un componente sabe
+  cómo se ve algo; nunca qué dice.
+
+El sistema de diseño completo —escala tipográfica, ritmo vertical, motion,
+y la bitácora de cada decisión con su porqué— está en
+[`DESIGN.md`](./DESIGN.md).
+
+### Accesibilidad y rendimiento
+
+WCAG 2.1 AA, verificado sobre el build de producción y no sobre el servidor de
+desarrollo: navegación completa por teclado, foco visible propio, trampa de
+foco en el menú móvil, y un modo `prefers-reduced-motion` en el que el texto
+nunca depende de la animación para leerse. Lighthouse móvil da 100 en las
+cuatro categorías en las siete rutas. Los números están en
+[Verificado](#verificado).
 
 ---
 
@@ -188,31 +252,40 @@ enviar nada.
 
 ## Despliegue
 
-Todo el sitio se prerenderiza salvo `/api/contacto`, que declara
-`prerender = false` porque el brief exige validación en el servidor.
+**Cloudflare**, y la razón no es de preferencia. Las once rutas del sitio se
+pre-construyen como archivos; la única excepción es `/api/contacto`, que
+declara `prerender = false` porque valida, sanea y limita por IP en el
+servidor. En un host de solo archivos —GitHub Pages, por ejemplo— el sitio se
+vería perfecto y **el formulario haría POST contra un 404, en silencio, para
+todos los visitantes**. Cloudflare sirve el estático y ejecuta la función bajo
+el mismo dominio.
 
-Por defecto usa `@astrojs/node` en modo standalone:
+El paso a paso completo está en [`DEPLOY.md`](./DEPLOY.md).
 
 ```bash
-npm run build
-HOST=0.0.0.0 PORT=4321 node dist/server/entry.mjs
+npm run build      # incluye astro check: un error de tipos no compila
 ```
 
-Para Vercel o Netlify, cambiar el adaptador en `astro.config.mjs`:
-
-```js
-import vercel from '@astrojs/vercel';
-// …
-adapter: vercel(),
-```
-
-Nada más del proyecto depende del adaptador.
+Para cambiar a Netlify o Vercel basta con sustituir el adaptador en
+`astro.config.mjs`. Nada más del proyecto depende de él.
 
 ### Dominio
 
-`SITE_URL` en `astro.config.mjs` es la forma canónica: **apex, sin `www`**.
-Configurar una redirección 301 de `www` al apex en el proveedor. De ese
-valor salen el `canonical`, el sitemap y el JSON-LD.
+`SITE_URL` en `astro.config.mjs` es la forma canónica: **`wrailabs.com`, apex y
+sin `www`**. De ese único valor salen el `canonical`, el `og:url`, el sitemap y
+el JSON-LD. Sale del entorno (`PUBLIC_SITE_URL`) para que las vistas previas de
+Cloudflare no emitan enlaces absolutos al dominio de producción.
+
+### El seguro de indexación
+
+`site.indexable` en `src/data/site.ts` está en **`false`**. Mientras lo esté,
+cada página emite `noindex, nofollow` y `robots.txt` responde `Disallow: /`. El
+sitio se puede enseñar por enlace pero no se encuentra buscando.
+
+Es deliberado: hay datos de relleno publicados —NIT, teléfono, dirección— y dos
+páginas legales que se declaran borrador. Nada de eso debe acabar en un índice.
+Se abre poniéndolo en `true`, y las condiciones para hacerlo están en
+[`DEPLOY.md`](./DEPLOY.md).
 
 ## Verificado
 
@@ -262,3 +335,18 @@ CLS 0 y TBT 0 ms en todas. Cero auditorías en rojo.
 - Assets definitivos: imagen de Compañía, imágenes de artículos y OG.
 - **Textos legales revisados por abogado.** `/privacidad` y `/terminos` son
   borradores con la estructura que exige la norma, no textos aprobados.
+
+---
+
+## Autoría
+
+Creado por **Moshe Rafael Manrique**.
+
+Diseño, arquitectura de contenido, sistema visual e implementación. El registro
+de cada decisión de diseño, con su porqué y sus alternativas descartadas, está
+en la bitácora de [`DESIGN.md`](./DESIGN.md).
+
+La fotografía de archivo procede de Openverse; las licencias, autores y
+orígenes de cada imagen están en
+[`src/assets/CREDITOS.md`](./src/assets/CREDITOS.md). Una de ellas es CC-BY y
+lleva su atribución bajo la propia foto, en el artículo que la publica.

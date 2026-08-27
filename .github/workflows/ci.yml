@@ -1,5 +1,8 @@
 # Comprueba que la rama compila. `npm run build` ya incluye `astro check`, asi
 # que un error de tipos rompe el CI igual que rompe el build local.
+#
+# El despliegue NO se hace aqui: lo hace Cloudflare, conectado al repositorio.
+# Ver DEPLOY.md.
 name: CI
 
 on:
@@ -23,6 +26,4 @@ jobs:
 
       - run: npm run build
         env:
-          # Sin esto el build deja canonical y sitemap apuntando a localhost.
-          # En el despliegue real va el dominio; aqui solo importa que no falle.
-          PUBLIC_SITE_URL: https://example.invalid
+          PUBLIC_SITE_URL: https://wrailabs.com

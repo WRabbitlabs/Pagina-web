@@ -1,101 +1,161 @@
-# Despliegue
+# Despliegue — Cloudflare
 
-Estado: **prototipo**. El sitio compila, pasa `astro check` sin errores y sirve
-las diez rutas, pero **no está listo para un público real**. Lo que falta no es
-código: son datos del cliente y una revisión jurídica. Ver [Antes de
-abrir](#antes-de-abrir).
+Dominio canónico: **`wrailabs.com`**, apex y sin `www`.
 
-Mientras tanto el sitio se despliega en modo cerrado: `site.indexable` está en
-`false`, así que cada página emite `noindex, nofollow` y `robots.txt` prohíbe el
-rastreo completo. Se puede enseñar por enlace; no se puede encontrar buscando.
+Vive en `SITE_URL` (`astro.config.mjs`) y desde ahí alimenta el `canonical`, el
+`og:url`, el sitemap y el JSON-LD. Cambiarlo en un solo sitio los cambia todos.
 
 ---
 
-## GitHub Pages no sirve este sitio
+## Por qué Cloudflare y no GitHub Pages
 
-Conviene decirlo antes que nada, porque es la primera opción que la gente
-prueba y falla en silencio.
+Se descartó por una razón concreta, no por preferencia.
 
-GitHub Pages solo entrega archivos estáticos. Este sitio tiene una ruta de
-servidor —`src/pages/api/contacto.ts`, declarada `prerender = false`— que es la
-que recibe el formulario de `/contact`. Sirve para validar, sanear y limitar
-por IP antes de enviar el correo.
+GitHub Pages sirve **archivos estáticos y nada más**. Este sitio es estático
+salvo una ruta: `/api/contacto` declara `prerender = false` porque valida,
+sanea y limita por IP en el servidor. Publicado en GitHub Pages, el sitio se
+vería perfecto y **el formulario haría POST contra un 404 — en silencio, para
+todos los visitantes**. El navegador no avisa: la persona escribe, pulsa enviar
+y no pasa nada.
 
-En GitHub Pages esa ruta no existe. El formulario haría `POST` contra un 404 y
-cada mensaje se perdería. Todo lo demás —las nueve rutas restantes— sí
-funcionaría, porque ya se prerenderiza.
+Cloudflare sirve el estático **y** ejecuta la función, bajo el mismo dominio.
 
-Hay dos salidas y hay que elegir una.
+Y una aclaración que suele confundir: «estático» describe cómo llega el HTML al
+navegador, no si la página se mueve. **Todas las animaciones del sitio son CSS
+y JavaScript de cliente** y funcionan igual. De hecho van mejor: el HTML sale
+del CDN sin que ningún proceso lo genere, así que pinta antes y las animaciones
+arrancan antes.
 
-### Opción A — un host que ejecute Node (recomendada)
+---
 
-Cloudflare Pages, Vercel o Netlify. El formulario sigue funcionando tal cual y
-el cambio es de una línea en `astro.config.mjs`:
+## Qué genera el build
 
 ```bash
-npm i @astrojs/cloudflare && npm rm @astrojs/node
+npm run build      # incluye astro check: un error de tipos no compila
 ```
 
-Después, en `astro.config.mjs`, sustituir `node({ mode: 'standalone' })` por
-`cloudflare()`. Nada más del proyecto lo toca: el adaptador está aislado a
-propósito.
+| Ruta | Qué es |
+|---|---|
+| `dist/client/` | El sitio estático. Se sirve por el binding `ASSETS`. |
+| `dist/server/entry.mjs` | La función. Solo la ejecuta `/api/contacto`. |
+| `dist/server/wrangler.json` | Configuración generada por el adaptador. **No se edita a mano**: se regenera en cada build. |
 
-### Opción B — GitHub Pages, sin formulario propio
-
-Poner `output: 'static'`, borrar `src/pages/api/contacto.ts` y apuntar el
-formulario a un servicio externo (Formspree, Basin) o dejar solo el correo de
-contacto. Se pierde el límite de tasa y el saneamiento del servidor, que es
-justo lo que un sitio que habla de trazabilidad no debería perder.
-
-Si aun así se elige: hace falta un `CNAME` con el dominio y, si se publica en
-`usuario.github.io/repo`, un `base` en la configuración.
+El Worker se llama **`wrabbit-ai`** (campo `name` del `wrangler.json`).
 
 ---
 
-## Variables de entorno
+## Opción A — conectar el repositorio (recomendada)
 
-Copiar `.env.example` a `.env` y rellenar. En el host se configuran como
-variables del proyecto, nunca en el repositorio.
+Cloudflare compila y publica solo, en cada `push`. No hace falta instalar ni
+autenticar nada en local.
 
-| Variable | Para qué | Si falta |
-|---|---|---|
-| `PUBLIC_SITE_URL` | Dominio canónico. Alimenta `canonical`, `og:url`, JSON-LD y sitemap. | Cae a `http://localhost:4321` y **todos los enlaces absolutos quedan mal**. |
-| `MAIL_PROVIDER` | `log` o `resend`. | Cae a `log`. **En producción la API falla a propósito**: con `log` el mensaje no llega a nadie, y fallar es mejor que decir «enviado» y perderlo. |
-| `RESEND_API_KEY` | Clave de Resend. | Con `MAIL_PROVIDER=resend`, la API responde error. |
-| `CONTACT_TO_EMAIL` | Destinatario de los mensajes. | Igual que la anterior. |
-| `MAIL_FROM` | Remitente. | Cae a un `no-reply@` del dominio. |
-| `TRUST_PROXY` | `true` solo si hay un proxy que reescriba `X-Forwarded-For`. | Falso. El límite de tasa usa la IP real del socket, que no se puede falsificar. |
-| `RATE_LIMIT_MAX` / `RATE_LIMIT_WINDOW_MS` | Ventana del límite por IP. | 5 mensajes cada 15 minutos. |
+1. En el panel de Cloudflare: **Workers & Pages → Create → Import a repository**.
+2. Autorizar GitHub y elegir **`WRabbitlabs/Pagina-web`**.
+3. Rama de producción: **`main`**.
+4. Ajustes de compilación:
 
-**Sobre `TRUST_PROXY`:** ponerlo en `true` sin un proxy delante deja el límite
-de tasa en decoración — cualquiera cambia la cabecera en cada intento y tiene
-cuota infinita. En Cloudflare o Vercel va en `true`; en un Node desnudo, no.
+   | Campo | Valor |
+   |---|---|
+   | Build command | `npm run build` |
+   | Deploy command | `npx wrangler deploy -c dist/server/wrangler.json` |
+   | Root directory | *(vacío)* |
 
-**Sobre el límite de tasa:** vive en la memoria del proceso. Con más de una
-instancia, cada una lleva su propia cuenta. Para un prototipo alcanza; para
-tráfico real hace falta un almacén compartido.
+5. Variables de entorno y secretos: ver la tabla de abajo.
+6. Guardar y desplegar. Sale una URL `*.workers.dev` para comprobar.
+
+## Opción B — desde local
+
+```bash
+npx wrangler login
+npm run build
+npx wrangler deploy -c dist/server/wrangler.json
+```
 
 ---
 
-## Antes de abrir
+## Variables y secretos
 
-Nada de esto es código. Son decisiones y datos que solo el cliente tiene.
+En el panel del Worker, **Settings → Variables and Secrets**. Los que llevan
+clave van como **Secret**, no como texto plano.
 
-### Bloqueantes
+| Nombre | Tipo | Valor | Si falta |
+|---|---|---|---|
+| `PUBLIC_SITE_URL` | Variable | `https://wrailabs.com` | Cae al valor por defecto, que ya es ese. En vistas previas conviene poner la URL de la vista previa. |
+| `MAIL_PROVIDER` | Variable | `resend` | **Cae a `log` y la función falla a propósito.** Con `log` el mensaje no llega a nadie; antes respondía «enviado» y el lead se perdía sin rastro. |
+| `CONTACT_TO_EMAIL` | Secret | El correo que recibe los mensajes | La función responde error. |
+| `RESEND_API_KEY` | Secret | La clave de Resend | Igual. |
+| `MAIL_FROM` | Variable | `WRabbit AI <no-reply@wrailabs.com>` | Usa ese mismo valor por defecto. |
+| `TRUST_PROXY` | Variable | `true` | En Cloudflare debe ir en `true`: hay proxy delante y es quien reescribe `X-Forwarded-For`. En un servidor desnudo debe ir en falso, o cualquiera falsifica la cabecera y salta el límite. |
 
-1. **El dominio.** `wrabbit.ai` **no es de la compañía**: hoy responde con
-   «wrabbit — sovereign browser intelligence», de una organización llamada
-   ZYNTHIO, con su propio canonical a `wrabbit.app`. Por eso el dominio salió
-   del código a `PUBLIC_SITE_URL`. Hay que decidir cuál es el dominio real
-   antes de publicar, porque de él dependen el canonical, el sitemap, las
-   tarjetas sociales y el correo `contacto@…`.
+**Resend:** hay que verificar `wrailabs.com` como dominio remitente. Sin eso
+Resend rechaza el envío y el visitante recibe el error con la salida al correo
+directo.
 
-2. **Las páginas legales.** `/privacidad` y `/terminos` muestran, visible para
-   cualquiera, un aviso que dice que el texto es un borrador sin revisión
-   jurídica. Y `/contact` recoge nombre, organización, correo y teléfono bajo
-   esa misma política. Bajo la Ley 1581 de 2012 eso hay que resolverlo antes de
-   recoger un solo dato real: o jurídica aprueba el texto y se quita el aviso,
-   o esas rutas no se publican.
+---
+
+## El espacio KV `SESSION`
+
+El `wrangler.json` generado declara un binding `SESSION` para las sesiones de
+Astro. El sitio no las usa, pero el binding va declarado.
+
+Cloudflare lo **aprovisiona solo** en el primer despliegue. Si aun así el
+despliegue se queja de que falta:
+
+```bash
+npx wrangler kv namespace create SESSION
+```
+
+y añadir el binding en **Settings → Bindings** del Worker.
+
+---
+
+## El dominio
+
+`wrailabs.com` todavía no resuelve. Para apuntarlo:
+
+1. **Añadir el dominio a Cloudflare**: panel principal → **Add a site** →
+   `wrailabs.com`. Cloudflare da dos servidores de nombres.
+2. **Cambiar los nameservers** en el registrador donde se compró el dominio,
+   por los dos que dio Cloudflare. Tarda entre minutos y unas horas.
+3. Cuando el dominio esté activo: en el Worker, **Settings → Domains &
+   Routes → Add → Custom domain** → `wrailabs.com`.
+4. Añadir también `www.wrailabs.com` **como redirección 301 al apex**, no como
+   una segunda copia del sitio.
+
+---
+
+## Limitación conocida — el límite por IP
+
+El límite de `/api/contacto` es una **ventana en memoria del proceso**. En
+Workers cada isolate tiene la suya y se recicla a menudo, así que el límite es
+orientativo: alguien decidido puede pasarlo abriendo conexiones que caigan en
+isolates distintos.
+
+**La barrera que sí aguanta es el honeypot**, que no depende de estado
+compartido: el campo trampa se rellena o no se rellena.
+
+Para un límite real hace falta estado compartido — KV, un Durable Object, o la
+regla de rate limiting del propio Cloudflare, que es la más barata de las tres
+porque no toca el código. **No está hecho.** Se documenta aquí para que la
+degradación sea una decisión y no una sorpresa.
+
+---
+
+## Antes de abrir al público
+
+El sitio se despliega **en modo cerrado**: `site.indexable` está en `false`, así
+que cada página emite `noindex, nofollow` y `robots.txt` responde
+`Disallow: /`. Se puede enseñar por enlace; no se encuentra buscando.
+
+Es deliberado. Para abrirlo hay que resolver esto primero, y nada de ello es
+código:
+
+### Bloqueante — las páginas legales
+
+`/privacidad` y `/terminos` muestran, visible para cualquiera, un aviso que dice
+que el texto es un borrador sin revisión jurídica. Y `/contact` recoge nombre,
+organización, correo y teléfono bajo esa misma política. Bajo la Ley 1581 de
+2012 eso hay que resolverlo antes de recoger un solo dato real.
 
 ### Datos de relleno que hoy se renderizan
 
@@ -106,6 +166,7 @@ Nada de esto es código. Son decisiones y datos que solo el cliente tiene.
 | Dirección | `Calle 100 # 00-00` | JSON-LD y `/privacidad` |
 | LinkedIn de la compañía | `/company/wrabbit-ai` | **404** — pie y `sameAs` |
 | X | `x.com/wrabbitai` | **404** — pie y `sameAs` |
+| Correo | `contacto@wrailabs.com` | hay que crear el buzón |
 
 El LinkedIn del director general sí es real y ya está en su ficha.
 
@@ -116,34 +177,10 @@ El LinkedIn del director general sí es real y ya está en su ficha.
 - Dos de las tres fichas de `src/content/team/` están en `draft: true`. Vuelven
   quitando esa línea.
 - La tipografía Aspekta no está: el sistema usa Inter Tight como sustituta.
-  Ver `src/styles/tokens.css`.
 
----
+### Y entonces
 
-## Publicar
-
-```bash
-npm ci && npm run build
-```
-
-`npm run build` incluye `astro check`. Si hay un error de tipos, no compila.
-
-La salida queda en `dist/`: `dist/client` son los archivos estáticos y
-`dist/server` el servidor de Node. Se arranca con:
-
-```bash
-node dist/server/entry.mjs
-```
-
-**Compresión:** `@astrojs/node` no comprime. Sin gzip o brotli delante, el HTML
-viaja sin comprimir y el primer pintado en móvil se resiente de forma medible.
-Cloudflare, Vercel y Netlify lo hacen solos; un Node desnudo necesita un proxy.
-
-## Abrir al público
-
-Cuando el dominio sea propio, los datos reales y jurídica haya aprobado:
-
-1. `PUBLIC_SITE_URL` con el dominio definitivo.
+1. Confirmar que `PUBLIC_SITE_URL` es `https://wrailabs.com`.
 2. `site.indexable = true` en `src/data/site.ts`.
 3. `npm run build` y comprobar que `robots.txt` ya dice `Allow: /` y que las
    páginas no llevan `noindex`.

@@ -10,6 +10,8 @@ import {
 } from '../../lib/contact';
 
 /** Este endpoint necesita servidor: se excluye del prerender. */
+import { site } from '../../data/site';
+
 export const prerender = false;
 
 /* ------------------------------------------------------------------ */
@@ -104,7 +106,7 @@ async function deliver(data: ContactData): Promise<void> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: import.meta.env.MAIL_FROM ?? 'WRabbit AI <no-reply@wrabbit.ai>',
+        from: import.meta.env.MAIL_FROM ?? `${site.name} <no-reply@wrailabs.com>`,
         to: [to],
         reply_to: data.email,
         subject,
@@ -155,7 +157,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       {
         ok: false,
         message:
-          'Recibimos varios mensajes suyos en poco tiempo. Espere unos minutos y vuelva a intentar, o escríbanos directamente a contacto@wrabbit.ai.',
+          `Recibimos varios mensajes suyos en poco tiempo. Espere unos minutos y vuelva a intentar, o escríbanos directamente a ${site.email}.`,
       },
       429,
     );
@@ -194,7 +196,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       {
         ok: false,
         message:
-          'No pudimos entregar su mensaje. Vuelva a intentar en unos minutos o escríbanos a contacto@wrabbit.ai.',
+          `No pudimos entregar su mensaje. Vuelva a intentar en unos minutos o escríbanos a ${site.email}.`,
       },
       502,
     );

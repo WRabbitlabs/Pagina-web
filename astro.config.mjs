@@ -1,21 +1,23 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import node from '@astrojs/node';
+import cloudflare from '@astrojs/cloudflare';
 
 /**
  * Una sola forma canónica del dominio: apex, sin www.
  * Cambiar aquí también actualiza sitemap, canonical y JSON-LD.
  *
- * Sale del entorno porque el dominio definitivo todavía no está decidido:
- * `wrabbit.ai` NO es de la compañía —hoy sirve el producto de un tercero, con
- * su propio canonical a wrabbit.app—, así que clavarlo aquí haría que cada
- * canonical, cada og:url y cada entrada del sitemap declararan la propiedad de
- * un dominio ajeno.
+ * Dominio confirmado por el cliente: `wrailabs.com`, apex y sin `www`.
  *
- * Al desplegar: definir PUBLIC_SITE_URL con el dominio real.
+ * NO es `wrabbit.ai`: ese dominio no es de la compañía —hoy sirve el producto
+ * de un tercero, con su propio canonical a wrabbit.app—, y tenerlo aquí hacía
+ * que cada canonical, cada og:url y cada entrada del sitemap declararan la
+ * propiedad de un dominio ajeno.
+ *
+ * Sigue saliendo del entorno para que las vistas previas de Cloudflare no
+ * emitan enlaces absolutos al dominio de producción.
  */
-export const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'http://localhost:4321';
+export const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'https://wrailabs.com';
 
 export default defineConfig({
   site: SITE_URL,
@@ -26,10 +28,22 @@ export default defineConfig({
    * que declara `prerender = false` porque el brief exige validación,
    * sanitización y rate limiting en el servidor.
    *
-   * Para desplegar en Vercel o Netlify: cambiar este adaptador por
-   * @astrojs/vercel o @astrojs/netlify. Nada más del proyecto lo toca.
+   * CLOUDFLARE, no GitHub Pages. La razón no es de preferencia: GitHub Pages
+   * sirve archivos estáticos y nada más. Publicado ahí, el sitio se vería
+   * perfecto y el formulario haría POST contra un 404 —en silencio, para todos
+   * los visitantes— porque /api/contacto no existiría. Cloudflare sirve el
+   * estático Y ejecuta la función, bajo el mismo dominio.
+   *
+   * ⚠ El límite por IP de /api/contacto es una ventana en memoria del proceso.
+   * En Workers cada isolate tiene la suya y se recicla a menudo, así que el
+   * límite es orientativo, no una garantía; la barrera que sí aguanta es el
+   * honeypot. Para un límite real hace falta KV, un Durable Object o la regla
+   * de rate limiting del propio Cloudflare. Está anotado en DEPLOY.md.
+   *
+   * Para cambiar a Netlify o Vercel: sustituir este adaptador por
+   * @astrojs/netlify o @astrojs/vercel. Nada más del proyecto lo toca.
    */
-  adapter: node({ mode: 'standalone' }),
+  adapter: cloudflare({ imageService: 'compile' }),
 
   integrations: [
     sitemap({

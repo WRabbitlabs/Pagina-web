@@ -315,6 +315,7 @@ const fields = [
 
 <script>
   import { normalize, validate, hasErrors, type FieldErrors } from '../lib/contact';
+  import { site } from '../data/site';
 
   const form = document.querySelector<HTMLFormElement>('[data-form]');
 
@@ -403,7 +404,7 @@ const fields = [
         }
       } catch {
         setStatus(
-          'No pudimos conectar con el servidor. Revise su conexión y vuelva a intentar, o escríbanos a contacto@wrabbit.ai.',
+          `No pudimos conectar con el servidor. Revise su conexión y vuelva a intentar, o escríbanos a ${site.email}.`,
           'error',
         );
       } finally {

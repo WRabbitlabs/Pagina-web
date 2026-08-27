@@ -22,13 +22,13 @@ export const site = {
   legalName: 'WRabbit AI S.A.S.',
   nit: '901.000.000-0', // PENDIENTE — reemplazar con el NIT real
   /** Espejo de SITE_URL en astro.config.mjs: mismo origen del entorno. */
-  url: import.meta.env.PUBLIC_SITE_URL ?? 'http://localhost:4321',
+  url: import.meta.env.PUBLIC_SITE_URL ?? 'https://wrailabs.com',
   lang: 'es',
   locale: 'es_CO',
   founded: '2023',
   city: 'Bogotá',
   country: 'CO',
-  email: 'contacto@wrabbit.ai',
+  email: 'contacto@wrailabs.com',
   phone: '+57 601 000 0000', // PENDIENTE
   address: {
     street: 'Calle 100 # 00-00',
