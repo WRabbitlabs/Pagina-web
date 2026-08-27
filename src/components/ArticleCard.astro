@@ -25,7 +25,13 @@ const { category, date, title } = entry.data;
  */
 ---
 
-<li class="card" data-tone={tone} data-reveal style={`--reveal-delay:${delay}ms`}>
+<li
+  class="card"
+  data-tone={tone}
+  data-category={category}
+  data-reveal
+  style={`--reveal-delay:${delay}ms`}
+>
   <a
     class="card__link"
     href={href(entry)}

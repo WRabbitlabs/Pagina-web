@@ -18,7 +18,9 @@ const TONES = ['paper', 'moss', 'ink'] as const;
 
 <section class="section news" data-surface="frost" aria-labelledby="news-title">
   <div class="container">
-    <div class="news__head">
+    {/* Le faltaba el revelado: era la única cabecera de sección del sitio
+        que aterrizaba de golpe. */}
+    <div class="news__head" data-reveal>
       <h2 class="t-h3" id="news-title">{newsroom.eyebrow}</h2>
       <a class="link-arrow" href={newsroom.cta.href}>
         {newsroom.cta.label}

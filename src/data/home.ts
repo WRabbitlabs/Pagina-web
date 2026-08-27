@@ -153,6 +153,22 @@ export const company = {
 export const newsroom = {
   eyebrow: 'Newsroom',
   cta: { label: 'Ver todo', href: '/newsroom' },
+
+  /**
+   * Los filtros del índice.
+   *
+   * El primero no filtra nada. Los demás casan literalmente con el campo
+   * `category` del artículo, que es un enum cerrado en content.config.ts: si
+   * ahí se añade una categoría, aquí hay que añadir su fila o dejará de poder
+   * filtrarse. El rótulo va en plural porque cuenta un conjunto; el valor, en
+   * singular, porque es el dato.
+   */
+  filters: [
+    { value: 'all', label: 'Todo' },
+    { value: 'Publicación', label: 'Publicaciones' },
+    { value: 'Anuncio', label: 'Anuncios' },
+    { value: 'Prensa', label: 'Prensa' },
+  ],
 } as const;
 
 /**

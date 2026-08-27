@@ -61,6 +61,16 @@ const article = {
   articulo, como hace scripts/og.mjs con la de por defecto.
 */}
 <Base title={title} description={excerpt} ogType="article" jsonLd={[article]}>
+  {/*
+    Barra de progreso de lectura. Sin una línea de JavaScript: la anima el
+    propio scroll con `animation-timeline`, así que corre en el compositor y
+    no despierta al hilo principal en cada fotograma.
+
+    Decorativa por completo —`aria-hidden`—: no aporta nada que el texto no
+    diga, y anunciar un porcentaje de avance a un lector de pantalla es ruido.
+  */}
+  <div class="progress" aria-hidden="true"></div>
+
   <article class="article">
     <header class="section article__head" data-surface="dark">
       <div class="container">
@@ -169,6 +179,40 @@ const article = {
     margin-top: var(--space-m);
     max-width: var(--measure);
   }
+
+  /* --------------------------------------------------------------------- */
+  /* Progreso de lectura                                                    */
+  /* --------------------------------------------------------------------- */
+
+  .progress {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 60;
+    height: 2px;
+    background: var(--signal);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    /*
+     * Sin soporte de `animation-timeline` la barra se queda en scaleX(0), o
+     * sea invisible, que es exactamente la degradación que se quiere: la
+     * página no pierde nada, solo el indicador.
+     */
+    animation: read-progress linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  @keyframes read-progress {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /*
+   * La lima aquí no es un fondo: es la ración de acento marcando el estado
+   * vivo, el mismo papel que cumple en el punto de 6px de las etiquetas y en
+   * el nodo final del Trazado. Dos píxeles de alto son un filete, no una
+   * superficie.
+   */
 
   .article__media {
     margin-top: var(--space-xl);

@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import FeaturedArticle from '../../components/FeaturedArticle.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
+import NewsroomFilter from '../../components/NewsroomFilter.astro';
 import { splitFeatured, byDateDesc, published } from '../../lib/newsroom';
 
 const all = byDateDesc(published(await getCollection('newsroom')));
@@ -31,9 +32,16 @@ const description =
     <div class="container">
       {featured && <FeaturedArticle entry={featured} as="h2" />}
 
+      {/*
+        El filtro cuenta `rest`, no `all`: el destacado vive fuera de la lista
+        y no se filtra, así que incluirlo en el recuento daría un número que
+        no casa con lo que se ve.
+      */}
+      {rest.length > 0 && <NewsroomFilter total={rest.length} />}
+
       {
         rest.length > 0 ? (
-          <ul class="cards" role="list">
+          <ul class="cards" role="list" data-articles>
             {rest.map((entry, i) => (
               <ArticleCard
                 entry={entry}
@@ -46,6 +54,10 @@ const description =
           !featured && <p class="t-body empty">Todavía no hay publicaciones.</p>
         )
       }
+
+      <p class="t-body empty" data-empty hidden>
+        No hay publicaciones en esta categoría.
+      </p>
     </div>
   </section>
 </Base>
@@ -63,7 +75,8 @@ const description =
   .cards {
     display: grid;
     gap: var(--gutter);
-    margin: var(--space-xl) 0 0;
+    /* El filtro ya pone el aire por encima con su filete. */
+    margin: var(--space-l) 0 0;
     padding: 0;
     /* El color con el que las tarjetas muerden su esquina: el de esta página,
        no el de la tarjeta, que redefine --surface con su tono. */

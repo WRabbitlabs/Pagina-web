@@ -1,0 +1,214 @@
+---
+import { newsroom } from '../data/home';
+
+/**
+ * Filtro por categoría del índice del newsroom.
+ *
+ * Mejora progresiva: sin JavaScript la barra no se pinta —lleva la clase que
+ * solo existe bajo `html.js`— y el índice se queda con todos los artículos a
+ * la vista, que es el estado correcto. Un filtro que no filtra es peor que no
+ * tener filtro.
+ *
+ * Botones y no enlaces: no cambian de página ni de URL, cambian el estado de
+ * una lista que ya está aquí. `aria-pressed` es lo que dice cuál está activo,
+ * y el recuento vive en una región `aria-live` para que quien no ve la lista
+ * sepa cuántos quedaron.
+ */
+interface Props {
+  /** Cuántos artículos hay en total, para el recuento inicial. */
+  total: number;
+}
+
+const { total } = Astro.props;
+---
+
+<div class="filter" data-filter>
+  <div class="filter__bar" role="group" aria-label="Filtrar por categoría">
+    {
+      newsroom.filters.map((f, i) => (
+        <button
+          class="t-eyebrow filter__btn"
+          type="button"
+          data-filter-btn
+          data-value={f.value}
+          aria-pressed={i === 0 ? 'true' : 'false'}
+        >
+          {f.label}
+        </button>
+      ))
+    }
+  </div>
+
+  <p class="t-eyebrow filter__count" aria-live="polite" data-filter-count>
+    {total} de {total}
+  </p>
+</div>
+
+<style>
+  .filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs) var(--space-m);
+    margin-top: var(--space-xl);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* Sin JS el filtro no hace nada, así que no se enseña. */
+  html:not(.js) .filter {
+    display: none;
+  }
+
+  .filter__bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+    /* El hilo de 1px entre botones es el `gap` sobre el fondo. */
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-btn);
+    overflow: hidden;
+  }
+
+  .filter__btn {
+    /*
+     * Cuerpo fijo y no fluido: son cuatro rótulos en una fila estrecha, y con
+     * la escala fluida el cuarto se sale de la caja en pantallas de portátil.
+     */
+    font-size: var(--text-nav, 0.8125rem);
+    padding: 0.55rem 0.85rem;
+    background: var(--surface);
+    color: var(--text-muted);
+    border: 0;
+    cursor: pointer;
+    transition:
+      background var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+
+  .filter__btn:hover {
+    color: var(--text);
+  }
+
+  .filter__btn[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .filter__count {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+
+<script>
+  import { newsroom } from '../data/home';
+
+  const root = document.querySelector<HTMLElement>('[data-filter]');
+  const list = document.querySelector<HTMLElement>('[data-articles]');
+
+  if (root && list) {
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-filter-btn]'));
+    const count = root.querySelector<HTMLElement>('[data-filter-count]')!;
+    const items = Array.from(list.querySelectorAll<HTMLElement>('[data-category]'));
+    const empty = document.querySelector<HTMLElement>('[data-empty]');
+    const total = items.length;
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+    /**
+     * El cambio de estado, sin animación. Lo envuelve `apply`.
+     *
+     * Se usa el atributo `hidden` y no una clase: además de ocultar, saca al
+     * artículo del árbol de accesibilidad y del orden de tabulación. Filtrar
+     * dejando enlaces enfocables que no se ven es peor que no filtrar.
+     */
+    const commit = (value: string) => {
+      let shown = 0;
+      for (const item of items) {
+        const match = value === 'all' || item.dataset.category === value;
+        item.hidden = !match;
+        if (match) {
+          /* El escalonado se recalcula sobre lo que queda, no sobre el índice
+             original: si no, filtrar dejaría huecos de tiempo muertos. */
+          item.style.setProperty('--reveal-delay', `${Math.min(shown, 3) * 70}ms`);
+          shown++;
+        }
+      }
+      count.textContent = `${shown} de ${total}`;
+
+      /* La rejilla vacía no dice nada; el mensaje sí. */
+      list.hidden = shown === 0;
+      if (empty) empty.hidden = shown > 0;
+    };
+
+    /*
+     * `startViewTransition` hace el trabajo caro: mide dónde estaba cada
+     * tarjeta antes y después y anima la diferencia, incluido el reacomodo de
+     * la rejilla. Sin él, el cambio es instantáneo —correcto, solo que sin
+     * transición—, y con `prefers-reduced-motion` se salta a propósito.
+     */
+    let running: ViewTransition | null = null;
+
+    const apply = (value: string) => {
+      const run = () => commit(value);
+
+      /*
+       * `document.hidden` también descarta la transición, y no es un detalle
+       * de laboratorio: en una pestaña en segundo plano el navegador no compone
+       * fotogramas, así que `startViewTransition` aborta al instante con
+       * InvalidStateError. Animar para nadie cuesta un error en la consola y no
+       * enseña nada; se aplica el cambio y ya está.
+       */
+      if (reduced.matches || document.hidden || !document.startViewTransition) {
+        run();
+        return;
+      }
+
+      /*
+       * Dos cosas que hay que hacer a mano, y sin ellas se ve.
+       *
+       * Una: solo cabe una transición a la vez. Pulsar dos filtros seguidos
+       * aborta la anterior, y sin saltarla explícitamente la segunda arranca
+       * desde una instantánea a medias.
+       *
+       * Dos: al abortarse, `ready` y `finished` RECHAZAN. Nadie las esperaba,
+       * así que el rechazo salía a la consola como error no manejado —tres
+       * seguidos en la prueba de clics rápidos—. Que la transición se salte es
+       * el comportamiento correcto; que lo anuncie como fallo, no.
+       */
+      running?.skipTransition();
+
+      const vt = document.startViewTransition(run);
+      running = vt;
+
+      /*
+       * Las TRES promesas, no dos. `updateCallbackDone` rechaza por su cuenta,
+       * y era la que seguía escapándose a la consola: capturar solo `ready` y
+       * `finished` dejaba el error igual de visible.
+       */
+      vt.ready.catch(() => {});
+      vt.updateCallbackDone.catch(() => {});
+      vt.finished
+        .catch(() => {})
+        .finally(() => {
+          if (running === vt) running = null;
+        });
+    };
+
+    const valid = new Set(newsroom.filters.map((f) => f.value as string));
+
+    for (const btn of buttons) {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.value ?? 'all';
+        if (!valid.has(value)) return;
+        for (const other of buttons) {
+          other.setAttribute('aria-pressed', String(other === btn));
+        }
+        apply(value);
+      });
+    }
+  }
+</script>
