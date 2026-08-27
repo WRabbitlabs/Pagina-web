@@ -22,6 +22,16 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { title, category, date, excerpt, image, imageAlt, imageCredit } = entry.data;
 
+/*
+ * La imagen del articulo es tambien su tarjeta social. Sin esto los cuatro
+ * articulos compartian la og:image por defecto de la portada, asi que en
+ * LinkedIn o WhatsApp los cuatro enlaces se veian identicos.
+ *
+ * `image.src` es la ruta ya procesada por el pipeline de assets; Base la
+ * resuelve contra Astro.site para dejarla absoluta, que es lo que exige og.
+ */
+const ogImage = image?.src;
+
 const more = byDateDesc(published(await getCollection('newsroom')))
   .filter((e) => e.id !== entry.id)
   .slice(0, 3);
@@ -48,7 +58,13 @@ const article = {
 };
 ---
 
-<Base title={title} description={excerpt} ogType="article" jsonLd={[article]}>
+<Base
+  title={title}
+  description={excerpt}
+  ogType="article"
+  ogImage={ogImage}
+  jsonLd={[article]}
+>
   <article class="article">
     <header class="section article__head" data-surface="dark">
       <div class="container">

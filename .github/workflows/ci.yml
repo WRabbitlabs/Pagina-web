@@ -1,0 +1,28 @@
+# Comprueba que la rama compila. `npm run build` ya incluye `astro check`, asi
+# que un error de tipos rompe el CI igual que rompe el build local.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` corre el postinstall que copia las fuentes a public/fonts.
+      - run: npm ci
+
+      - run: npm run build
+        env:
+          # Sin esto el build deja canonical y sitemap apuntando a localhost.
+          # En el despliegue real va el dominio; aqui solo importa que no falle.
+          PUBLIC_SITE_URL: https://example.invalid

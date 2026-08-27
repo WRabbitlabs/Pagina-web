@@ -44,10 +44,24 @@ function rateLimited(ip: string): boolean {
   return recent.length > MAX;
 }
 
+/*
+ * La IP del cliente para el limite de tasa.
+ *
+ * `x-forwarded-for` lo escribe quien hace la peticion, asi que creerselo sin
+ * mas convierte el limite en decorativo: basta con cambiar la cabecera en cada
+ * intento para tener cuota infinita. Solo se lee cuando el despliegue declara
+ * que hay un proxy de confianza delante (Cloudflare, un balanceador, nginx),
+ * que es quien la reescribe. Sin esa declaracion manda `clientAddress`, la IP
+ * real del socket, que el cliente no puede falsificar.
+ */
 function clientIp(request: Request, fallback?: string): string {
-  const fwd = request.headers.get('x-forwarded-for');
-  if (fwd) return fwd.split(',')[0]!.trim();
-  return request.headers.get('x-real-ip') ?? fallback ?? 'desconocida';
+  if (import.meta.env.TRUST_PROXY === 'true') {
+    const fwd = request.headers.get('x-forwarded-for');
+    if (fwd) return fwd.split(',')[0]!.trim();
+    const real = request.headers.get('x-real-ip');
+    if (real) return real;
+  }
+  return fallback ?? 'desconocida';
 }
 
 /* ------------------------------------------------------------------ */
@@ -102,6 +116,19 @@ async function deliver(data: ContactData): Promise<void> {
       throw new Error(`Resend respondió ${res.status}: ${await res.text()}`);
     }
     return;
+  }
+
+  /*
+   * En produccion, `log` significa que el mensaje no llega a nadie. Antes
+   * el formulario respondia "enviado" igual y el lead se perdia sin rastro;
+   * ahora falla, que es lo unico honesto: mas vale que el visitante vea un
+   * error y escriba al correo que creer que ya lo atendieron.
+   */
+  if (import.meta.env.PROD) {
+    throw new Error(
+      'MAIL_PROVIDER=log en produccion: el mensaje no se entregaria a nadie. ' +
+        'Configurar MAIL_PROVIDER=resend con RESEND_API_KEY y CONTACT_TO_EMAIL.',
+    );
   }
 
   // provider === 'log' — desarrollo. No sale nada del proceso.

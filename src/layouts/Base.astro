@@ -29,7 +29,12 @@ const {
   ogType = 'website',
   isHome = false,
   jsonLd = [],
-  noindex = false,
+  /*
+   * Por defecto manda el interruptor del sitio, no `false`. Mientras el
+   * prototipo no sea indexable, una pagina nueva nace bloqueada sin que nadie
+   * tenga que acordarse de pasarle la prop.
+   */
+  noindex = !site.indexable,
 } = Astro.props;
 
 const fullTitle = isHome ? title : `${title} — ${site.name}`;

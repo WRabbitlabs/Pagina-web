@@ -23,3 +23,15 @@ public/fonts/*LICENSE*
 Thumbs.db
 *.log
 npm-debug.log*
+
+# herramientas del agente, no del sitio
+# Eran 360 de los 454 archivos del repo, y .claude/skills y .agents/skills
+# guardaban dos copias exactas de lo mismo. Los archivos siguen en disco;
+# solo dejan de viajar en el repo. Se recuperan con `npx skills`.
+.claude/skills/
+.agents/
+skills-lock.json
+
+# material de origen del vídeo del hero: el archivo servido es
+# public/video/hero.mp4, generado por scripts/hero-video.mjs
+/*.mp4

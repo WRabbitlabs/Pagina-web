@@ -6,8 +6,16 @@ import node from '@astrojs/node';
 /**
  * Una sola forma canónica del dominio: apex, sin www.
  * Cambiar aquí también actualiza sitemap, canonical y JSON-LD.
+ *
+ * Sale del entorno porque el dominio definitivo todavía no está decidido:
+ * `wrabbit.ai` NO es de la compañía —hoy sirve el producto de un tercero, con
+ * su propio canonical a wrabbit.app—, así que clavarlo aquí haría que cada
+ * canonical, cada og:url y cada entrada del sitemap declararan la propiedad de
+ * un dominio ajeno.
+ *
+ * Al desplegar: definir PUBLIC_SITE_URL con el dominio real.
  */
-export const SITE_URL = 'https://wrabbit.ai';
+export const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'http://localhost:4321';
 
 export default defineConfig({
   site: SITE_URL,

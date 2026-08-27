@@ -6,10 +6,23 @@
  */
 
 export const site = {
+  /**
+   * Mientras esto sea `false`, cada página emite `noindex, nofollow` y
+   * robots.txt prohíbe el rastreo completo. Es el interruptor de seguridad del
+   * prototipo: hay datos de relleno publicados —NIT, teléfono, dirección— y
+   * dos páginas legales que se declaran borrador. Ninguna de esas cosas debe
+   * acabar en un índice de búsqueda.
+   *
+   * Se pone en `true` cuando: hay dominio propio, el NIT y los datos de
+   * contacto son reales, y jurídica aprobó /privacidad y /terminos.
+   */
+  indexable: false,
+
   name: 'WRabbit AI',
   legalName: 'WRabbit AI S.A.S.',
   nit: '901.000.000-0', // PENDIENTE — reemplazar con el NIT real
-  url: 'https://wrabbit.ai',
+  /** Espejo de SITE_URL en astro.config.mjs: mismo origen del entorno. */
+  url: import.meta.env.PUBLIC_SITE_URL ?? 'http://localhost:4321',
   lang: 'es',
   locale: 'es_CO',
   founded: '2023',
