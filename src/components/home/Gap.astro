@@ -82,19 +82,15 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
 ---
 
 <section class="section gap" aria-labelledby="gap-title" data-gap>
-  <div class="container">
-    <div class="split gap__intro">
-      <div class="gap__col">
-        <h2 class="t-eyebrow gap__tag" id="gap-title">
-          <span class="gap__dot" aria-hidden="true"></span>
-          {gap.eyebrow}
-        </h2>
-      </div>
+  <div class="container gap__grid">
+    <div class="gap__side">
+      <h2 class="t-eyebrow gap__tag" id="gap-title">
+        <span class="gap__dot" aria-hidden="true"></span>
+        {gap.eyebrow}
+      </h2>
 
-      <div class="gap__col">
-        <p class="t-h2 gap__heading" data-text-reveal>{gap.heading}</p>
-        <p class="prose gap__body" data-reveal>{gap.body}</p>
-      </div>
+      <p class="t-h2 gap__heading" data-text-reveal>{gap.heading}</p>
+      <p class="prose gap__body" data-reveal>{gap.body}</p>
     </div>
 
     <figure class="gap__fig" data-reveal>
@@ -200,7 +196,9 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
 
       <figcaption class="t-eyebrow gap__caption">{gap.diagram.caption}</figcaption>
     </figure>
+  </div>
 
+  <div class="container">
     <ol class="gap__forces" role="list">
       {
         gap.forces.map((f, i) => (
@@ -238,21 +236,57 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
    * NO se aplica al escenario ni a las declaraciones: los dos dependen de
    * `position: sticky`, y `content-visibility` rompe el pegado.
    */
+  /*
+   * Regla del sitio: una sección, una pantalla.
+   *
+   * El aire vertical va en `svh`, no en la escala de espaciado a secas. Toda
+   * esa escala crece con el ANCHO —son `clamp()` con `vw`— y lo que hace
+   * desbordar una sección es el ALTO. En un portátil de 1366×768, ancho de
+   * sobra y alto justo, el acolchado de `--space-l` pedía 151px de 768. Atado
+   * a `svh` el mismo bloque respira en una pantalla grande y se recoge en una
+   * baja, sin un punto de ruptura que adivinar.
+   */
   .gap {
+    --pad-v: clamp(var(--space-s), 7svh, var(--space-l));
+    --step: clamp(var(--space-2xs), 2.2svh, var(--space-s));
+
+    padding-block: var(--pad-v);
     content-visibility: auto;
-    contain-intrinsic-size: auto 105rem;
+    contain-intrinsic-size: auto 58rem;
+  }
+
+  /* En móvil el acolchado se recoge: es donde menos alto sobra. */
+  @media (max-width: 47.9375rem) {
+    .gap {
+      --pad-v: clamp(var(--space-s), 5svh, var(--space-m));
+      --step: clamp(var(--space-2xs), 1.8svh, var(--space-s));
+    }
   }
 
   /* --------------------------------------------------------------------- */
-  /* Encabezado                                                             */
+  /* Reparto                                                                */
   /* --------------------------------------------------------------------- */
 
-  .gap__intro {
-    margin-bottom: var(--space-xl);
+  /*
+   * El esquema comparte fila con el texto en vez de ir debajo. Apilados, la
+   * sección medía 1593px en una ventana de 900: había que desplazarse en
+   * mitad de la idea para ver el dibujo que la explica.
+   */
+  .gap__grid {
+    display: grid;
+    gap: var(--space-m) var(--gutter);
+    align-items: center;
   }
 
-  .gap__col {
-    padding-top: var(--space-m);
+  @media (min-width: 64rem) {
+    .gap__grid {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  .gap__side {
+    padding-top: var(--step);
     border-top: 1px solid var(--rule);
   }
 
@@ -274,11 +308,15 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
   }
 
   .gap__heading {
+    /* El titular se topa por alto: dos líneas a 76px son 158 de los 768 de
+       un portátil. Con el tope en svh baja a 61 y sigue mandando. */
+    font-size: min(var(--text-h2), 7.4svh);
+    margin-top: var(--step);
     max-width: 18ch;
   }
 
   .gap__body {
-    margin-top: var(--space-m);
+    margin-top: var(--step);
   }
 
   /* --------------------------------------------------------------------- */
@@ -444,7 +482,7 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
   }
 
   .gap__caption {
-    margin-top: var(--space-s);
+    margin-top: var(--space-2xs);
     padding-top: var(--space-2xs);
     border-top: 1px solid var(--rule);
     text-transform: none;
@@ -503,7 +541,7 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
   .gap__forces {
     display: grid;
     gap: var(--gutter);
-    margin: var(--space-l) 0 0;
+    margin: var(--step) 0 0;
     padding: 0;
   }
 
@@ -513,9 +551,36 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
     }
   }
 
+  /*
+   * En móvil las tres tarjetas apiladas se llevaban 600px por sí solas. En
+   * fila con scroll horizontal y anclaje, la sección sigue cabiendo en una
+   * pantalla y las tres siguen estando: se pasan con el dedo.
+   */
+  @media (max-width: 47.9375rem) {
+    .gap__forces {
+      grid-auto-flow: column;
+      grid-auto-columns: 78%;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      /* Sangra hasta el borde para que el recorrido no acabe contra el
+         acolchado de la página. */
+      margin-inline: calc(var(--pad-page) * -1);
+      padding-inline: var(--pad-page);
+      scrollbar-width: none;
+    }
+
+    .gap__forces::-webkit-scrollbar {
+      display: none;
+    }
+
+    .force {
+      scroll-snap-align: start;
+    }
+  }
+
   .force {
     position: relative;
-    padding: var(--space-s) var(--space-xs) var(--space-m);
+    padding: var(--step) var(--space-xs);
     background: var(--surface-raised);
     border-radius: var(--radius-card);
     /* El filete superior es el que se enciende: sustituye al borde entero
@@ -545,11 +610,11 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
   }
 
   .force__title {
-    margin-top: var(--space-m);
+    margin-top: var(--step);
   }
 
   .force__body {
-    margin-top: var(--space-2xs);
+    margin-top: var(--space-3xs);
     max-width: 34ch;
     color: var(--text-muted);
   }

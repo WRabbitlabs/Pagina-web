@@ -342,6 +342,23 @@ export const results = {
     { id: 'salud', label: 'Salud' },
   ],
 
+  /** Rótulo del eje común. Sin él, cinco barras sueltas no dicen sobre qué. */
+  axis: {
+    caption: 'Todas las cifras sobre la línea base del propio proceso, antes de la implantación.',
+    ticks: [0, 25, 50, 75, 100],
+  },
+
+  /**
+   * `shape` decide el dibujo, no el adorno:
+   *
+   *   'range' — un intervalo. La barra flota entre `from` y `to`, con un
+   *             trazo fino desde cero que sitúa dónde empieza.
+   *   'point' — una magnitud. La barra va de cero a `to`.
+   *
+   * Las cinco comparten un mismo eje de 0 a 100, que es lo que permite
+   * compararlas de un vistazo. Antes cada una tenía su propio anillo o su
+   * propia barra y no se podían leer juntas.
+   */
   metrics: [
     {
       id: 'costos',
@@ -351,40 +368,38 @@ export const results = {
       unit: '%',
       label: 'de reducción en costos operativos',
       sector: 'transversal',
-      source: 'Rango medido sobre el costo por trámite antes y después de la implantación.',
-      span: 'wide',
+      source: 'Costo por trámite, antes y después.',
     },
     {
       id: 'ejecucion',
-      shape: 'gauge',
+      shape: 'point',
       prefix: 'hasta',
-      from: 70,
+      from: 0,
       to: 70,
       unit: '%',
-      label: 'menos tiempo de ejecución en procesos que sustituyen tareas manuales repetitivas',
+      label: 'menos tiempo de ejecución en tareas manuales repetitivas',
       sector: 'transversal',
-      source: 'Tope observado en procesos de captura y validación documental.',
-      span: 'tall',
+      source: 'Tope en captura y validación documental.',
     },
     {
       id: 'contratos',
-      shape: 'gauge',
-      from: 60,
+      shape: 'point',
+      from: 0,
       to: 60,
       unit: '%',
       label: 'menos tiempo de revisión contractual',
       sector: 'legal',
-      source: 'Medido sobre revisión de minutas en firmas de práctica corporativa.',
+      source: 'Revisión de minutas, práctica corporativa.',
     },
     {
       id: 'proyectos',
-      shape: 'gauge',
-      from: 40,
+      shape: 'point',
+      from: 0,
       to: 40,
       unit: '%',
       label: 'menos tiempo en formulación de proyectos',
       sector: 'publico',
-      source: 'Medido sobre formulación de proyectos de inversión pública.',
+      source: 'Formulación de proyectos de inversión pública.',
     },
     {
       id: 'atencion',
@@ -394,7 +409,7 @@ export const results = {
       unit: '%',
       label: 'más capacidad de atención médica',
       sector: 'salud',
-      source: 'Rango medido sobre agenda liberada al automatizar tareas administrativas.',
+      source: 'Agenda liberada de tareas administrativas.',
     },
   ],
 } as const;

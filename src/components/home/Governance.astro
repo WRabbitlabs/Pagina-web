@@ -259,13 +259,28 @@ const GRID = [0.25, 0.5, 0.75];
 
   /* Ver la nota larga en Gap.astro: la geometría se aplaza hasta que la
      sección se acerca. Alto medido a 390px de ancho. */
+  /* Regla del sitio: una sección, una pantalla. Ver la nota de Gap.astro. */
   .governance {
+    /* Ver la nota de Gap.astro: el aire vertical va en svh. */
+    --pad-v: clamp(var(--space-s), 7svh, var(--space-l));
+    --step: clamp(var(--space-2xs), 2.2svh, var(--space-s));
+    --band: clamp(var(--space-3xs), 1.5svh, var(--space-xs));
+
+    padding-block: var(--pad-v);
     content-visibility: auto;
-    contain-intrinsic-size: auto 109rem;
+    contain-intrinsic-size: auto 92rem;
+  }
+
+  /* En móvil el acolchado se recoge: es donde menos alto sobra. */
+  @media (max-width: 47.9375rem) {
+    .governance {
+      --pad-v: clamp(var(--space-s), 5svh, var(--space-m));
+      --step: clamp(var(--space-2xs), 1.8svh, var(--space-s));
+    }
   }
 
   .governance__grid {
-    align-items: start;
+    align-items: center;
   }
 
   @media (min-width: 64rem) {
@@ -293,12 +308,13 @@ const GRID = [0.25, 0.5, 0.75];
   }
 
   .governance__heading {
-    margin-top: var(--space-m);
+    font-size: min(var(--text-h2), 7.4svh);
+    margin-top: var(--step);
     max-width: 12ch;
   }
 
   .governance__body {
-    margin-top: var(--space-m);
+    margin-top: var(--step);
   }
 
   /* --------------------------------------------------------------------- */
@@ -336,7 +352,7 @@ const GRID = [0.25, 0.5, 0.75];
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2xs);
-    padding: var(--space-xs);
+    padding: var(--band) var(--space-xs);
     border-bottom: 1px solid var(--rule);
   }
 
@@ -388,7 +404,7 @@ const GRID = [0.25, 0.5, 0.75];
   }
 
   .kpi {
-    padding: var(--space-xs);
+    padding: var(--band) var(--space-xs);
     background: var(--panel);
   }
 
@@ -431,7 +447,7 @@ const GRID = [0.25, 0.5, 0.75];
 
   .chart,
   .console__aside {
-    padding: var(--space-xs);
+    padding: var(--band) var(--space-xs);
     background: var(--panel);
   }
 
@@ -441,7 +457,7 @@ const GRID = [0.25, 0.5, 0.75];
     align-items: center;
     justify-content: space-between;
     gap: var(--space-2xs);
-    margin-bottom: var(--space-s);
+    margin-bottom: var(--band);
   }
 
   .chart__title {
@@ -503,9 +519,15 @@ const GRID = [0.25, 0.5, 0.75];
   .chart__svg {
     display: block;
     width: 100%;
-    /* preserveAspectRatio="none" estira el viewBox, así que el alto se fija
-       aquí y el trazo se compensa con vector-effect. */
-    height: clamp(9rem, 7rem + 8vw, 13.75rem);
+    /*
+     * preserveAspectRatio="none" estira el viewBox, así que el alto se fija
+     * aquí y el trazo se compensa con vector-effect.
+     *
+     * El tope va en `svh` y no en `vw`: lo que hace desbordar la sección es
+     * la altura de la ventana, no su anchura. En un portátil de 680px el
+     * gráfico se queda en 96px y el panel entero sigue cabiendo.
+     */
+    height: clamp(5.5rem, 12svh, 11.5rem);
     overflow: visible;
   }
 
@@ -598,7 +620,7 @@ const GRID = [0.25, 0.5, 0.75];
   .console__aside {
     display: grid;
     align-content: start;
-    gap: var(--space-s);
+    gap: var(--step);
   }
 
   .plan__title,
@@ -617,7 +639,8 @@ const GRID = [0.25, 0.5, 0.75];
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--space-2xs);
-    padding-block: var(--space-2xs);
+    /* Cuatro filas: en una ventana baja se recogen antes que desbordar. */
+    padding-block: clamp(var(--space-3xs), 1.2svh, var(--space-2xs));
     border-bottom: 1px solid var(--rule);
   }
 

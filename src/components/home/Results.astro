@@ -3,158 +3,187 @@ import { results, sectors } from '../../data/home';
 import { numWidth } from '../../lib/format';
 
 /**
- * EVIDENCIA — resultados medibles.
+ * EVIDENCIA — cinco cifras sobre un mismo eje.
  *
- * Cinco cifras del portafolio, cada una con su base escrita debajo. La
- * sección afirma por escrito que ninguna cifra existe sin su fuente, así que
- * la fuente es parte de la tarjeta y no un enlace a otra parte: si una cifra
- * se queda sin base, se cae la tarjeta entera, no la nota al pie.
+ * Empezó como cinco tarjetas sueltas: dos con barra, tres con anillo. Se veía
+ * mal por una razón que no era de estilo — un anillo al 60% y una barra de 20
+ * a 40 no se pueden comparar, y comparar es justo lo que pide una sección
+ * titulada «resultados medibles». Aquí las cinco caen sobre una sola escala de
+ * 0 a 100 y se leen de un vistazo, en el orden en que están.
+ *
+ * Dos dibujos, porque son dos clases de dato:
+ *
+ *   intervalo — la barra flota entre sus extremos, con un trazo fino desde
+ *               cero que dice dónde empieza. «20–40%» es un rango, no un 40%.
+ *   magnitud  — la barra va de cero al valor.
+ *
+ * Cada fila lleva su fuente escrita debajo, no detrás de un despliegue: el
+ * titular dice «con la fuente a la vista» y eso hay que cumplirlo.
  *
  * ⚠ Las bases de src/data/home.ts son PLACEHOLDER. Ver el aviso de ese
- * archivo: esta es la sección donde publicar sin confirmar convierte el
- * argumento del sitio en falso.
- *
- * Dos formas para dos clases de dato. Un rango («20–40%») es una barra sobre
- * una escala de 0 a 100: se ve dónde cae y cuánto abarca. Un valor único es
- * un anillo. Mezclar las dos en la misma forma haría pasar un rango por una
- * medición cerrada.
- *
- * El filtro por sector es CSS: el botón escribe un atributo en la lista y la
- * hoja de estilos decide qué se ve. El script solo replica la animación de
- * entrada en las tarjetas que vuelven a aparecer.
+ * archivo.
  */
-
-/** El anillo con `pathLength="100"` habla en porcentaje: r deja de importar. */
-const R = 52;
 ---
 
 <section class="section results" data-surface="frost" aria-labelledby="results-title">
   <div class="container">
-    <div class="split results__intro">
-      <div class="results__col">
+    <div class="results__head">
+      <div class="results__intro">
         <h2 class="t-eyebrow results__tag" id="results-title">
           <span class="results__dot" aria-hidden="true"></span>
           {results.eyebrow}
         </h2>
-      </div>
 
-      <div class="results__col">
         <p class="t-h2 results__heading" data-text-reveal>
           {results.heading} <span class="results__soft">{results.headingTail}</span>
         </p>
-        <p class="prose results__body" data-reveal>{results.body}</p>
+      </div>
+
+      <div class="results__aside" data-reveal>
+        <p class="results__body">{results.body}</p>
+
+        <div class="filters" role="group" aria-label="Filtrar por sector">
+          {
+            results.filters.map((f) => (
+              <button
+                class="filters__btn t-eyebrow"
+                type="button"
+                data-sector-filter={f.id}
+                aria-pressed={f.id === 'all' ? 'true' : 'false'}
+              >
+                {f.label}
+              </button>
+            ))
+          }
+        </div>
       </div>
     </div>
 
-    <div class="results__filters" data-reveal>
-      <div class="filters" role="group" aria-label="Filtrar por sector">
-        {
-          results.filters.map((f) => (
-            <button
-              class="filters__btn t-eyebrow"
-              type="button"
-              data-sector-filter={f.id}
-              aria-pressed={f.id === 'all' ? 'true' : 'false'}
-            >
-              {f.label}
-            </button>
-          ))
-        }
+    <div class="exhibit" data-metrics data-filter="all">
+      {/* Cabecera del eje. Se dibuja una vez y manda sobre las cinco filas. */}
+      <div class="axis" data-reveal>
+        <p class="t-eyebrow axis__caption">{results.axis.caption}</p>
+        <div class="axis__scale" aria-hidden="true">
+          {
+            results.axis.ticks.map((t) => (
+              <span class="axis__tick" style={`--p:${t}%`}>
+                {t}
+                {t === 100 ? '%' : ''}
+              </span>
+            ))
+          }
+        </div>
       </div>
 
-      {/* Cuántas tarjetas quedan a la vista, para quien no las ve. */}
-      <p class="t-eyebrow filters__count" data-filter-count aria-live="polite">
+      <ol class="rows" role="list">
+        {
+          results.metrics.map((m, i) => (
+            <li
+              class="row"
+              data-sector={m.sector}
+              data-shape={m.shape}
+              data-reveal
+              style={`--reveal-delay:${i * 70}ms`}
+            >
+              <p class="row__fig">
+                {'prefix' in m && m.prefix && <span class="t-eyebrow row__prefix">{m.prefix}</span>}
+                <span class="row__n">
+                  {m.shape === 'range' && (
+                    <>
+                      <span class="num" data-count={m.from} style={`--w:${numWidth(m.from)}ch`}>
+                        {m.from}
+                      </span>
+                      <span class="row__dash">–</span>
+                    </>
+                  )}
+                  <span class="num" data-count={m.to} style={`--w:${numWidth(m.to)}ch`}>
+                    {m.to}
+                  </span>
+                  <span class="row__unit">{m.unit}</span>
+                </span>
+              </p>
+
+              <div class="row__text">
+                <p class="t-body row__label">{m.label}</p>
+                <p class="t-small row__source">
+                  <span class="row__sector t-eyebrow">{sectors[m.sector]}</span>
+                  {m.source}
+                </p>
+              </div>
+
+              {/*
+                El carril. Decorativo: el intervalo ya está escrito en cifras a
+                la izquierda, y repetirlo aquí para un lector de pantalla sería
+                decir lo mismo dos veces.
+              */}
+              <div class="lane" aria-hidden="true">
+                <span class="lane__ticks" />
+                {m.shape === 'range' && <span class="lane__run" style={`--b:${m.from}%`} />}
+                <span class="lane__bar" style={`--a:${m.from}%;--b:${m.to}%`} />
+                <span class="lane__cap" style={`--p:${m.to}%`} />
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+
+      <p class="t-eyebrow exhibit__count" data-filter-count aria-live="polite">
         {results.metrics.length} de {results.metrics.length}
       </p>
     </div>
-
-    <ul class="metrics" role="list" data-metrics data-filter="all">
-      {
-        results.metrics.map((m, i) => (
-          <li
-            class="metric"
-            data-sector={m.sector}
-            data-shape={m.shape}
-            data-span={'span' in m ? m.span : undefined}
-            data-reveal
-            style={`--reveal-delay:${i * 80}ms`}
-          >
-            {m.shape === 'gauge' ? (
-              <div class="gauge">
-                <svg class="gauge__svg" viewBox="0 0 120 120" aria-hidden="true" fill="none">
-                  <circle class="gauge__track" cx="60" cy="60" r={R} pathLength="100" />
-                  <circle
-                    class="gauge__arc"
-                    cx="60"
-                    cy="60"
-                    r={R}
-                    pathLength="100"
-                    style={`--v:${m.to}`}
-                  />
-                </svg>
-
-                <p class="gauge__value">
-                  {'prefix' in m && m.prefix && (
-                    <span class="t-eyebrow gauge__prefix">{m.prefix}</span>
-                  )}
-                  <span class="gauge__n">
-                    <span class="num" data-count={m.to} style={`--w:${numWidth(m.to)}ch`}>
-                      {m.to}
-                    </span>
-                    {m.unit}
-                  </span>
-                </p>
-              </div>
-            ) : (
-              <div class="range">
-                <p class="range__value">
-                  <span class="num" data-count={m.from} style={`--w:${numWidth(m.from)}ch`}>
-                    {m.from}
-                  </span>–<span class="num" data-count={m.to} style={`--w:${numWidth(m.to)}ch`}>
-                    {m.to}
-                  </span>{m.unit}
-                </p>
-
-                {/* La barra sitúa el rango sobre una escala de 0 a 100. */}
-                <div class="bar" aria-hidden="true">
-                  <span class="bar__track" />
-                  <span class="bar__fill" style={`--a:${m.from}%;--b:${m.to}%`} />
-                </div>
-              </div>
-            )}
-
-            <p class="t-body metric__label">{m.label}</p>
-
-            <p class="metric__foot">
-              <span class="t-eyebrow metric__sector">{sectors[m.sector]}</span>
-              <span class="t-small metric__source">{m.source}</span>
-            </p>
-          </li>
-        ))
-      }
-    </ul>
   </div>
 </section>
 
 <style>
-  /* Ver la nota larga en Gap.astro: la geometría se aplaza hasta que la
-     sección se acerca. Alto medido a 390px de ancho. */
+  /*
+   * Regla del sitio: una sección, una pantalla. Con el acolchado de `.section`
+   * esta medía 2034px en una ventana de 900. Ver la nota de Gap.astro.
+   */
   .results {
+    /*
+     * Las tres columnas de la ficha se declaran una sola vez, aquí, porque la
+     * cabecera del eje y las cinco filas son rejillas independientes y tienen
+     * que cuadrar entre sí. La primera columna es de ancho FIJO —no `auto`—:
+     * con `auto`, «20–40%» y «70%» darían anchos distintos y cada fila
+     * empezaría su carril en un sitio.
+     */
+    --cols: clamp(5.5rem, 11vw, 9.5rem) minmax(0, 1.05fr) minmax(0, 1.3fr);
+
+    /* Ver la nota de Gap.astro: el aire vertical va en svh. */
+    --pad-v: clamp(var(--space-s), 7svh, var(--space-l));
+    --step: clamp(var(--space-2xs), 2.2svh, var(--space-s));
+
+    padding-block: var(--pad-v);
     content-visibility: auto;
-    contain-intrinsic-size: auto 167rem;
+    contain-intrinsic-size: auto 89rem;
+  }
+
+  /* En móvil el acolchado se recoge: es donde menos alto sobra. */
+  @media (max-width: 47.9375rem) {
+    .results {
+      --pad-v: clamp(var(--space-s), 5svh, var(--space-m));
+      --step: clamp(var(--space-2xs), 1.8svh, var(--space-s));
+    }
   }
 
   /* --------------------------------------------------------------------- */
   /* Encabezado                                                             */
   /* --------------------------------------------------------------------- */
 
-  .results__intro {
-    margin-bottom: var(--space-l);
+  .results__head {
+    display: grid;
+    gap: var(--step) var(--gutter);
+    padding-bottom: var(--step);
+    margin-bottom: var(--step);
+    border-bottom: 1px solid var(--rule);
   }
 
-  .results__col {
-    padding-top: var(--space-m);
-    border-top: 1px solid var(--rule);
+  @media (min-width: 64rem) {
+    .results__head {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      align-items: end;
+      gap: var(--space-xl);
+    }
   }
 
   .results__tag {
@@ -175,7 +204,10 @@ const R = 52;
   }
 
   .results__heading {
-    max-width: 20ch;
+    /* Se topa por alto: ver la nota del titular en Gap.astro. */
+    font-size: min(var(--text-h2), 7.4svh);
+    margin-top: var(--step);
+    max-width: 18ch;
   }
 
   .results__soft {
@@ -183,28 +215,21 @@ const R = 52;
   }
 
   .results__body {
-    margin-top: var(--space-m);
+    max-width: 46ch;
+    color: var(--text-muted);
+    font-size: var(--text-body);
+    line-height: var(--lh-body);
   }
 
   /* --------------------------------------------------------------------- */
   /* Filtro                                                                 */
   /* --------------------------------------------------------------------- */
 
-  .results__filters {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2xs);
-    padding-bottom: var(--space-s);
-    border-bottom: 1px solid var(--rule);
-    margin-bottom: var(--gutter);
-  }
-
   .filters {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-3xs);
+    margin-top: var(--step);
   }
 
   .filters__btn {
@@ -234,235 +259,267 @@ const R = 52;
     border-color: var(--ink);
   }
 
-  .filters__count {
+  /* Sin JS el filtro no filtra: se retira entero y quedan las cinco cifras,
+     que es el contenido. Un botón que no hace nada es peor que no tenerlo. */
+  html:not(.js) .filters {
+    display: none;
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Cabecera del eje                                                       */
+  /* --------------------------------------------------------------------- */
+
+  .axis {
+    display: grid;
+    gap: var(--gutter);
+    align-items: end;
+  }
+
+  .axis__caption {
+    text-transform: none;
+    color: var(--text-muted);
+  }
+
+  .axis__scale {
+    position: relative;
+    height: 1rem;
+    display: none;
+  }
+
+  .axis__tick {
+    position: absolute;
+    left: var(--p);
+    bottom: 0;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: var(--text-nav);
+    letter-spacing: var(--ls-mono);
     color: var(--text-muted);
     font-variant-numeric: tabular-nums;
   }
 
-  /* Sin JS el filtro no filtra: se retira entero y quedan las cinco cifras,
-     que es el contenido. Un botón que no hace nada es peor que no tenerlo. */
-  html:not(.js) .results__filters {
-    display: none;
+  /* El primero y el último se pegan a su borde: centrados se salen del carril. */
+  .axis__tick:first-child {
+    transform: none;
   }
 
-  /* --------------------------------------------------------------------- */
-  /* Retícula                                                               */
-  /* --------------------------------------------------------------------- */
-
-  .metrics {
-    display: grid;
-    gap: var(--gutter);
-    margin: 0;
-    padding: 0;
-  }
-
-  @media (min-width: 48rem) {
-    .metrics {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .axis__tick:last-child {
+    transform: translateX(-100%);
   }
 
   @media (min-width: 64rem) {
-    .metrics {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .axis {
+      grid-template-columns: var(--cols);
     }
 
-    /* La primera cifra es la que resume la sección: ocupa el doble. */
-    .metric[data-span='wide'] {
-      grid-column: span 2;
+    /* La leyenda ocupa las dos primeras columnas; la escala, la tercera. */
+    .axis__caption {
+      grid-column: 1 / 3;
     }
 
-    .metric[data-span='tall'] {
-      grid-row: span 2;
-    }
-
-    /*
-     * Con un sector filtrado quedan una o dos tarjetas: mantener el doble
-     * ancho dejaría un hueco enorme al lado. Todas iguales.
-     */
-    .metrics:not([data-filter='all']) .metric {
-      grid-column: span 1;
-      grid-row: span 1;
+    .axis__scale {
+      display: block;
     }
   }
 
-  .metric {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-m);
-    padding: var(--space-s) var(--space-xs) var(--space-xs);
-    background: var(--surface-raised);
-    border-radius: var(--radius-card);
+  /* --------------------------------------------------------------------- */
+  /* Las cinco filas                                                        */
+  /* --------------------------------------------------------------------- */
+
+  .rows {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--rule);
   }
 
-  .metrics:not([data-filter='all']) .metric[data-sector]:not(.is-match) {
+  .row {
+    display: grid;
+    gap: var(--space-2xs) var(--gutter);
+    align-items: center;
+    padding-block: var(--space-2xs);
+    border-bottom: 1px solid var(--rule);
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+
+  @media (min-width: 64rem) {
+    .row {
+      grid-template-columns: var(--cols);
+      /* Cinco filas: cada píxel de acolchado cuesta diez. Atado al alto de la
+         ventana, en un portátil bajo se recogen sin tocar el texto. */
+      padding-block: clamp(var(--space-3xs), 1.5svh, var(--space-2xs));
+    }
+  }
+
+  /* La fila entera reacciona al puntero: es lo que hace legible una tabla
+     larga sin pintarle bandas de color. */
+  @media (hover: hover) {
+    .row:hover {
+      background: color-mix(in srgb, var(--ink) 4%, transparent);
+    }
+  }
+
+  .metrics-hidden,
+  .exhibit:not([data-filter='all']) .row:not(.is-match) {
     display: none;
   }
 
   /* --------------------------------------------------------------------- */
-  /* Rango: cifra + barra sobre escala 0–100                                */
+  /* La cifra                                                              */
   /* --------------------------------------------------------------------- */
 
-  .range__value,
-  .gauge__n {
-    font-size: var(--text-h2);
-    line-height: var(--lh-h2);
+  .row__prefix {
+    display: block;
+    color: var(--text-muted);
+  }
+
+  .row__n {
+    display: block;
+    font-size: var(--text-h3);
+    line-height: 1.05;
     letter-spacing: var(--ls-heading);
     font-variant-numeric: tabular-nums;
     color: var(--text);
+    white-space: nowrap;
   }
 
-  /* Ancho reservado: el contador no empuja al guion ni al símbolo. */
+  /* Ancho reservado en `ch`: el contador no empuja al guion ni al símbolo. */
   .num {
     display: inline-block;
     min-width: var(--w);
   }
 
-  .bar {
-    position: relative;
-    height: 3px;
-    margin-top: var(--space-s);
-  }
-
-  .bar__track {
-    position: absolute;
-    inset: 1px 0;
-    background: var(--rule);
-    /* Cuatro marcas de escala, cada 25%. Es lo que convierte la barra en una
-       escala y no en un adorno. */
-    background-image: linear-gradient(
-      to right,
-      transparent calc(25% - 1px),
-      var(--rule-strong) calc(25% - 1px) 25%,
-      transparent 25%
-    );
-    background-size: 25% 100%;
-  }
-
-  .bar__fill {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: var(--a);
-    width: calc(var(--b) - var(--a));
-    background: var(--ink);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 900ms var(--ease-out) 220ms;
-  }
-
-  .metric.is-revealed .bar__fill {
-    transform: scaleX(1);
-  }
-
-  html:not(.js) .bar__fill {
-    transform: scaleX(1);
-  }
-
-  /* --------------------------------------------------------------------- */
-  /* Anillo                                                                 */
-  /* --------------------------------------------------------------------- */
-
-  .gauge {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: clamp(8.5rem, 7rem + 5vw, 11rem);
-    aspect-ratio: 1;
-  }
-
-  .gauge__svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    /* Arranca a las doce y avanza en el sentido del reloj. */
-    transform: rotate(-90deg);
-  }
-
-  .gauge__track,
-  .gauge__arc {
-    stroke-width: 2;
-    vector-effect: non-scaling-stroke;
-  }
-
-  .gauge__track {
-    stroke: var(--rule);
-  }
-
-  /*
-   * `pathLength="100"` reescala el contorno a 100 unidades, así que el
-   * dasharray se escribe directamente en porcentaje y el radio deja de
-   * importar: cambiar R no descuadra ninguna cifra.
-   */
-  .gauge__arc {
-    stroke: var(--ink);
-    stroke-linecap: butt;
-    stroke-dasharray: 0 100;
-    transition: stroke-dasharray 1100ms var(--ease-out) 220ms;
-  }
-
-  .metric.is-revealed .gauge__arc {
-    stroke-dasharray: var(--v) 100;
-  }
-
-  html:not(.js) .gauge__arc {
-    stroke-dasharray: var(--v) 100;
-  }
-
-  .gauge__value {
-    position: relative;
-    text-align: center;
-  }
-
-  .gauge__prefix {
-    display: block;
-    margin-bottom: var(--space-3xs);
+  .row__dash,
+  .row__unit {
     color: var(--text-muted);
   }
 
   /* --------------------------------------------------------------------- */
-  /* Pie de tarjeta                                                         */
+  /* Texto y fuente                                                         */
   /* --------------------------------------------------------------------- */
 
-  .metric__label {
-    /* Empuja el pie abajo: los pies quedan alineados entre tarjetas aunque
-       las etiquetas midan distinto. */
-    margin-bottom: auto;
-    max-width: 30ch;
+  .row__label {
     color: var(--text);
+    text-wrap: balance;
   }
 
-  .metric__foot {
-    display: grid;
-    gap: var(--space-3xs);
-    padding-top: var(--space-2xs);
-    border-top: 1px solid var(--rule);
+  .row__source {
+    margin-top: var(--space-3xs);
+    color: var(--text-muted);
   }
 
-  .metric__sector {
-    justify-self: start;
-    padding: 0.35rem 0.6rem;
+  .row__sector {
+    display: inline-block;
+    margin-right: 0.6ch;
+    padding: 0.2rem 0.5rem;
     background: color-mix(in srgb, var(--ink) 8%, transparent);
     border-radius: var(--radius-btn);
     color: var(--text-muted);
+    /* Alinea la pastilla con la línea de texto que la sigue. */
+    vertical-align: 0.05em;
   }
 
-  .metric__source {
+  /* --------------------------------------------------------------------- */
+  /* El carril                                                              */
+  /* --------------------------------------------------------------------- */
+
+  .lane {
+    position: relative;
+    height: clamp(var(--space-xs), 3svh, var(--space-s));
+  }
+
+  /* Marcas cada 25%. Son lo que convierte el carril en una escala. */
+  .lane__ticks {
+    position: absolute;
+    inset: 25% 0;
+    border-right: 1px solid var(--rule);
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--rule) 0 1px,
+      transparent 1px 25%
+    );
+  }
+
+  /* Sólo en intervalos: de cero al primer extremo, fino, para situar el rango
+     en la escala sin que parezca que la cifra empieza en cero. */
+  .lane__run {
+    position: absolute;
+    top: calc(50% - 1px);
+    left: 0;
+    width: var(--b);
+    height: 2px;
+    background: var(--rule-strong);
+    opacity: 0.5;
+  }
+
+  .lane__bar {
+    position: absolute;
+    top: calc(50% - 4px);
+    left: var(--a);
+    width: calc(var(--b) - var(--a));
+    height: 8px;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 800ms var(--ease-out) 200ms;
+  }
+
+  .row.is-revealed .lane__bar {
+    transform: scaleX(1);
+  }
+
+  /* El único relleno de acento de la sección: cinco cuadrados de 8px al final
+     de cada barra, que es donde está el dato. */
+  .lane__cap {
+    position: absolute;
+    top: calc(50% - 4px);
+    left: var(--p);
+    width: 8px;
+    height: 8px;
+    margin-left: -8px;
+    background: var(--signal);
+    opacity: 0;
+    transition: opacity var(--dur-mid) var(--ease-out) 900ms;
+  }
+
+  .row.is-revealed .lane__cap {
+    opacity: 1;
+  }
+
+  html:not(.js) .lane__bar {
+    transform: scaleX(1);
+  }
+
+  html:not(.js) .lane__cap {
+    opacity: 1;
+  }
+
+  /* En móvil el carril va debajo del texto, a lo ancho de la tarjeta. */
+  @media (max-width: 63.9375rem) {
+    .lane {
+      height: 1.75rem;
+      grid-column: 1 / -1;
+    }
+  }
+
+  .exhibit__count {
+    margin-top: var(--space-2xs);
     color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .bar__fill {
+    .lane__bar {
       transform: scaleX(1);
       transition: none;
     }
 
-    .gauge__arc {
-      stroke-dasharray: var(--v) 100;
+    .lane__cap {
+      opacity: 1;
       transition: none;
     }
 
+    .row,
     .filters__btn {
       transition: none;
     }
@@ -478,35 +535,33 @@ const R = 52;
    * Filtro por sector.
    *
    * Quién se ve lo decide el CSS: aquí solo se escribe `data-filter` en la
-   * lista y se marca `is-match` en las tarjetas del sector elegido. La razón
-   * de marcar en vez de ocultar es que hace falta saber CUÁLES vuelven a
+   * ficha y se marca `is-match` en las filas del sector elegido. La razón de
+   * marcar en vez de ocultar es que hace falta saber CUÁLES vuelven a
    * aparecer para repetirles la animación de entrada — si no, al filtrar
-   * saldrían de golpe, ya dibujadas, y el anillo perdería su gracia.
+   * saldrían de golpe, con las barras ya dibujadas.
    */
   const list = document.querySelector<HTMLElement>('[data-metrics]');
   const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-sector-filter]'));
   const count = document.querySelector<HTMLElement>('[data-filter-count]');
 
   if (list && buttons.length) {
-    const cards = Array.from(list.querySelectorAll<HTMLElement>('.metric'));
-    const total = cards.length;
+    const rows = Array.from(list.querySelectorAll<HTMLElement>('.row'));
+    const total = rows.length;
 
     const apply = (sector: string) => {
       list.dataset.filter = sector;
 
-      const shown = cards.filter((c) => sector === 'all' || c.dataset.sector === sector);
-
-      cards.forEach((c) => c.classList.toggle('is-match', shown.includes(c)));
+      const shown = rows.filter((r) => sector === 'all' || r.dataset.sector === sector);
+      rows.forEach((r) => r.classList.toggle('is-match', shown.includes(r)));
 
       if (count) count.textContent = `${shown.length} de ${total}`;
 
-      /* Repite la entrada de las que quedan a la vista. El reflujo forzado
-         entre quitar y poner la clase es lo que reinicia la transición: sin
-         él, el navegador agrupa los dos cambios y no pasa nada. */
-      shown.forEach((c) => {
-        c.classList.remove('is-revealed');
-        void c.offsetWidth;
-        c.classList.add('is-revealed');
+      /* El reflujo forzado entre quitar y poner la clase es lo que reinicia
+         la transición: sin él, el navegador agrupa los dos cambios. */
+      shown.forEach((r) => {
+        r.classList.remove('is-revealed');
+        void r.offsetWidth;
+        r.classList.add('is-revealed');
       });
     };
 
