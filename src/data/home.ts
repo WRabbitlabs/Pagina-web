@@ -172,18 +172,13 @@ export const closing = {
 export const gap = {
   eyebrow: 'La brecha',
   /**
-   * Declarativa y en positivo sobre lo que hacemos, no un lamento sobre lo que
-   * el cliente no hizo. «Lo que cuesta no implementar» decía la idea correcta
-   * con la forma equivocada: era un fragmento negativo entre titulares que
-   * afirman —«Un motor de ejecución auditable», «El trabajo invisible,
-   * visible»— y rompía el ritmo de la página.
-   *
-   * «Dos veces» es el puente con la tesis del sitio: el proceso manual se paga
-   * en horas y se vuelve a pagar cuando hay que reconstruir qué pasó. Eso
-   * segundo es exactamente lo que vendemos.
+   * Declarativa y sobre lo que hacemos, no un lamento sobre lo que el cliente
+   * no hizo. «Dos veces» es el puente con la tesis del sitio: el proceso
+   * manual se paga en horas y se vuelve a pagar cuando hay que reconstruir
+   * qué pasó. Lo segundo es exactamente lo que vendemos.
    */
   heading: 'Un proceso manual se paga dos veces.',
-  body: 'Una vez en horas, y otra cuando toca reconstruir a mano qué se hizo y con qué dato. La brecha no es tener inteligencia artificial o no tenerla: es la distancia entre probarla y ponerla a ejecutar. Solo el 39% de las organizaciones reporta impacto en sus resultados y apenas un 6% captura valor significativo; el resto sigue pagando las dos veces.',
+  body: 'La brecha no es tener inteligencia artificial o no tenerla: es la distancia entre probarla y ponerla a ejecutar. Solo el 39% de las organizaciones reporta impacto en sus resultados y apenas un 6% captura valor significativo.',
 
   /** Fuente de las dos cifras de arriba. Sin ella no se publican. */
   source: {
@@ -192,54 +187,49 @@ export const gap = {
   },
 
   /**
-   * El diagrama es un ESQUEMA, no una medición.
+   * Las dos facturas del mismo proceso.
    *
-   * No lleva eje de valores ni cifras, y lo dice por escrito debajo. Un sitio
-   * cuyo argumento es «ninguna cifra existe sin su fuente» no puede dibujar
-   * una curva que insinúe datos que nadie midió. Las trayectorias solo
-   * ordenan tres fuerzas entre sí; la forma es el mensaje.
+   * Antes esto era un diagrama de tres trayectorias con un área rayada. Se
+   * quitó por una razón concreta: necesitaba una nota debajo aclarando que no
+   * eran datos medidos. Una forma de gráfica promete medición; si hay que
+   * defenderla por escrito, es el aparato equivocado. Un recibo no promete
+   * medición: promete partidas, y de partidas sí tenemos.
+   *
+   * Tres renglones por columna. Con dos la columna se ve coja; con cuatro, la
+   * sección deja de caber en una pantalla.
    */
-  diagram: {
-    label:
-      'Esquema de tres trayectorias: la capacidad de quien ya ejecuta con software sube más rápido que la de quien sigue operando igual, y la exigencia regulatoria avanza entre las dos. El espacio entre las dos primeras es lo que se pierde.',
-    caption:
-      'Esquema sin escala de valores. Ordena las tres fuerzas entre sí; no representa cifras medidas.',
-    gapLabel: 'Lo que se pierde',
-    /** Rótulo de cada trayectoria. La geometría vive en el componente. */
-    traces: {
-      adopcion: 'Quien ya ejecuta',
-      regulacion: 'Exigencia regulatoria',
-      capacidad: 'Quien sigue igual',
-    },
-    /** Marcas del eje horizontal. Años, porque la brecha se paga por trimestre. */
-    axis: ['2019', 'Hoy', 'Lo que viene'],
-  },
-
-  /**
-   * `trace` enlaza cada fuerza con su trayectoria del diagrama. Al pasar el
-   * puntero por una tarjeta se resalta la suya; sin puntero, el propio scroll
-   * las va encendiendo en orden.
-   */
-  forces: [
+  payments: [
     {
       n: '01',
-      trace: 'capacidad',
-      title: 'Costo que no baja',
-      body: 'Cada trámite cuesta lo mismo con el doble de volumen. La capacidad se compra contratando gente, no operando mejor.',
+      label: 'Primer pago',
+      name: 'Horas',
+      items: [
+        'Cada trámite cuesta lo mismo con el doble de volumen.',
+        'La capacidad se compra contratando gente, no operando mejor.',
+        'Cada error se paga rehaciendo el trámite completo.',
+      ],
     },
     {
       n: '02',
-      trace: 'regulacion',
-      title: 'Cumplimiento a mano',
-      body: 'Sin registro de qué se decidió y con qué dato, cada auditoría se responde a pulso. La Ley 1581 no admite «no sé».',
-    },
-    {
-      n: '03',
-      trace: 'adopcion',
-      title: 'Distancia que no se recupera',
-      body: 'Quien ya ejecuta acumula ventaja cada trimestre. Empezar tarde cuesta más que empezar caro.',
+      label: 'Segundo pago',
+      name: 'Reconstrucción',
+      items: [
+        'Sin registro de qué se decidió y con qué dato, cada auditoría se responde a pulso.',
+        'La Ley 1581 no admite «no sé»: el responsable contesta igual.',
+        'Reconstruir un expediente cuesta más que haberlo registrado.',
+      ],
     },
   ],
+
+  /**
+   * El renglón de abajo del recibo. Aquí vive la tercera idea —la ventaja que
+   * acumula quien ya ejecuta—, que como tarjeta suelta competía con las otras
+   * dos y como total las remata.
+   */
+  total: {
+    label: 'Total',
+    text: 'La distancia con quien ya ejecuta se abre cada trimestre, y no se recupera contratando.',
+  },
 } as const;
 
 /* ------------------------------------------------------------------------ */
