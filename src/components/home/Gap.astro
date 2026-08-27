@@ -194,7 +194,22 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
         }
       </ul>
 
-      <figcaption class="t-eyebrow gap__caption">{gap.diagram.caption}</figcaption>
+      {/*
+        Nota y fuente. En tipografía de texto, no monoespaciada: la mono está
+        reservada a rótulos, contadores y texto de botón, y esto es una frase.
+      */}
+      <figcaption class="t-small gap__caption">
+        {gap.diagram.caption}{' '}
+        <a
+          class="gap__source external"
+          href={gap.source.href}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {gap.source.text}
+          <span class="sr-only"> (se abre en una pestaña nueva)</span>
+        </a>
+      </figcaption>
     </figure>
   </div>
 
@@ -485,8 +500,20 @@ const NOW = r1(px(Math.floor((N - 1) / 2)));
     margin-top: var(--space-2xs);
     padding-top: var(--space-2xs);
     border-top: 1px solid var(--rule);
-    text-transform: none;
+    letter-spacing: var(--ls-text);
     color: var(--text-muted);
+  }
+
+  .gap__source {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--rule);
+    transition: text-decoration-color var(--dur-fast) var(--ease-out);
+  }
+
+  .gap__source:hover {
+    text-decoration-color: currentColor;
   }
 
   /* --------------------------------------------------------------------- */

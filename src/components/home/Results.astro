@@ -3,26 +3,67 @@ import { results, sectors } from '../../data/home';
 import { numWidth } from '../../lib/format';
 
 /**
- * EVIDENCIA — cinco cifras sobre un mismo eje.
+ * EVIDENCIA — cinco cifras leídas con un calibre.
  *
- * Empezó como cinco tarjetas sueltas: dos con barra, tres con anillo. Se veía
- * mal por una razón que no era de estilo — un anillo al 60% y una barra de 20
- * a 40 no se pueden comparar, y comparar es justo lo que pide una sección
- * titulada «resultados medibles». Aquí las cinco caen sobre una sola escala de
- * 0 a 100 y se leen de un vistazo, en el orden en que están.
+ * Tercera versión, y las dos anteriores explican esta. Primero fueron cinco
+ * tarjetas sueltas, tres con anillo y dos con barra: un anillo al 60% y una
+ * barra de 20 a 40 no se pueden comparar, que es justo lo que pide una
+ * sección titulada «resultados medibles». Después fue una tabla con barras
+ * sobre un eje común: comparaba bien, pero una barra de progreso no mide
+ * nada, solo se llena.
  *
- * Dos dibujos, porque son dos clases de dato:
+ * Un calibre sí mide. Cada fila lleva su regla graduada —marca menor cada 5%,
+ * mayor cada 25%— y el valor es una horquilla con topes, no un relleno. La
+ * cifra vive sobre sus propios topes y no en otra columna, que es lo que la
+ * convierte en la lectura de un instrumento en vez de en una etiqueta al lado
+ * de un adorno.
  *
- *   intervalo — la barra flota entre sus extremos, con un trazo fino desde
- *               cero que dice dónde empieza. «20–40%» es un rango, no un 40%.
- *   magnitud  — la barra va de cero al valor.
+ * La diferencia entre un rango y una magnitud queda dibujada sin explicarla:
+ * «20–40%» abre la horquilla entre sus dos extremos; «70%», desde cero.
  *
- * Cada fila lleva su fuente escrita debajo, no detrás de un despliegue: el
- * titular dice «con la fuente a la vista» y eso hay que cumplirlo.
+ * Al pasar el puntero se enciende la graduación que cae bajo la medida: el
+ * tramo medido se lee más oscuro que el resto de la regla.
  *
  * ⚠ Las bases de src/data/home.ts son PLACEHOLDER. Ver el aviso de ese
  * archivo.
  */
+
+/* ---------------------------------------------------------------------- */
+/* Geometría del calibre. Coordenadas del viewBox, como en Trazado.astro.  */
+/* ---------------------------------------------------------------------- */
+
+/** 1000 unidades = 100%, así que un punto de escala son 10 del viewBox. */
+const W = 1000;
+const H = 34;
+const U = W / 100;
+
+/** El eje arriba; la graduación cuelga de él. */
+const AX = 1;
+const MINOR = 8;
+const MAJOR = 14;
+
+/** Marca menor cada 5%. Las de 25 en 25 las dibuja la mayor. */
+const minorD = Array.from({ length: 21 }, (_, i) => i * 5)
+  .filter((p) => p % 25 !== 0)
+  .map((p) => `M${p * U} ${AX} V${MINOR}`)
+  .join(' ');
+
+const majorD = [0, 25, 50, 75, 100].map((p) => `M${p * U} ${AX} V${MAJOR}`).join(' ');
+
+/**
+ * La horquilla: tope, travesaño, tope. Un solo trazo, para que se dibuje de
+ * una pasada con `pathLength` y sin medir nada en el cliente.
+ */
+const bracket = (a: number, b: number) =>
+  `M${a * U} 21 V33 M${a * U} 27 H${b * U} M${b * U} 21 V33`;
+
+const metrics = results.metrics.map((m) => ({
+  ...m,
+  isRange: m.shape === 'range',
+  d: bracket(m.from, m.to),
+  /** Tramo de regla bajo la medida. Se enciende al pasar el puntero. */
+  lit: { x: m.from * U, w: (m.to - m.from) * U },
+}));
 ---
 
 <section class="section results" data-surface="frost" aria-labelledby="results-title">
@@ -61,11 +102,8 @@ import { numWidth } from '../../lib/format';
 
     <div class="exhibit" data-metrics data-filter="all">
       {/*
-        Cabecera del eje: solo las marcas de la escala. La nota de fuente vivía
-        aquí, en monoespaciada, y era una frase entera — la mono está reservada
-        a navegación, contadores, etiquetas y texto de botón, nunca a texto más
-        largo que un rótulo. Se fue al pie de la ficha, que es donde va una nota
-        al pie, y en la tipografía de texto.
+        Rótulos de la escala. Se escriben una vez y mandan sobre las cinco
+        reglas de abajo, que llevan la graduación pero no los números.
       */}
       <div class="axis" data-reveal aria-hidden="true">
         <div class="axis__scale">
@@ -82,7 +120,7 @@ import { numWidth } from '../../lib/format';
 
       <ol class="rows" role="list">
         {
-          results.metrics.map((m, i) => (
+          metrics.map((m, i) => (
             <li
               class="row"
               data-sector={m.sector}
@@ -90,24 +128,6 @@ import { numWidth } from '../../lib/format';
               data-reveal
               style={`--reveal-delay:${i * 70}ms`}
             >
-              <p class="row__fig">
-                {'prefix' in m && m.prefix && <span class="t-eyebrow row__prefix">{m.prefix}</span>}
-                <span class="row__n">
-                  {m.shape === 'range' && (
-                    <>
-                      <span class="num" data-count={m.from} style={`--w:${numWidth(m.from)}ch`}>
-                        {m.from}
-                      </span>
-                      <span class="row__dash">–</span>
-                    </>
-                  )}
-                  <span class="num" data-count={m.to} style={`--w:${numWidth(m.to)}ch`}>
-                    {m.to}
-                  </span>
-                  <span class="row__unit">{m.unit}</span>
-                </span>
-              </p>
-
               <div class="row__text">
                 <p class="t-body row__label">{m.label}</p>
                 <p class="t-small row__source">
@@ -117,15 +137,55 @@ import { numWidth } from '../../lib/format';
               </div>
 
               {/*
-                El carril. Decorativo: el intervalo ya está escrito en cifras a
-                la izquierda, y repetirlo aquí para un lector de pantalla sería
+                El calibre. Decorativo para un lector de pantalla: la medida
+                está escrita en cifras justo debajo, y repetirla aquí sería
                 decir lo mismo dos veces.
               */}
-              <div class="lane" aria-hidden="true">
-                <span class="lane__ticks" />
-                {m.shape === 'range' && <span class="lane__run" style={`--b:${m.from}%`} />}
-                <span class="lane__bar" style={`--a:${m.from}%;--b:${m.to}%`} />
-                <span class="lane__cap" style={`--p:${m.to}%`} />
+              <div class="cal">
+                <svg
+                  class="cal__svg"
+                  viewBox={`0 0 ${W} ${H}`}
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                  fill="none"
+                >
+                  <defs>
+                    <clipPath id={`lit-${m.id}`}>
+                      <rect x={m.lit.x} y="0" width={m.lit.w} height={H} />
+                    </clipPath>
+                  </defs>
+
+                  <path class="cal__axis" d={`M0 ${AX} H${W}`} />
+                  <path class="cal__tick" d={minorD} />
+                  <path class="cal__tick cal__tick--major" d={majorD} />
+
+                  {/* La misma graduación, recortada al tramo medido. */}
+                  <g class="cal__lit" clip-path={`url(#lit-${m.id})`}>
+                    <path class="cal__tick" d={minorD} />
+                    <path class="cal__tick cal__tick--major" d={majorD} />
+                  </g>
+
+                  <path class="cal__bracket" d={m.d} pathLength="1" />
+                </svg>
+
+                {/* La lectura, sobre sus topes. */}
+                <p class="cal__read">
+                  {m.isRange && (
+                    <span class="cal__val" style={`--p:${m.from}%`}>
+                      <span class="num" data-count={m.from} style={`--w:${numWidth(m.from)}ch`}>
+                        {m.from}
+                      </span>
+                    </span>
+                  )}
+
+                  <span class="cal__val" style={`--p:${m.to}%`}>
+                    {'prefix' in m && m.prefix && <span class="t-eyebrow cal__pre">{m.prefix}</span>}
+                    <span class="num" data-count={m.to} style={`--w:${numWidth(m.to)}ch`}>
+                      {m.to}
+                    </span>
+                    <span class="cal__unit">{m.unit}</span>
+                  </span>
+                </p>
               </div>
             </li>
           ))
@@ -147,30 +207,24 @@ import { numWidth } from '../../lib/format';
 </section>
 
 <style>
-  /*
-   * Regla del sitio: una sección, una pantalla. Con el acolchado de `.section`
-   * esta medía 2034px en una ventana de 900. Ver la nota de Gap.astro.
-   */
   .results {
     /*
-     * Las tres columnas de la ficha se declaran una sola vez, aquí, porque la
-     * cabecera del eje y las cinco filas son rejillas independientes y tienen
-     * que cuadrar entre sí. La primera columna es de ancho FIJO —no `auto`—:
-     * con `auto`, «20–40%» y «70%» darían anchos distintos y cada fila
-     * empezaría su carril en un sitio.
+     * Dos columnas: el concepto y su regla. La cifra ya no tiene columna
+     * propia —vive sobre los topes de su horquilla—, que es lo que hace que
+     * se lea como una medición y no como una etiqueta al lado de un dibujo.
      */
-    --cols: clamp(5.5rem, 10vw, 8.5rem) minmax(0, 1.25fr) minmax(0, 1fr);
+    --cols: minmax(0, 1fr) minmax(0, 1.15fr);
 
-    /* Ver la nota de Gap.astro: el aire vertical va en svh. */
+    /* Separación de 80–120px, en `svh` para que la sección quepa en una
+       ventana baja sin bajar del suelo de la regla. */
     --pad-v: clamp(5rem, 8svh, 7.5rem);
     --step: clamp(var(--space-2xs), 2.2svh, var(--space-s));
 
     padding-block: var(--pad-v);
     content-visibility: auto;
-    contain-intrinsic-size: auto 89rem;
+    contain-intrinsic-size: auto 87rem;
   }
 
-  /* En móvil el acolchado se recoge: es donde menos alto sobra. */
   @media (max-width: 47.9375rem) {
     .results {
       --pad-v: clamp(5rem, 8svh, 6rem);
@@ -208,7 +262,7 @@ import { numWidth } from '../../lib/format';
     border-radius: var(--radius-btn);
   }
 
-  /* 6px de diametro, redondo: la racion de lima para un punto de etiqueta. */
+  /* 6px de diámetro, redondo: la ración de lima para un punto de etiqueta. */
   .results__dot {
     width: 6px;
     height: 6px;
@@ -218,7 +272,6 @@ import { numWidth } from '../../lib/format';
   }
 
   .results__heading {
-    /* Se topa por alto: ver la nota del titular en Gap.astro. */
     font-size: min(var(--text-h2), 7.4svh);
     margin-top: var(--step);
     max-width: 18ch;
@@ -230,6 +283,7 @@ import { numWidth } from '../../lib/format';
 
   .results__body {
     max-width: 46ch;
+    letter-spacing: var(--ls-text);
     color: var(--text-muted);
     font-size: var(--text-body);
     line-height: var(--lh-body);
@@ -267,20 +321,19 @@ import { numWidth } from '../../lib/format';
     border-color: var(--rule-strong);
   }
 
+  /* Acción sobre superficie opuesta: relleno tinta sobre lienzo claro. */
   .filters__btn[aria-pressed='true'] {
     background: var(--ink);
     color: var(--paper);
     border-color: var(--ink);
   }
 
-  /* Sin JS el filtro no filtra: se retira entero y quedan las cinco cifras,
-     que es el contenido. Un botón que no hace nada es peor que no tenerlo. */
   html:not(.js) .filters {
     display: none;
   }
 
   /* --------------------------------------------------------------------- */
-  /* Cabecera del eje                                                       */
+  /* Rótulos de la escala                                                   */
   /* --------------------------------------------------------------------- */
 
   .axis {
@@ -307,7 +360,6 @@ import { numWidth } from '../../lib/format';
     font-variant-numeric: tabular-nums;
   }
 
-  /* El primero y el último se pegan a su borde: centrados se salen del carril. */
   .axis__tick:first-child {
     transform: none;
   }
@@ -321,9 +373,8 @@ import { numWidth } from '../../lib/format';
       grid-template-columns: var(--cols);
     }
 
-    /* La escala va sobre la tercera columna, que es la del carril. */
     .axis__scale {
-      grid-column: 3;
+      grid-column: 2;
       display: block;
     }
   }
@@ -342,7 +393,7 @@ import { numWidth } from '../../lib/format';
     display: grid;
     gap: var(--space-2xs) var(--gutter);
     align-items: center;
-    padding-block: var(--space-2xs);
+    padding-block: clamp(var(--space-3xs), 1.2svh, var(--space-2xs));
     border-bottom: 1px solid var(--rule);
     transition: background-color var(--dur-fast) var(--ease-out);
   }
@@ -350,62 +401,14 @@ import { numWidth } from '../../lib/format';
   @media (min-width: 64rem) {
     .row {
       grid-template-columns: var(--cols);
-      /* Cinco filas: cada píxel de acolchado cuesta diez. Atado al alto de la
-         ventana, en un portátil bajo se recogen sin tocar el texto. */
-      padding-block: clamp(var(--space-3xs), 1.5svh, var(--space-2xs));
     }
   }
 
-  /* La fila entera reacciona al puntero: es lo que hace legible una tabla
-     larga sin pintarle bandas de color. */
-  @media (hover: hover) {
-    .row:hover {
-      background: color-mix(in srgb, var(--ink) 4%, transparent);
-    }
-  }
-
-  .metrics-hidden,
   .exhibit:not([data-filter='all']) .row:not(.is-match) {
     display: none;
   }
 
-  /* --------------------------------------------------------------------- */
-  /* La cifra                                                              */
-  /* --------------------------------------------------------------------- */
-
-  .row__prefix {
-    display: block;
-    color: var(--text-muted);
-  }
-
-  .row__n {
-    display: block;
-    font-size: var(--text-h3);
-    line-height: 1.05;
-    /* Escalon de 36-42px de la escala de tracking. */
-    letter-spacing: var(--ls-h3);
-    font-variant-numeric: tabular-nums;
-    color: var(--text);
-    white-space: nowrap;
-  }
-
-  /* Ancho reservado en `ch`: el contador no empuja al guion ni al símbolo. */
-  .num {
-    display: inline-block;
-    min-width: var(--w);
-  }
-
-  .row__dash,
-  .row__unit {
-    color: var(--text-muted);
-  }
-
-  /* --------------------------------------------------------------------- */
-  /* Texto y fuente                                                         */
-  /* --------------------------------------------------------------------- */
-
   .row__label {
-    /* Escalon de 16-19px de la escala de tracking. */
     letter-spacing: var(--ls-text);
     color: var(--text);
     text-wrap: balance;
@@ -421,100 +424,149 @@ import { numWidth } from '../../lib/format';
     display: inline-block;
     margin-right: 0.6ch;
     padding: 0.2rem 0.5rem;
-    /* Filete de 1px, no relleno: la profundidad sale del borde, nunca de una
-       superficie tintada ni de una sombra. */
+    /* Filete de 1px, no relleno: la profundidad sale del borde. */
     border: 1px solid var(--rule);
     border-radius: var(--radius-btn);
     color: var(--text-muted);
-    /* Alinea la pastilla con la línea de texto que la sigue. */
     vertical-align: 0.05em;
   }
 
   /* --------------------------------------------------------------------- */
-  /* El carril                                                              */
+  /* El calibre                                                             */
   /* --------------------------------------------------------------------- */
 
-  .lane {
+  .cal {
     position: relative;
-    height: clamp(var(--space-xs), 3svh, var(--space-s));
   }
 
-  /* Marcas cada 25%. Son lo que convierte el carril en una escala. */
-  .lane__ticks {
-    position: absolute;
-    inset: 25% 0;
-    border-right: 1px solid var(--rule);
-    background-image: repeating-linear-gradient(
-      to right,
-      var(--rule) 0 1px,
-      transparent 1px 25%
-    );
+  .cal__svg {
+    display: block;
+    width: 100%;
+    /*
+     * `preserveAspectRatio="none"` estira el viewBox a lo ancho, así que el
+     * alto se fija aquí y los trazos se compensan con `vector-effect`: sin él,
+     * una regla estirada 3× tendría marcas de tres píxeles.
+     */
+    height: clamp(1.25rem, 2.6svh, 1.75rem);
+    overflow: visible;
   }
 
-  /* Sólo en intervalos: de cero al primer extremo, fino, para situar el rango
-     en la escala sin que parezca que la cifra empieza en cero. */
-  .lane__run {
-    position: absolute;
-    top: calc(50% - 1px);
-    left: 0;
-    width: var(--b);
-    /* Sobre lienzo claro la hairline es --rule; --rule-strong es la de
-       superficie oscura y aqui pesaba de mas. */
-    height: 1px;
-    background: var(--rule);
+  .cal__axis,
+  .cal__tick,
+  .cal__bracket {
+    stroke: var(--rule);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
   }
 
-  .lane__bar {
-    position: absolute;
-    top: calc(50% - 4px);
-    left: var(--a);
-    width: calc(var(--b) - var(--a));
-    height: 8px;
-    background: var(--ink);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 800ms var(--ease-out) 200ms;
+  /* La marca de 25 en 25 es la que estructura la lectura. */
+  .cal__tick--major {
+    stroke: var(--rule-strong);
+    opacity: 0.5;
   }
 
-  .row.is-revealed .lane__bar {
-    transform: scaleX(1);
-  }
-
-  /* El unico relleno de acento de la seccion: cinco puntos de 6px al final
-     de cada barra, que es donde esta el dato. Redondos y a 6px, que es la
-     racion de lima para un punto. */
-  .lane__cap {
-    position: absolute;
-    top: calc(50% - 3px);
-    left: var(--p);
-    width: 6px;
-    height: 6px;
-    margin-left: -6px;
-    border-radius: var(--radius-pill);
-    background: var(--signal);
+  /* El tramo medido, encendido bajo el puntero. */
+  .cal__lit {
     opacity: 0;
-    transition: opacity var(--dur-mid) var(--ease-out) 900ms;
+    transition: opacity var(--dur-fast) var(--ease-out);
   }
 
-  .row.is-revealed .lane__cap {
-    opacity: 1;
+  .cal__lit .cal__tick {
+    stroke: var(--rule-strong);
   }
 
-  html:not(.js) .lane__bar {
-    transform: scaleX(1);
-  }
+  @media (hover: hover) {
+    .row:hover {
+      background: color-mix(in srgb, var(--ink) 3%, transparent);
+    }
 
-  html:not(.js) .lane__cap {
-    opacity: 1;
-  }
-
-  /* En móvil el carril va debajo del texto, a lo ancho de la tarjeta. */
-  @media (max-width: 63.9375rem) {
-    .lane {
-      height: 1.75rem;
-      grid-column: 1 / -1;
+    .row:hover .cal__lit {
+      opacity: 1;
     }
   }
+
+  /*
+   * La horquilla se dibuja de un trazo. `pathLength="1"` normaliza el largo,
+   * así que el mismo dasharray sirve para las cinco sin medir nada con JS.
+   */
+  .cal__bracket {
+    stroke: var(--ink);
+    stroke-width: 2;
+    stroke-linecap: butt;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 900ms var(--ease-out) 180ms;
+  }
+
+  .row.is-revealed .cal__bracket {
+    stroke-dashoffset: 0;
+  }
+
+  html:not(.js) .cal__bracket {
+    stroke-dashoffset: 0;
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* La lectura                                                             */
+  /* --------------------------------------------------------------------- */
+
+  .cal__read {
+    position: relative;
+    /* Alto reservado: la fila no salta cuando la cifra aparece. */
+    height: calc(min(var(--text-h3), 3.6svh) * 1.02);
+    margin-top: calc(var(--space-3xs) / 2);
+  }
+
+  .cal__val {
+    position: absolute;
+    top: 0;
+    left: var(--p);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: baseline;
+    gap: 0.3ch;
+    font-size: min(var(--text-h3), 3.6svh);
+    line-height: 1.02;
+    /* Escalón de 36–42px de la escala de tracking. */
+    letter-spacing: var(--ls-h3);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--text);
+    opacity: 0;
+    transition: opacity var(--dur-mid) var(--ease-out) 760ms;
+  }
+
+  .row.is-revealed .cal__val {
+    opacity: 1;
+  }
+
+  html:not(.js) .cal__val {
+    opacity: 1;
+  }
+
+  /* La lectura de cero se pega al borde: centrada se saldría de la regla. */
+  .cal__val[style*='--p:0%'] {
+    transform: none;
+  }
+
+  .cal__pre {
+    align-self: center;
+    color: var(--text-muted);
+  }
+
+  .cal__unit {
+    color: var(--text-muted);
+  }
+
+  /* Ancho reservado en `ch`: el contador no empuja al símbolo. */
+  .num {
+    display: inline-block;
+    min-width: var(--w);
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Pie                                                                    */
+  /* --------------------------------------------------------------------- */
 
   .exhibit__foot {
     display: flex;
@@ -538,17 +590,18 @@ import { numWidth } from '../../lib/format';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .lane__bar {
-      transform: scaleX(1);
+    .cal__bracket {
+      stroke-dashoffset: 0;
       transition: none;
     }
 
-    .lane__cap {
+    .cal__val {
       opacity: 1;
       transition: none;
     }
 
     .row,
+    .cal__lit,
     .filters__btn {
       transition: none;
     }
@@ -561,13 +614,10 @@ import { numWidth } from '../../lib/format';
   counters();
 
   /*
-   * Filtro por sector.
-   *
-   * Quién se ve lo decide el CSS: aquí solo se escribe `data-filter` en la
-   * ficha y se marca `is-match` en las filas del sector elegido. La razón de
-   * marcar en vez de ocultar es que hace falta saber CUÁLES vuelven a
-   * aparecer para repetirles la animación de entrada — si no, al filtrar
-   * saldrían de golpe, con las barras ya dibujadas.
+   * Filtro por sector. Quién se ve lo decide el CSS: aquí solo se escribe
+   * `data-filter` en la ficha y se marca `is-match` en las filas del sector.
+   * Se marca en vez de ocultar porque hace falta saber CUÁLES vuelven a
+   * aparecer para repetirles el trazado de la horquilla.
    */
   const list = document.querySelector<HTMLElement>('[data-metrics]');
   const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-sector-filter]'));
@@ -585,8 +635,8 @@ import { numWidth } from '../../lib/format';
 
       if (count) count.textContent = `${shown.length} de ${total}`;
 
-      /* El reflujo forzado entre quitar y poner la clase es lo que reinicia
-         la transición: sin él, el navegador agrupa los dos cambios. */
+      /* El reflujo forzado entre quitar y poner la clase reinicia la
+         transición: sin él, el navegador agrupa los dos cambios. */
       shown.forEach((r) => {
         r.classList.remove('is-revealed');
         void r.offsetWidth;

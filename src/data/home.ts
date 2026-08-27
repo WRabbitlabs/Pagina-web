@@ -170,9 +170,15 @@ export const closing = {
 /* ------------------------------------------------------------------------ */
 
 export const gap = {
-  eyebrow: 'El problema',
-  heading: 'La brecha que nadie está cerrando',
-  body: 'Nadie está integrando inteligencia artificial, cumplimiento y datos en una sola capa de ejecución. Tres fuerzas hacen esa brecha más costosa cada trimestre.',
+  eyebrow: 'La brecha',
+  heading: 'Lo que cuesta no implementar.',
+  body: 'La brecha no es tener inteligencia artificial o no tenerla: es la distancia entre probarla y ponerla a ejecutar. Solo el 39% de las organizaciones reporta impacto en sus resultados, y apenas un 6% captura valor significativo. El resto sigue pagando el costo de operar como antes, y ese costo sube cada trimestre.',
+
+  /** Fuente de las dos cifras de arriba. Sin ella no se publican. */
+  source: {
+    text: 'McKinsey, The state of AI, 2025.',
+    href: 'https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai',
+  },
 
   /**
    * El diagrama es un ESQUEMA, no una medición.
@@ -184,17 +190,18 @@ export const gap = {
    */
   diagram: {
     label:
-      'Esquema de tres trayectorias: la adopción de IA sube más rápido que la capacidad de gobernarla, y la exigencia regulatoria avanza entre las dos. El espacio entre adopción y capacidad es la brecha.',
-    caption: 'Esquema sin escala. Ordena las tres fuerzas entre sí; no representa valores medidos.',
-    gapLabel: 'La brecha',
+      'Esquema de tres trayectorias: la capacidad de quien ya ejecuta con software sube más rápido que la de quien sigue operando igual, y la exigencia regulatoria avanza entre las dos. El espacio entre las dos primeras es lo que se pierde.',
+    caption:
+      'Esquema sin escala de valores. Ordena las tres fuerzas entre sí; no representa cifras medidas.',
+    gapLabel: 'Lo que se pierde',
     /** Rótulo de cada trayectoria. La geometría vive en el componente. */
     traces: {
-      adopcion: 'Adopción de IA',
+      adopcion: 'Quien ya ejecuta',
       regulacion: 'Exigencia regulatoria',
-      capacidad: 'Capacidad de gobernarla',
+      capacidad: 'Quien sigue igual',
     },
-    /** Marcas del eje horizontal. Tiempo, no fechas: el esquema no data nada. */
-    axis: ['Ayer', 'Hoy', 'Lo que viene'],
+    /** Marcas del eje horizontal. Años, porque la brecha se paga por trimestre. */
+    axis: ['2019', 'Hoy', 'Lo que viene'],
   },
 
   /**
@@ -205,21 +212,21 @@ export const gap = {
   forces: [
     {
       n: '01',
-      trace: 'adopcion',
-      title: 'Adopción acelerada',
-      body: 'La IA entra a las empresas de LATAM más rápido que su capacidad de gobernarla.',
+      trace: 'capacidad',
+      title: 'Costo que no baja',
+      body: 'Cada trámite cuesta lo mismo con el doble de volumen. La capacidad se compra contratando gente, no operando mejor.',
     },
     {
       n: '02',
       trace: 'regulacion',
-      title: 'Regulación en aumento',
-      body: 'El cumplimiento dejó de ser opcional: Ley 1581 en Colombia, LGPD en Brasil, LFPDPPP en México y lo que viene.',
+      title: 'Cumplimiento a mano',
+      body: 'Sin registro de qué se decidió y con qué dato, cada auditoría se responde a pulso. La Ley 1581 no admite «no sé».',
     },
     {
       n: '03',
-      trace: 'capacidad',
-      title: 'Organizaciones sin preparar',
-      body: 'La mayoría no tiene estructura de datos ni marco legal para escalar IA con seguridad.',
+      trace: 'adopcion',
+      title: 'Distancia que no se recupera',
+      body: 'Quien ya ejecuta acumula ventaja cada trimestre. Empezar tarde cuesta más que empezar caro.',
     },
   ],
 } as const;
