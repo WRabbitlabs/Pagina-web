@@ -101,7 +101,7 @@ src/
   layouts/Base.astro       head, OG, JSON-LD, skip link, header, footer
   components/
     Header.astro           widgets flotantes: marca y navegación
-    Trazado.astro          el signature — vive en /company#plataforma
+    Trazado.astro          el signature — sin montar hoy; ver DESIGN.md §8
     home/
       Stage.astro          fondo de vídeo compartido por hero y declaraciones
       Hero.astro           solo contenido; el marco lo pone Stage

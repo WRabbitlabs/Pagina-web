@@ -374,7 +374,7 @@ sexto envío) y 405 en métodos no permitidos.
 | 27 | Los widgets se alinean con el marco, no con la ventana | El header repite la geometría del hero (marco + container). Sin eso el logo quedaba `--pad-frame` a la izquierda del titular, que es lo que se veía desalineado. |
 | 28 | Iluminación por palabras con `--ramp: 7` | Con un frente de una palabra el borde es un corte seco. Siete palabras de degradado reproducen la onda de lectura de la referencia. El frente viaja hasta `--n + --ramp` porque si parase en `--n` las últimas palabras nunca se encenderían del todo. |
 | 29 | El troceo en palabras se hace en el servidor | En el cliente habría reflujo al hidratar, y sin JS el texto se quedaría sin partir. Cada declaración lleva además una copia intacta en `.sr-only`: leerla palabra por palabra sería insufrible. |
-| 30 | El Trazado se muda a `/company#plataforma` | La reestructuración del hero lo dejó sin sitio. Ahí ilustra exactamente la secuencia que describe el texto —entrada, transformación, validación, salida— en vez de hacer de fondo. |
+| 30 | El Trazado se muda a `/company#plataforma` | La reestructuración del hero lo dejó sin sitio. Ahí ilustraba la secuencia que describe el texto —entrada, transformación, validación, salida— en vez de hacer de fondo. **Revertida:** se retiró de `/company` a petición del cliente; los tres pilares ya dicen lo mismo en texto y la sección pasó de +815 px sobre la ventana a +181 px. El componente sigue en el repo, sin montar. |
 
 ---
 

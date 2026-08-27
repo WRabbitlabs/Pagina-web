@@ -182,3 +182,19 @@ export const method = {
     },
   ],
 } as const;
+
+/* ------------------------------------------------------------------------ */
+/* Equipo                                                                     */
+/* ------------------------------------------------------------------------ */
+
+export const team = {
+  eyebrow: 'Equipo',
+  /**
+   * El lede decía «Ingeniería y criterio jurídico en la misma mesa» cuando la
+   * página listaba tres fichas, una por disciplina. Publicada una sola, esa
+   * frase prometía dos perfiles que ya no se ven: la sección se desmentía a sí
+   * misma. Esta versión dice lo que la ficha de abajo demuestra —hay un
+   * responsable con nombre— y sigue siendo cierta cuando el equipo crezca.
+   */
+  lede: 'Cada proceso que entregamos tiene un responsable con nombre.',
+} as const;

@@ -7,7 +7,7 @@ import Method from '../components/Method.astro';
 import PillarIcon from '../components/icons/PillarIcon.astro';
 import { site } from '../data/site';
 import { platform, company, closing } from '../data/home';
-import { intro } from '../data/company';
+import { intro, team as teamCopy } from '../data/company';
 
 const team = (await getCollection('team', ({ data }) => !data.draft)).sort(
   (a, b) => a.data.order - b.data.order,
@@ -31,7 +31,7 @@ const PersonName = showGroups ? 'h4' : 'h3';
 
 const title = 'La compañía';
 const description =
-  'Quiénes somos, cómo trabajamos y por qué construimos automatización que deja evidencia. Equipo, fundadores y marco técnico de WRabbit AI.';
+  'Quiénes somos, cómo trabajamos y por qué construimos automatización que deja evidencia. Historia, método, plataforma y equipo de WRabbit AI.';
 ---
 
 <Base title={title} description={description}>
@@ -141,36 +141,38 @@ const description =
   <section class="section" aria-labelledby="equipo">
     <div class="container">
       <div class="split">
-        <div><h2 class="t-eyebrow" id="equipo">Equipo</h2></div>
+        <div><h2 class="t-eyebrow" id="equipo">{teamCopy.eyebrow}</h2></div>
         <div>
-          <p class="t-h2 lede">
-            Ingeniería y criterio jurídico en la misma mesa, desde el primer día.
-          </p>
+          <p class="t-h2 lede">{teamCopy.lede}</p>
         </div>
       </div>
 
-      {showGroups && <h3 class="t-eyebrow group-title">Fundadores</h3>}
-      <ul class="people" role="list">
-        {
-          founders.map((m, i) => (
-            <li class="person" data-reveal style={`--reveal-delay:${i * 100}ms`}>
-              <PersonName class="t-h3">{m.data.name}</PersonName>
-              <p class="t-eyebrow person__role">{m.data.role}</p>
-              {m.data.links.map((l) => (
-                <a
-                  class="link-arrow external person__link"
-                  href={l.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {l.label}
-                  <span class="sr-only"> de {m.data.name} (se abre en una pestaña nueva)</span>
-                </a>
+      {
+        founders.length > 0 && (
+          <>
+            {showGroups && <h3 class="t-eyebrow group-title">Fundadores</h3>}
+            <ul class="people" role="list">
+              {founders.map((m, i) => (
+                <li class="person" data-reveal style={`--reveal-delay:${i * 100}ms`}>
+                  <PersonName class="t-h3">{m.data.name}</PersonName>
+                  <p class="t-eyebrow person__role">{m.data.role}</p>
+                  {m.data.links.map((l) => (
+                    <a
+                      class="link-arrow external person__link"
+                      href={l.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {l.label}
+                      <span class="sr-only"> de {m.data.name} (se abre en una pestaña nueva)</span>
+                    </a>
+                  ))}
+                </li>
               ))}
-            </li>
-          ))
-        }
-      </ul>
+            </ul>
+          </>
+        )
+      }
 
       {
         rest.length > 0 && (
