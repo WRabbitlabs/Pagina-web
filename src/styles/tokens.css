@@ -165,10 +165,21 @@
     --lh-prose: 1.6; /* SOLO el ensayo de Compañía */
 
     /* Tracking — se aprieta a medida que crece el tamaño */
+    /*
+     * El tracking va por tamaño, no por rol, y es lo único que mantiene
+     * legible el peso único en tamaños extremos. La escala dictada es:
+     * -0.03em a 158px · -0.02em a 89–111px · -0.006em a 36–42px ·
+     * -0.001em a 16–19px.
+     */
     --ls-display: -0.03em;
     --ls-h1: -0.025em;
     --ls-heading: -0.02em;
+    /* Escalón de 36–42px. Existe pero todavía no se aplica en todo el sitio:
+       hoy solo lo usa Evidencia. Ver la deuda pendiente del proyecto. */
+    --ls-h3: -0.006em;
     --ls-body: -0.006em;
+    /* Cuerpo de 16–19px según la escala. Aún sin migrar globalmente. */
+    --ls-text: -0.001em;
     --ls-mono: 0;
 
     /* ---------------------------------------------------------------- */
