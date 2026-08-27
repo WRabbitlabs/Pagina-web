@@ -47,7 +47,7 @@ poco es exactamente el que ese comprador descarta.
 | **Tipografía** | `.woff2` alojadas en el propio dominio, sin llamadas a Google Fonts |
 | **Imágenes** | AVIF y WebP con `srcset`, generadas en el build |
 | **Movimiento** | CSS y ~24 KB de JavaScript propio. Cero librerías de animación |
-| **Despliegue** | Cloudflare — estático desde el CDN, más una función para el formulario |
+| **Despliegue** | GitHub Pages — once archivos HTML servidos desde el CDN |
 
 Dos reglas gobiernan el código y no se negocian:
 
@@ -219,22 +219,16 @@ más reciente marcado `featured`.
 
 ## Formulario de contacto
 
-`src/lib/contact.ts` es **el mismo módulo** en cliente y servidor: las reglas
-no pueden divergir porque son el mismo código. El servidor valida siempre.
+`src/lib/contact.ts` valida en el navegador: errores por campo, foco al primero
+que falla, y consentimiento obligatorio.
 
-Defensas: honeypot (`sitio-web`), rate limiting por IP, sanitización que
-elimina control chars, etiquetas HTML —incluido el contenido de `<script>`—
-y saltos de línea en los campos que van a encabezados de correo.
+Defensas que se quedan: el honeypot (`sitio-web`) y la sanitización que elimina
+control chars, etiquetas HTML —incluido el contenido de `<script>`— y saltos de
+línea. Lo que se fue con el endpoint es el límite por IP y la validación de
+servidor; queda anotado en [`DEPLOY.md`](./DEPLOY.md).
 
 Consentimiento de tratamiento de datos obligatorio (Ley 1581 de 2012). Sin
 la casilla marcada, cliente y servidor rechazan el envío.
-
-### ⚠ Rate limiting y despliegue
-
-El rate limiting vive **en memoria del proceso** (`src/pages/api/contacto.ts`).
-Sirve para una única instancia. Si el despliegue escala a varias réplicas o
-a funciones serverless, hay que moverlo a un store compartido (Redis,
-Upstash) o al rate limiting del proveedor. Está marcado en el código.
 
 ## Variables de entorno
 
@@ -253,22 +247,26 @@ enviar nada.
 
 ## Despliegue
 
-**Cloudflare**, y la razón no es de preferencia. Las once rutas del sitio se
-pre-construyen como archivos; la única excepción es `/api/contacto`, que
-declara `prerender = false` porque valida, sanea y limita por IP en el
-servidor. En un host de solo archivos —GitHub Pages, por ejemplo— el sitio se
-vería perfecto y **el formulario haría POST contra un 404, en silencio, para
-todos los visitantes**. Cloudflare sirve el estático y ejecuta la función bajo
-el mismo dominio.
+**GitHub Pages.** El sitio es estático puro: once archivos HTML y nada que
+ejecutar. Cada empujón a `main` construye y publica solo.
 
-El paso a paso completo está en [`DEPLOY.md`](./DEPLOY.md).
+Y conviene decirlo porque el nombre confunde: «estático» describe cómo llega el
+HTML al navegador, **no si la página se mueve**. Todas las animaciones son CSS
+y JavaScript de cliente y funcionan igual. De hecho van mejor: el HTML sale de
+un CDN sin que ningún proceso lo genere, así que pinta antes.
+
+La renuncia es el formulario de contacto, que tenía endpoint propio y ya no lo
+tiene. La validación por campo sobrevive —siempre corrió en el navegador— y lo
+que falta es quién recibe el mensaje: un servicio de formularios, con su
+dirección en `PUBLIC_FORM_ENDPOINT`. Sin esa variable, `/contact` enseña los
+canales directos en vez de un formulario que no envía a ninguna parte.
+
+El paso a paso completo, el DNS y lo que falta antes de abrirlo al público
+están en [`DEPLOY.md`](./DEPLOY.md).
 
 ```bash
 npm run build      # incluye astro check: un error de tipos no compila
 ```
-
-Para cambiar a Netlify o Vercel basta con sustituir el adaptador en
-`astro.config.mjs`. Nada más del proyecto depende de él.
 
 ### Dominio
 

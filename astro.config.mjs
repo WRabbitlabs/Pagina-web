@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import cloudflare from '@astrojs/cloudflare';
 
 /**
  * Una sola forma canónica del dominio: apex, sin www.
@@ -14,8 +13,8 @@ import cloudflare from '@astrojs/cloudflare';
  * que cada canonical, cada og:url y cada entrada del sitemap declararan la
  * propiedad de un dominio ajeno.
  *
- * Sigue saliendo del entorno para que las vistas previas de Cloudflare no
- * emitan enlaces absolutos al dominio de producción.
+ * Sigue saliendo del entorno para que una vista previa o un despliegue de
+ * prueba no emitan enlaces absolutos al dominio de producción.
  */
 export const SITE_URL = process.env.PUBLIC_SITE_URL ?? 'https://wrailabs.com';
 
@@ -24,26 +23,19 @@ export default defineConfig({
   trailingSlash: 'never',
 
   /**
-   * Todo el sitio se prerenderiza. La única excepción es /api/contacto,
-   * que declara `prerender = false` porque el brief exige validación,
-   * sanitización y rate limiting en el servidor.
+   * Estático puro: once archivos HTML y nada que ejecutar. Sin adaptador y sin
+   * servidor, que es lo que pide GitHub Pages.
    *
-   * CLOUDFLARE, no GitHub Pages. La razón no es de preferencia: GitHub Pages
-   * sirve archivos estáticos y nada más. Publicado ahí, el sitio se vería
-   * perfecto y el formulario haría POST contra un 404 —en silencio, para todos
-   * los visitantes— porque /api/contacto no existiría. Cloudflare sirve el
-   * estático Y ejecuta la función, bajo el mismo dominio.
+   * Y conviene decirlo porque el nombre confunde: «estático» describe cómo
+   * llega el HTML al navegador, no si la página se mueve. Todas las
+   * animaciones del sitio son CSS y JavaScript de cliente y funcionan igual.
+   * De hecho van mejor: el HTML sale de un CDN sin que ningún proceso lo
+   * genere, así que pinta antes y el movimiento arranca antes.
    *
-   * ⚠ El límite por IP de /api/contacto es una ventana en memoria del proceso.
-   * En Workers cada isolate tiene la suya y se recicla a menudo, así que el
-   * límite es orientativo, no una garantía; la barrera que sí aguanta es el
-   * honeypot. Para un límite real hace falta KV, un Durable Object o la regla
-   * de rate limiting del propio Cloudflare. Está anotado en DEPLOY.md.
-   *
-   * Para cambiar a Netlify o Vercel: sustituir este adaptador por
-   * @astrojs/netlify o @astrojs/vercel. Nada más del proyecto lo toca.
+   * Lo único que no cabe aquí es una ruta de servidor. Había una —el endpoint
+   * del formulario— y se fue con esta decisión; ver src/pages/contact.astro.
    */
-  adapter: cloudflare({ imageService: 'compile' }),
+  output: 'static',
 
   integrations: [
     sitemap({

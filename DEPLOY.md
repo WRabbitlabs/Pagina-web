@@ -1,216 +1,98 @@
-# Despliegue — Cloudflare
+# Despliegue — GitHub Pages
 
 Dominio canónico: **`wrailabs.com`**, apex y sin `www`.
 
 Vive en `SITE_URL` (`astro.config.mjs`) y desde ahí alimenta el `canonical`, el
 `og:url`, el sitemap y el JSON-LD. Cambiarlo en un solo sitio los cambia todos.
+El propio dominio va en `public/CNAME`, que el build copia a la raíz de `dist/`.
 
 ---
 
-## Por qué Cloudflare y no GitHub Pages
+## Qué se publica
 
-Se descartó por una razón concreta, no por preferencia.
+El sitio es **estático puro**: once archivos HTML y nada que ejecutar. Sin
+adaptador, sin servidor, sin proceso.
 
-GitHub Pages sirve **archivos estáticos y nada más**. Este sitio es estático
-salvo una ruta: `/api/contacto` declara `prerender = false` porque valida,
-sanea y limita por IP en el servidor. Publicado en GitHub Pages, el sitio se
-vería perfecto y **el formulario haría POST contra un 404 — en silencio, para
-todos los visitantes**. El navegador no avisa: la persona escribe, pulsa enviar
-y no pasa nada.
-
-Cloudflare sirve el estático **y** ejecuta la función, bajo el mismo dominio.
-
-Y una aclaración que suele confundir: «estático» describe cómo llega el HTML al
-navegador, no si la página se mueve. **Todas las animaciones del sitio son CSS
-y JavaScript de cliente** y funcionan igual. De hecho van mejor: el HTML sale
-del CDN sin que ningún proceso lo genere, así que pinta antes y las animaciones
-arrancan antes.
-
----
-
-## Qué genera el build
+Y conviene decirlo porque el nombre confunde: **«estático» describe cómo llega
+el HTML al navegador, no si la página se mueve.** Todas las animaciones son CSS
+y JavaScript de cliente y funcionan igual. De hecho van mejor: el HTML sale de
+un CDN sin que ningún proceso lo genere, así que pinta antes y el movimiento
+arranca antes.
 
 ```bash
 npm run build      # incluye astro check: un error de tipos no compila
 ```
 
-| Ruta | Qué es |
-|---|---|
-| `dist/client/` | El sitio estático. Se sirve por el binding `ASSETS`. |
-| `dist/server/entry.mjs` | La función. Solo la ejecuta `/api/contacto`. |
-| `dist/server/wrangler.json` | Configuración generada por el adaptador. **No se edita a mano**: se regenera en cada build. |
-
-El Worker se llama **`wrabbit-ai`** (campo `name` del `wrangler.json`).
+La salida queda en `dist/`, plana: `index.html`, `company/`, `newsroom/`,
+`robots.txt`, `sitemap-*.xml`, `CNAME` y los assets.
 
 ---
 
-## Opción A — conectar el repositorio (recomendada)
+## Puesta en marcha
 
-Cloudflare compila y publica solo, en cada `push`. No hace falta instalar ni
-autenticar nada en local.
+Una sola cosa a mano, y solo una vez:
 
-1. En el panel de Cloudflare: **Workers & Pages → Create → Import a repository**.
-2. Autorizar GitHub y elegir **`WRabbitlabs/Pagina-web`**.
-3. Rama de producción: **`main`**.
-4. Ajustes de compilación:
+> **Settings → Pages → Build and deployment → Source: `GitHub Actions`**
 
-   | Campo | Valor |
-   |---|---|
-   | Build command | `npm run build` |
-   | Deploy command | `npx wrangler deploy -c dist/server/wrangler.json` |
-   | Root directory | *(vacío)* |
+Sin eso el flujo corre entero, dice que todo fue bien, y no publica nada.
 
-5. Variables de entorno y secretos: ver la tabla de abajo.
-6. Guardar y desplegar. Sale una URL `*.workers.dev` para comprobar.
+Después, cada empujón a `main` construye y publica solo
+(`.github/workflows/deploy.yml`). También se puede relanzar desde la pestaña
+**Actions**, sin empujar nada.
 
-## Opción B — desde local
+### El dominio
 
-```bash
-npx wrangler login
-npm run build
-npx wrangler deploy -c dist/server/wrangler.json
-```
+`wrailabs.com` todavía no resuelve. En el registrador donde se compró:
 
----
+| Tipo | Nombre | Valor |
+|---|---|---|
+| A | `@` | `185.199.108.153` |
+| A | `@` | `185.199.109.153` |
+| A | `@` | `185.199.110.153` |
+| A | `@` | `185.199.111.153` |
+| CNAME | `www` | `wrabbitlabs.github.io` |
 
-## Si el despliegue no arranca
-
-Cuatro cosas rompen este build en Cloudflare, y ninguna se ve leyendo el
-repositorio en local.
-
-### 1 · Node
-
-Astro 7 exige **Node ≥ 22.12**. `package.json` declaraba `>=20.3.0`, que era
-sencillamente falso, y no había `.nvmrc`: el constructor elegía su versión por
-defecto y si caía por debajo, el build moría.
-
-Ahora está fijado en `.nvmrc`. Por si el constructor lo ignorase, conviene
-además declarar la variable de compilación:
-
-    NODE_VERSION = 22.12.0
-
-### 2 · Las dependencias de desarrollo
-
-**Este es el que más se repite.** Cloudflare define `NODE_ENV=production` en
-sus builds, y con eso `npm ci` **omite las `devDependencies`**. El build muere
-en el primer paso, antes de compilar nada:
-
-    npm run fonts  →  lee node_modules/@fontsource/*  →  no existen
-    astro check    →  @astrojs/check no existe
-
-Por eso lo que el build necesita —las dos familias tipográficas, `astro check`
-y TypeScript— vive en `dependencies` y no en `devDependencies`. En `dev` solo
-quedan las herramientas que generan assets a mano y que el build no toca:
-`ffmpeg-static` y `potrace`.
-
-Si aun así se quisieran en `dev`, hay que añadir la variable:
-
-    NPM_FLAGS = --include=dev
-
-### 3 · El nombre del Worker
-
-El adaptador tomaba el nombre de `package.json` —«wrabbit-ai»— y el proyecto de
-Cloudflare se llama **«pagina-web»**, por el repositorio. Al desplegar, wrangler
-comprueba que el nombre del config coincida con el Worker de destino: si no, o
-falla, o crea un Worker aparte y el sitio no aterriza donde se le espera.
-
-Lo fija `wrangler.jsonc` en la raíz. Si algún día se renombra el proyecto en
-Cloudflare, se cambia ahí y en ningún otro sitio.
-
-### 4 · wrangler
-
-El comando de despliegue es `npx wrangler deploy`. Sin wrangler declarado, npx
-lo descargaba entero en cada despliegue, sin versión fija. Ahora está en
-`dependencies`, así que el `npm ci` del propio build ya lo deja instalado.
-
-### Si sigue atascado en «Initializing»
-
-Eso ocurre **antes de clonar el repositorio**, así que no es del código. Es de
-Cloudflare: la cola de compilación o los permisos del build token. Para separar
-un problema del otro, desplegar una vez desde local:
-
-    npx wrangler login
-    npm run build
-    npx wrangler deploy -c dist/server/wrangler.json
-
-Si desde local funciona, el repositorio está bien y el problema es del
-constructor conectado.
+Cuando propague, en **Settings → Pages** activar **Enforce HTTPS**. GitHub
+emite el certificado solo; tarda unos minutos desde que el DNS resuelve.
 
 ---
 
-## Variables y secretos
+## El formulario de contacto
 
-En el panel del Worker, **Settings → Variables and Secrets**. Los que llevan
-clave van como **Secret**, no como texto plano.
+Aquí está la renuncia de haber elegido GitHub Pages, y conviene tenerla escrita.
 
-| Nombre | Tipo | Valor | Si falta |
-|---|---|---|---|
-| `PUBLIC_SITE_URL` | Variable | `https://wrailabs.com` | Cae al valor por defecto, que ya es ese. En vistas previas conviene poner la URL de la vista previa. |
-| `MAIL_PROVIDER` | Variable | `resend` | **Cae a `log` y la función falla a propósito.** Con `log` el mensaje no llega a nadie; antes respondía «enviado» y el lead se perdía sin rastro. |
-| `CONTACT_TO_EMAIL` | Secret | El correo que recibe los mensajes | La función responde error. |
-| `RESEND_API_KEY` | Secret | La clave de Resend | Igual. |
-| `MAIL_FROM` | Variable | `WRabbit AI <no-reply@wrailabs.com>` | Usa ese mismo valor por defecto. |
-| `TRUST_PROXY` | Variable | `true` | En Cloudflare debe ir en `true`: hay proxy delante y es quien reescribe `X-Forwarded-For`. En un servidor desnudo debe ir en falso, o cualquiera falsifica la cabecera y salta el límite. |
+Había un endpoint propio, `/api/contacto`, que validaba, saneaba y limitaba por
+IP **en el servidor**. GitHub Pages no ejecuta nada, así que se fue.
 
-**Resend:** hay que verificar `wrailabs.com` como dominio remitente. Sin eso
-Resend rechaza el envío y el visitante recibe el error con la salida al correo
-directo.
+**La validación por campo sobrevive entera**: siempre corrió en el navegador
+con el mismo módulo (`src/lib/contact.ts`), y de eso no dependía el servidor.
+Los errores por campo, el foco al primero que falla, el consentimiento
+obligatorio y el honeypot siguen funcionando igual.
 
----
+Lo que falta es quién recibe el mensaje al final. Se resuelve con un servicio de
+formularios —Formspree, Basin— y su dirección puesta en una variable del
+repositorio:
 
-## El espacio KV `SESSION`
+> **Settings → Secrets and variables → Actions → Variables → New variable**
+> `PUBLIC_FORM_ENDPOINT` = la URL que dé el servicio
 
-El `wrangler.json` generado declara un binding `SESSION` para las sesiones de
-Astro. El sitio no las usa, pero el binding va declarado.
+**Mientras esa variable esté vacía, `/contact` no pinta un formulario**: enseña
+los canales directos. Es deliberado. Un formulario que envía a ninguna parte es
+peor que no tenerlo, porque el visitante escribe, pulsa enviar y cree que le
+llegó a alguien.
 
-Cloudflare lo **aprovisiona solo** en el primer despliegue. Si aun así el
-despliegue se queja de que falta:
-
-```bash
-npx wrangler kv namespace create SESSION
-```
-
-y añadir el binding en **Settings → Bindings** del Worker.
-
----
-
-## El dominio
-
-`wrailabs.com` todavía no resuelve. Para apuntarlo:
-
-1. **Añadir el dominio a Cloudflare**: panel principal → **Add a site** →
-   `wrailabs.com`. Cloudflare da dos servidores de nombres.
-2. **Cambiar los nameservers** en el registrador donde se compró el dominio,
-   por los dos que dio Cloudflare. Tarda entre minutos y unas horas.
-3. Cuando el dominio esté activo: en el Worker, **Settings → Domains &
-   Routes → Add → Custom domain** → `wrailabs.com`.
-4. Añadir también `www.wrailabs.com` **como redirección 301 al apex**, no como
-   una segunda copia del sitio.
-
----
-
-## Limitación conocida — el límite por IP
-
-El límite de `/api/contacto` es una **ventana en memoria del proceso**. En
-Workers cada isolate tiene la suya y se recicla a menudo, así que el límite es
-orientativo: alguien decidido puede pasarlo abriendo conexiones que caigan en
-isolates distintos.
-
-**La barrera que sí aguanta es el honeypot**, que no depende de estado
-compartido: el campo trampa se rellena o no se rellena.
-
-Para un límite real hace falta estado compartido — KV, un Durable Object, o la
-regla de rate limiting del propio Cloudflare, que es la más barata de las tres
-porque no toca el código. **No está hecho.** Se documenta aquí para que la
-degradación sea una decisión y no una sorpresa.
+Lo que se pierde frente al endpoint propio: el límite por IP y el saneamiento
+en servidor. El honeypot y la validación de cliente se quedan.
 
 ---
 
 ## Antes de abrir al público
 
-El sitio se despliega **en modo cerrado**: `site.indexable` está en `false`, así
+El sitio se publica **en modo cerrado**: `site.indexable` está en `false`, así
 que cada página emite `noindex, nofollow` y `robots.txt` responde
-`Disallow: /`. Se puede enseñar por enlace; no se encuentra buscando.
+`Disallow: /` a todo salvo a los rastreadores de vista previa de enlace, que sí
+pueden leer las etiquetas Open Graph. Se puede enseñar por enlace y se ve bien
+al pegarlo en WhatsApp; no se encuentra buscando.
 
 Es deliberado. Para abrirlo hay que resolver esto primero, y nada de ello es
 código:
@@ -218,9 +100,8 @@ código:
 ### Bloqueante — las páginas legales
 
 `/privacidad` y `/terminos` muestran, visible para cualquiera, un aviso que dice
-que el texto es un borrador sin revisión jurídica. Y `/contact` recoge nombre,
-organización, correo y teléfono bajo esa misma política. Bajo la Ley 1581 de
-2012 eso hay que resolverlo antes de recoger un solo dato real.
+que el texto es un borrador sin revisión jurídica. Bajo la Ley 1581 de 2012 eso
+hay que resolverlo antes de recoger un solo dato real.
 
 ### Datos de relleno que hoy se renderizan
 
@@ -229,6 +110,7 @@ organización, correo y teléfono bajo esa misma política. Bajo la Ley 1581 de
 | NIT | `901.000.000-0` | pie de todas las páginas y cuerpo de `/privacidad` |
 | Teléfono | `+57 601 000 0000` | JSON-LD `Organization` |
 | Dirección | `Calle 100 # 00-00` | JSON-LD y `/privacidad` |
+| Razón social | `WRabbit AI S.A.S.` | pie y `/privacidad` — la marca es «WRabbit AI Labs»; el nombre registrado hay que confirmarlo |
 | LinkedIn de la compañía | `/company/wrabbit-ai` | **404** — pie y `sameAs` |
 | X | `x.com/wrabbitai` | **404** — pie y `sameAs` |
 | Correo | `contacto@wrailabs.com` | hay que crear el buzón |
@@ -245,7 +127,30 @@ El LinkedIn del director general sí es real y ya está en su ficha.
 
 ### Y entonces
 
-1. Confirmar que `PUBLIC_SITE_URL` es `https://wrailabs.com`.
-2. `site.indexable = true` en `src/data/site.ts`.
-3. `npm run build` y comprobar que `robots.txt` ya dice `Allow: /` y que las
+1. `site.indexable = true` en `src/data/site.ts`.
+2. `npm run build` y comprobar que `robots.txt` ya dice `Allow: /` y que las
    páginas no llevan `noindex`.
+
+---
+
+## Node
+
+Astro 7 exige **Node ≥ 22.12**. Está fijado en `.nvmrc`, y los dos flujos de
+GitHub Actions lo leen de ahí para no tener la versión escrita en dos sitios.
+
+`package.json` declaraba `>=20.3.0`, que era sencillamente falso y ya rompió un
+despliegue. Si vuelve a tocarse, que coincida con lo que Astro pide de verdad.
+
+---
+
+## Por qué no Cloudflare
+
+Se intentó y se abandonó. El adaptador de Cloudflare permitía conservar el
+endpoint del formulario, pero el despliegue no llegó a aterrizar: el proyecto
+servía la plantilla por defecto en vez del sitio. Entre depurar el constructor
+conectado y quitarse el servidor de encima, se eligió lo segundo — el sitio ya
+era estático salvo por una ruta.
+
+Si algún día hace falta recuperar el endpoint, el camino es un host que ejecute
+Node: se añade el adaptador correspondiente en `astro.config.mjs` y se recupera
+`src/pages/api/contacto.ts` del historial. Nada más del proyecto lo toca.

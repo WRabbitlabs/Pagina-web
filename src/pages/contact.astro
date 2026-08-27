@@ -8,6 +8,24 @@ const title = 'Trabaja con nosotros';
 const description =
   'Cuéntenos qué proceso quiere automatizar. Respondemos dentro de los dos días hábiles siguientes.';
 
+/*
+ * A dónde envía el formulario.
+ *
+ * Había un endpoint propio —/api/contacto— que validaba, saneaba y limitaba
+ * por IP en el servidor. GitHub Pages no ejecuta nada, así que se fue con el
+ * cambio de alojamiento y esto ocupa su lugar: la dirección de un servicio de
+ * formularios (Formspree, Basin) puesta en el entorno.
+ *
+ * Sin esa variable NO se pinta un formulario. Un formulario que envía a
+ * ninguna parte es peor que no tenerlo: el visitante escribe, pulsa enviar y
+ * cree que le llegó a alguien. En su lugar se enseñan los canales directos,
+ * que sí funcionan.
+ *
+ * La validación por campo sobrevive entera: siempre corrió en el navegador
+ * con el mismo módulo, y de eso no dependía el servidor.
+ */
+const formEndpoint = import.meta.env.PUBLIC_FORM_ENDPOINT as string | undefined;
+
 const fields = [
   { name: 'nombre', label: 'Nombre completo', type: 'text', autocomplete: 'name', required: true },
   { name: 'organizacion', label: 'Organización', type: 'text', autocomplete: 'organization', required: true },
@@ -30,103 +48,122 @@ const fields = [
 
   <section class="section">
     <div class="container">
-      <form class="form" method="post" action="/api/contacto" novalidate data-form>
-        <!-- Trampa para bots. Fuera del flujo de tabulación y del lector. -->
-        <div class="hp" aria-hidden="true">
-          <label for={HONEYPOT_FIELD}>No rellenar</label>
-          <input
-            id={HONEYPOT_FIELD}
-            name={HONEYPOT_FIELD}
-            type="text"
-            tabindex="-1"
-            autocomplete="off"
-          />
-        </div>
+      {
+        formEndpoint ? (
+        <form class="form" method="post" action={formEndpoint} novalidate data-form>
+          <!-- Trampa para bots. Fuera del flujo de tabulación y del lector. -->
+          <div class="hp" aria-hidden="true">
+            <label for={HONEYPOT_FIELD}>No rellenar</label>
+            <input
+              id={HONEYPOT_FIELD}
+              name={HONEYPOT_FIELD}
+              type="text"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
 
-        <div class="form__grid">
-          {
-            fields.map((f) => (
-              <p class="field">
-                <label class="t-eyebrow field__label" for={f.name}>
-                  {f.label}
-                  {f.required && <span aria-hidden="true"> *</span>}
-                </label>
-                <input
-                  class="field__input"
-                  id={f.name}
-                  name={f.name}
-                  type={f.type}
-                  autocomplete={f.autocomplete}
-                  required={f.required}
-                  aria-describedby={`${f.name}-error`}
-                />
-                <span class="field__error t-small" id={`${f.name}-error`} />
-              </p>
-            ))
-          }
+          <div class="form__grid">
+            {
+              fields.map((f) => (
+                <p class="field">
+                  <label class="t-eyebrow field__label" for={f.name}>
+                    {f.label}
+                    {f.required && <span aria-hidden="true"> *</span>}
+                  </label>
+                  <input
+                    class="field__input"
+                    id={f.name}
+                    name={f.name}
+                    type={f.type}
+                    autocomplete={f.autocomplete}
+                    required={f.required}
+                    aria-describedby={`${f.name}-error`}
+                  />
+                  <span class="field__error t-small" id={`${f.name}-error`} />
+                </p>
+              ))
+            }
 
-          <p class="field">
-            <label class="t-eyebrow field__label" for="tipo">
-              Tipo de organización<span aria-hidden="true"> *</span>
+            <p class="field">
+              <label class="t-eyebrow field__label" for="tipo">
+                Tipo de organización<span aria-hidden="true"> *</span>
+              </label>
+              <select class="field__input" id="tipo" name="tipo" required aria-describedby="tipo-error">
+                <option value="">Seleccione una opción</option>
+                {ORG_TYPES.map((t) => <option value={t}>{t}</option>)}
+              </select>
+              <span class="field__error t-small" id="tipo-error"></span>
+            </p>
+          </div>
+
+          <p class="field field--wide">
+            <label class="t-eyebrow field__label" for="mensaje">
+              Mensaje<span aria-hidden="true"> *</span>
             </label>
-            <select class="field__input" id="tipo" name="tipo" required aria-describedby="tipo-error">
-              <option value="">Seleccione una opción</option>
-              {ORG_TYPES.map((t) => <option value={t}>{t}</option>)}
-            </select>
-            <span class="field__error t-small" id="tipo-error"></span>
+            <textarea
+              class="field__input field__textarea"
+              id="mensaje"
+              name="mensaje"
+              rows="6"
+              required
+              aria-describedby="mensaje-hint mensaje-error"></textarea>
+            <span class="field__hint t-small" id="mensaje-hint">
+              Qué proceso, quién lo hace hoy y qué le gustaría que cambiara.
+            </span>
+            <span class="field__error t-small" id="mensaje-error"></span>
           </p>
-        </div>
 
-        <p class="field field--wide">
-          <label class="t-eyebrow field__label" for="mensaje">
-            Mensaje<span aria-hidden="true"> *</span>
-          </label>
-          <textarea
-            class="field__input field__textarea"
-            id="mensaje"
-            name="mensaje"
-            rows="6"
-            required
-            aria-describedby="mensaje-hint mensaje-error"></textarea>
-          <span class="field__hint t-small" id="mensaje-hint">
-            Qué proceso, quién lo hace hoy y qué le gustaría que cambiara.
-          </span>
-          <span class="field__error t-small" id="mensaje-error"></span>
-        </p>
+          <!-- Ley 1581 de 2012. Sin esto, el formulario no envía. -->
+          <p class="consent">
+            <input
+              class="consent__box"
+              id="consentimiento"
+              name="consentimiento"
+              type="checkbox"
+              required
+              aria-describedby="consentimiento-error"
+            />
+            <label class="t-small consent__label" for="consentimiento">
+              Autorizo a {site.legalName} a tratar mis datos personales para responder
+              esta solicitud, conforme a la
+              <a href="/privacidad">Política de Tratamiento de Datos Personales</a> y a
+              la Ley 1581 de 2012.<span aria-hidden="true"> *</span>
+            </label>
+            <span class="field__error t-small" id="consentimiento-error"></span>
+          </p>
 
-        <!-- Ley 1581 de 2012. Sin esto, el formulario no envía. -->
-        <p class="consent">
-          <input
-            class="consent__box"
-            id="consentimiento"
-            name="consentimiento"
-            type="checkbox"
-            required
-            aria-describedby="consentimiento-error"
-          />
-          <label class="t-small consent__label" for="consentimiento">
-            Autorizo a {site.legalName} a tratar mis datos personales para responder
-            esta solicitud, conforme a la
-            <a href="/privacidad">Política de Tratamiento de Datos Personales</a> y a
-            la Ley 1581 de 2012.<span aria-hidden="true"> *</span>
-          </label>
-          <span class="field__error t-small" id="consentimiento-error"></span>
-        </p>
+          <div class="form__foot">
+            <button class="btn btn--primary form__submit" type="submit" data-submit>
+              <span data-submit-label>Enviar mensaje</span>
+              <Arrow />
+            </button>
+            <p class="t-small form__required">Los campos con * son obligatorios.</p>
+          </div>
 
-        <div class="form__foot">
-          <button class="btn btn--primary form__submit" type="submit" data-submit>
-            <span data-submit-label>Enviar mensaje</span>
-            <Arrow />
-          </button>
-          <p class="t-small form__required">Los campos con * son obligatorios.</p>
-        </div>
-
-        <!--
-          Estado del envío. role=status para que el lector anuncie el
-          resultado sin robar el foco.
-        -->
-        <p class="form__status t-body" role="status" aria-live="polite" data-status></p>
-      </form>
+          <!--
+            Estado del envío. role=status para que el lector anuncie el
+            resultado sin robar el foco.
+          -->
+          <p class="form__status t-body" role="status" aria-live="polite" data-status></p>
+        </form>
+        ) : (
+          <div class="direct">
+            <p class="t-h3 direct__lead">Escríbanos directamente.</p>
+            <p class="prose direct__body">
+              El formulario vuelve en cuanto esté configurado el servicio de envío.
+              Mientras tanto el correo llega igual, y lo leemos nosotros.
+            </p>
+            <p class="direct__channels">
+              <a class="link-arrow" href={`mailto:${site.email}`}>
+                {site.email}
+                <Arrow />
+              </a>
+            </p>
+            <p class="t-small direct__note">Operamos desde {site.city}.</p>
+          </div>
+        )
+      }
     </div>
   </section>
 </Base>
@@ -144,6 +181,26 @@ const fields = [
   .page-head__sub {
     margin-top: var(--space-m);
     max-width: var(--measure);
+  }
+
+  /* Lo que ocupa el sitio del formulario mientras no haya a dónde enviar. */
+  .direct {
+    max-width: var(--measure);
+  }
+
+  .direct__body {
+    margin-top: var(--space-s);
+  }
+
+  .direct__channels {
+    margin-top: var(--space-m);
+  }
+
+  .direct__note {
+    margin-top: var(--space-m);
+    padding-top: var(--space-xs);
+    border-top: 1px solid var(--rule);
+    color: var(--text-muted);
   }
 
   .mail {
@@ -388,19 +445,33 @@ const fields = [
           headers: { accept: 'application/json' },
         });
 
-        const result = (await response.json()) as {
-          ok: boolean;
-          message: string;
+        /*
+         * Dos formas de respuesta, porque ya no manda un endpoint nuestro.
+         *
+         * El servicio de formularios devuelve su propio JSON —Formspree usa
+         * `{ok:true}`, otros solo el codigo 2xx—, asi que manda el estado HTTP
+         * y el JSON es opcional. Si algun dia vuelve un endpoint propio con la
+         * forma `{ok, message, errors}`, se sigue respetando.
+         */
+        const result = (await response.json().catch(() => ({}))) as {
+          ok?: boolean;
+          message?: string;
           errors?: FieldErrors;
         };
 
-        if (result.ok) {
+        if (response.ok && result.ok !== false) {
           form.reset();
-          setStatus(result.message, 'ok');
+          setStatus(
+            result.message ?? 'Mensaje enviado. Respondemos dentro de los dos días hábiles siguientes.',
+            'ok',
+          );
           status.focus?.();
         } else {
           if (result.errors) showErrors(result.errors);
-          setStatus(result.message, 'error');
+          setStatus(
+            result.message ?? `No pudimos entregar su mensaje. Escríbanos a ${site.email}.`,
+            'error',
+          );
         }
       } catch {
         setStatus(

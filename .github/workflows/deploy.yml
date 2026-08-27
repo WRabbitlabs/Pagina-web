@@ -1,0 +1,73 @@
+# Construye el sitio y lo publica en GitHub Pages.
+#
+# Requiere UNA cosa hecha a mano, y solo una vez:
+#   Settings → Pages → Build and deployment → Source: GitHub Actions
+#
+# Sin eso el flujo corre entero, dice que todo fue bien, y no publica nada.
+#
+# El dominio va en public/CNAME, que el build copia a la raíz de dist/. GitHub
+# lo lee de ahí, así que no hace falta escribirlo también en los ajustes: un
+# dominio en dos sitios es un dominio que algún día dirá dos cosas distintas.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # Para poder relanzar desde la pestaña Actions sin tener que empujar nada.
+  workflow_dispatch:
+
+# El token solo necesita leer el repositorio y escribir en Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un despliegue a la vez. `cancel-in-progress: false` a propósito: si llegan
+# dos empujones seguidos, el segundo espera en vez de abortar al primero a
+# mitad de publicación.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Del .nvmrc, para no tener la versión escrita en dos sitios.
+          node-version-file: .nvmrc
+          cache: npm
+
+      # Sin devDependencies: es lo que hacen los constructores que definen
+      # NODE_ENV=production, y ya costó un despliegue descubrirlo. Si alguien
+      # mueve a `dev` algo que el build necesita, falla aquí.
+      - run: npm ci --omit=dev
+
+      # Incluye `astro check`: un error de tipos no compila.
+      - run: npm run build
+        env:
+          PUBLIC_SITE_URL: https://wrailabs.com
+          # La dirección del servicio de formularios. Se define como variable
+          # del repositorio en Settings → Secrets and variables → Actions →
+          # Variables. Vacía, /contact enseña los canales directos en vez de un
+          # formulario que no envía a ninguna parte.
+          PUBLIC_FORM_ENDPOINT: ${{ vars.PUBLIC_FORM_ENDPOINT }}
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
