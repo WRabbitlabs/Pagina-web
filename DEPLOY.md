@@ -39,8 +39,7 @@ enseñar «GitHub Actions» sin que el sitio exista. Lo único que no miente es 
 API:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}
-"   https://api.github.com/repos/WRabbitlabs/Pagina-web/pages
+curl -sI https://api.github.com/repos/WRabbitlabs/Pagina-web/pages | head -1
 ```
 
 `200` es que está activado. `404` es que no, diga lo que diga la pantalla — y
