@@ -4,6 +4,9 @@ category: 'Publicación'
 date: 2026-06-12
 excerpt: 'Método para extraer campos estructurados de expedientes que combinan documentos nativos, escaneos de calidad variable y anexos sin normalizar, sin perder la referencia a la página de origen.'
 image: '../../assets/newsroom-expedientes.png'
+imageCredit:
+  text: 'Fotografía: The National Archives (Reino Unido), CC BY 4.0.'
+  href: 'https://creativecommons.org/licenses/by/4.0/deed.es'
 imageAlt: 'Corredor de un depósito de archivo: estanterías metálicas a ambos lados, cargadas de legajos y cajas de expedientes hasta el techo.'
 ---
 

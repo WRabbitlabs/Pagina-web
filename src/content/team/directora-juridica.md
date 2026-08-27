@@ -3,6 +3,7 @@ name: 'Nombre Apellido'
 role: 'Directora jurídica y cofundadora'
 order: 2
 founder: true
+draft: true
 imageAlt: 'Retrato de la directora jurídica de WRabbit AI.'
 links:
   - label: 'LinkedIn'

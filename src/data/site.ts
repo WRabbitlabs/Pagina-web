@@ -9,16 +9,6 @@ export const site = {
   name: 'WRabbit AI',
   legalName: 'WRabbit AI S.A.S.',
   nit: '901.000.000-0', // PENDIENTE — reemplazar con el NIT real
-  /**
-   * Atribución obligatoria de imagen. Una fotografía de archivo es CC-BY,
-   * que permite uso comercial pero exige crédito visible. Ver
-   * src/assets/CREDITOS.md. Si se sustituyen por fotografía propia o por
-   * material CC0, esta línea se borra.
-   */
-  imageCredit: {
-    text: 'Fotografía de archivo: The National Archives (Reino Unido), CC BY 4.0.',
-    href: 'https://creativecommons.org/licenses/by/4.0/deed.es',
-  },
   url: 'https://wrabbit.ai',
   lang: 'es',
   locale: 'es_CO',

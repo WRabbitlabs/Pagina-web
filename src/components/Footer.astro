@@ -123,23 +123,6 @@ const bg = footerData.bg;
         <p class="t-eyebrow footer__copy">
           {site.legalName} · NIT {site.nit} · © {year}. Todos los derechos reservados.
         </p>
-
-        {
-          /* Crédito de imagen: CC-BY lo exige. Ver src/assets/CREDITOS.md. */
-          site.imageCredit && (
-            <p class="t-eyebrow footer__credit">
-              <a
-                class="footer__creditlink external"
-                href={site.imageCredit.href}
-                target="_blank"
-                rel="noopener noreferrer license"
-              >
-                {site.imageCredit.text}
-                <span class="sr-only"> (se abre en una pestaña nueva)</span>
-              </a>
-            </p>
-          )
-        }
       </div>
     </div>
   </div>
@@ -410,24 +393,8 @@ const bg = footerData.bg;
   }
 
   /* Letra pequeña obligatoria, no un elemento de diseño: peso mínimo. */
-  .footer__credit {
-    color: var(--text-muted);
-  }
 
-  .footer__creditlink {
-    display: inline-flex;
-    align-items: center;
-    /* No lleva `min-width: var(--tap)` porque es texto corrido, no un
-       control: WCAG 2.5.5 exime los enlaces dentro de un bloque de texto. */
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
-    text-decoration-color: var(--rule);
-    transition: text-decoration-color var(--dur-fast) var(--ease-out);
-  }
 
-  .footer__creditlink:hover {
-    text-decoration-color: currentColor;
-  }
 
   /*
    * Guarda para ventanas bajas. El pie tiene que caber entero o su borde

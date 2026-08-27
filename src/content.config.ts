@@ -18,6 +18,14 @@ const newsroom = defineCollection({
       externalUrl: z.string().url().optional(),
       image: image().optional(),
       imageAlt: z.string().optional(),
+      /**
+       * Atribución de la foto, cuando su licencia la exige (CC-BY). Va bajo
+       * la imagen, que es donde la atribución corresponde: junto a la obra y
+       * no en un pie de página que la separa de lo que acredita.
+       */
+      imageCredit: z
+        .object({ text: z.string(), href: z.string().url() })
+        .optional(),
       /** Un solo destacado por índice; si hay varios gana el más reciente. */
       featured: z.boolean().default(false),
       draft: z.boolean().default(false),
@@ -37,6 +45,8 @@ const team = defineCollection({
       /** Orden de aparición. Menor primero. */
       order: z.number().int().default(99),
       founder: z.boolean().default(false),
+      /** Igual que en newsroom: la ficha existe pero no se publica todavia. */
+      draft: z.boolean().default(false),
       image: image().optional(),
       imageAlt: z.string().optional(),
       links: z

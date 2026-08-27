@@ -5,9 +5,11 @@ Fotografía obtenida vía **Openverse**. Cada archivo indica su licencia:
 - **CC0 / dominio público** — uso comercial libre, sin atribución obligatoria.
 - **CC-BY** — uso comercial permitido **con atribución obligatoria**. Queda
   una sola imagen así, `newsroom-expedientes.png`, de The National Archives
-  (Reino Unido). Mientras siga publicada, la línea de crédito del pie es
-  obligatoria; si se sustituye por material CC0 o por fotografía propia,
-  puede borrarse `site.imageCredit`.
+  (Reino Unido). Su crédito ya no vive en el pie: va bajo la propia foto, en
+  el campo `imageCredit` del artículo que la publica
+  (`src/content/newsroom/extraccion-documental-expedientes-judiciales.md`).
+  Mientras la foto siga publicada, ese crédito es obligatorio; si se sustituye
+  por material CC0 o por fotografía propia, puede borrarse el campo.
 
 Tratamiento común: desaturación a 0.18, brillo 0.94, tinte hacia `#2f4041`.
 

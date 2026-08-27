@@ -20,7 +20,7 @@ const TONES = ['paper', 'moss', 'ink'] as const;
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const { title, category, date, excerpt, image, imageAlt } = entry.data;
+const { title, category, date, excerpt, image, imageAlt, imageCredit } = entry.data;
 
 const more = byDateDesc(published(await getCollection('newsroom')))
   .filter((e) => e.id !== entry.id)
@@ -66,7 +66,7 @@ const article = {
 
     {
       image && (
-        <div class="container article__media">
+        <figure class="container article__media">
           <Picture
             src={image}
             formats={['avif', 'webp']}
@@ -78,7 +78,22 @@ const article = {
             decoding="async"
             class="article__img"
           />
-        </div>
+
+          {/* CC-BY exige credito visible mientras la foto siga publicada. */}
+          {imageCredit && (
+            <figcaption class="t-eyebrow article__credit">
+              <a
+                class="article__creditlink external"
+                href={imageCredit.href}
+                target="_blank"
+                rel="noopener noreferrer license"
+              >
+                {imageCredit.text}
+                <span class="sr-only"> (se abre en una pestaña nueva)</span>
+              </a>
+            </figcaption>
+          )}
+        </figure>
       )
     }
 
@@ -145,6 +160,23 @@ const article = {
 
   .article__media {
     margin-top: var(--space-xl);
+  }
+
+  .article__credit {
+    margin-top: var(--space-2xs);
+    color: var(--text-muted);
+  }
+
+  .article__creditlink {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--rule);
+    transition: text-decoration-color var(--dur-fast) var(--ease-out);
+  }
+
+  .article__creditlink:hover {
+    text-decoration-color: currentColor;
   }
 
   .article__img {

@@ -1,12 +1,12 @@
 ---
-name: 'Nombre Apellido'
-role: 'Director general y cofundador'
+name: 'Cristhian Caballero Mora'
+role: 'Director general y fundador'
 order: 1
 founder: true
 imageAlt: 'Retrato del director general de WRabbit AI.'
 links:
   - label: 'LinkedIn'
-    href: 'https://www.linkedin.com/in/placeholder-director'
+    href: 'https://www.linkedin.com/in/cristhian-caballero-mora-387673286/'
 ---
 
 PENDIENTE — biografía real del cliente.
