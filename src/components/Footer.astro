@@ -212,6 +212,47 @@ const bg = footerData.bg;
     gap: var(--space-l);
   }
 
+  /*
+   * En teléfono el botón de volver arriba comparte fila con el titular, no
+   * se queda solo en una propia.
+   *
+   * Apilado costaba 100px de los 667 de un iPhone SE —44 de botón y 56 de
+   * calle— y con ellos el pie no cabía en la ventana: 710px medidos contra
+   * 667, y 747 contra 568 en la pantalla más pequeña. Cuando el pie no cabe,
+   * su borde superior queda por encima del área visible y la franja clara
+   * que enmarca el header desaparece, que es lo que este componente lleva
+   * evitando desde el principio.
+   *
+   * Arriba a la derecha, además, es donde ya vive a partir de 64rem: el
+   * teléfono deja de ser la excepción.
+   */
+  @media (max-width: 63.999rem) {
+    .footer__top {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      /*
+       * La calle horizontal no puede ser la vertical. Con --space-l a los dos
+       * lados, los 56px de separación dejaban la columna del titular en 170px
+       * y la frase pasaba de tres líneas a cuatro: se ahorraba una fila para
+       * gastarla en otra.
+       */
+      column-gap: var(--space-xs);
+    }
+
+    .footer__pitch {
+      grid-column: 1;
+    }
+
+    .footer__up {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .footer__cols {
+      grid-column: 1 / -1;
+    }
+  }
+
   @media (min-width: 64rem) {
     .footer__top {
       grid-template-columns: minmax(0, 1fr) auto auto;
@@ -330,6 +371,12 @@ const bg = footerData.bg;
     position: relative;
     margin-top: auto;
     padding-top: var(--space-2xs);
+    /*
+     * Contenedor de consulta para que la marca se mida contra el ancho que
+     * de verdad tiene —ya descontados el acolchado del pie y la calle— y no
+     * contra el de la ventana, que siempre es mayor. Ver .footer__mark.
+     */
+    container-type: inline-size;
   }
 
   /*
@@ -340,9 +387,36 @@ const bg = footerData.bg;
    * se salen por arriba. Con `min()` el pie nunca desborda la ventana y la
    * franja del lienzo siempre queda a la vista, sin medir nada con JS.
    */
+  /*
+   * Cuánto mide la cadena por cada píxel de cuerpo. Medido sobre la marca ya
+   * compuesta —incluye el interletrado de --ls-display—: 6,585. Se redondea a
+   * 6,7 para dejar holgura al sustituto tipográfico, que no calza exacto.
+   *
+   * SI CAMBIA site.name HAY QUE VOLVER A MEDIRLO. Es propio de esta cadena,
+   * no de la fuente: una marca más larga necesita un número mayor.
+   */
+  .footer__end {
+    --mark-ratio: 6.7;
+  }
+
   .footer__mark {
     font-family: var(--font-display);
-    font-size: min(17vw, 22svh);
+    /*
+     * El ancho manda; la altura solo pone techo.
+     *
+     * Antes el tope era `17vw`, y ataba el cuerpo a la ventana mientras el
+     * texto vivía en un contenedor más estrecho. La diferencia no era
+     * cosmética: la marca se salía y el `overflow: clip` del pie se la
+     * comía. Medido, se perdían 95px a 360, 97px a 375, 144px a 768 y 174px
+     * a 1024 — es decir, en todo teléfono y toda tableta el remate de la
+     * página aparecía decapitado. Solo cabía por encima de ~1200px, donde el
+     * tope de altura relevaba al de ancho.
+     *
+     * Con `100cqi` el cuerpo sale del ancho disponible de verdad, así que la
+     * marca llena la línea sin cortarse en cualquier ventana. En escritorio
+     * sigue mandando `22svh` y el dibujo no cambia.
+     */
+    font-size: min(calc(100cqi / var(--mark-ratio)), 22svh);
     line-height: 0.86;
     letter-spacing: var(--ls-display);
     white-space: nowrap;
@@ -401,6 +475,22 @@ const bg = footerData.bg;
    * superior se sale por arriba y la franja clara —que es lo que enmarca el
    * header— desaparece. Aquí se recorta lo prescindible antes que dejar que
    * eso ocurra.
+   *
+   * Medido después de subir el botón de volver arriba a la fila del titular:
+   *
+   *     320×568   611px — se sale 43        (antes 747, se salía 179)
+   *     360×640   640px — cabe justo        (antes 707)
+   *     375×667   667px — cabe justo        (antes 710)
+   *     375×812   812px — cabe
+   *     414×896   896px — cabe
+   *
+   * Queda 320×568 sin resolver, y a propósito. Los 43px que faltan solo
+   * salen de los enlaces: son siete, cada uno con los 44px de área táctil
+   * que pide WCAG 2.1 AA. Encogerlos para que la franja se vea sería cambiar
+   * un requisito de accesibilidad por un detalle de composición. En esa
+   * pantalla —un iPhone SE de 2016— el pie desborda y se desplaza, que es
+   * degradación aceptable: no se pierde nada, solo la franja tarda un gesto
+   * en verse.
    */
   @media (max-height: 46rem) {
     .footer {
@@ -411,8 +501,16 @@ const bg = footerData.bg;
       margin-top: var(--space-m);
     }
 
+    .footer__top {
+      row-gap: var(--space-m);
+    }
+
+    .footer__base {
+      padding-bottom: var(--space-2xs);
+    }
+
     .footer__mark {
-      font-size: min(17vw, 18svh);
+      font-size: min(calc(100cqi / var(--mark-ratio)), 18svh);
     }
   }
 
