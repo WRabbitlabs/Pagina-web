@@ -25,8 +25,11 @@ const Heading = headingLevel;
  * convertiría la metáfora en disfraz. Lo que aquí necesita saber quien
  * contrata es cuándo ve la primera entrega y cuándo se cierra el presupuesto.
  *
- * El plazo de cada fase va en una pastilla monoespaciada y no en el cuerpo:
- * es el dato que se busca de un vistazo cuando se compara con otra propuesta.
+ * Sin plazo por fase. Lo llevaba, en una pastilla monoespaciada, y el conjunto
+ * se leía como un calendario de trece semanas igual para todos — lo contrario
+ * de trabajar en el menor tiempo que el alcance admita. La duración típica se
+ * dice una sola vez, en el cuerpo de la sección. Ver la nota de `method` en
+ * src/data/company.ts.
  */
 ---
 
@@ -60,10 +63,7 @@ const Heading = headingLevel;
           <li class="phase" data-reveal style={`--i:${i};--reveal-delay:${i * 80}ms`}>
             <span class="phase__rail" aria-hidden="true" />
 
-            <div class="phase__top">
-              <span class="t-eyebrow phase__n">{p.n}</span>
-              <span class="t-eyebrow phase__when">{p.when}</span>
-            </div>
+            <span class="t-eyebrow phase__n">{p.n}</span>
 
             <h3 class="t-h3 phase__title">{p.title}</h3>
             <p class="phase__body">{compact ? p.short : p.body}</p>
@@ -199,27 +199,14 @@ const Heading = headingLevel;
     transform: scaleX(1);
   }
 
-  .phase__top {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3xs);
-  }
 
   .phase__n {
+    display: block;
     color: var(--text-muted);
     font-variant-numeric: tabular-nums;
   }
 
   /* El plazo, en pastilla: es lo que se busca de un vistazo. */
-  .phase__when {
-    padding: 0.3rem 0.55rem;
-    background: color-mix(in srgb, var(--text) 8%, transparent);
-    border-radius: var(--radius-btn);
-    color: var(--text);
-    white-space: nowrap;
-  }
 
   .phase__title {
     margin-top: var(--step);

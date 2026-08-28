@@ -140,12 +140,13 @@ const description =
 
   <section class="section" aria-labelledby="equipo">
     <div class="container">
-      <div class="split">
-        <div><h2 class="t-eyebrow" id="equipo">{teamCopy.eyebrow}</h2></div>
-        <div>
-          <p class="t-h2 lede">{teamCopy.lede}</p>
-        </div>
-      </div>
+      {/*
+        Sin frase de entrada: el rótulo y la ficha. Ver la nota de `team` en
+        src/data/company.ts — las dos versiones que hubo aquí hablaban del
+        tamaño del equipo en vez de presentarlo, y una de ellas dejaba
+        entender que cada proceso lo sostiene una sola persona.
+      */}
+      <h2 class="t-eyebrow" id="equipo">{teamCopy.eyebrow}</h2>
 
       {
         founders.length > 0 && (
@@ -193,9 +194,16 @@ const description =
   </section>
 
   <section class="section closing" data-surface="dark">
-    <div class="container closing__inner" data-reveal>
+    {/*
+      El panel se pinta aparte y no como fondo de la sección: sólo así puede
+      abrirse. Ver los estilos.
+    */}
+    <span class="closing__panel" aria-hidden="true"></span>
+
+    <div class="container closing__inner">
+      <span class="closing__rule" aria-hidden="true"></span>
       <p class="t-h2 closing__title" data-text-reveal>{closing.heading}</p>
-      <p><Cta label={closing.cta.label} href={closing.cta.href} /></p>
+      <p class="closing__cta" data-reveal><Cta label={closing.cta.label} href={closing.cta.href} /></p>
     </div>
   </section>
 </Base>
@@ -369,7 +377,10 @@ const description =
   .people {
     display: grid;
     gap: var(--space-l) var(--gutter);
-    margin: var(--space-xl) 0 0;
+    /* Antes había una frase a tamaño de titular entre el rótulo y esto, y el
+       hueco la separaba a ella. Sin la frase, --space-xl dejaba el rótulo
+       flotando solo en media pantalla. */
+    margin: var(--space-l) 0 0;
     padding: var(--space-l) 0 0;
     border-top: 1px solid var(--rule);
   }
@@ -394,14 +405,118 @@ const description =
     margin-top: var(--space-2xs);
   }
 
+  /* --------------------------------------------------------------------- */
+  /* El cierre                                                              */
+  /* --------------------------------------------------------------------- */
+
+  /*
+   * La última pregunta de la página, y se comporta como tal.
+   *
+   * El gesto no es nuevo: es el del hero, repetido al final. Allí el panel
+   * entra con marco y se suelta a sangre para abrir el documento; aquí hace
+   * lo mismo para cerrarlo. Reutilizar el gesto en vez de inventar otro es lo
+   * que hace que el final se lea como el mismo sitio que el principio — y usa
+   * los mismos dos tokens, --pad-frame y --r-frame, así que si algún día se
+   * afina el marco del hero, éste lo sigue solo.
+   *
+   * Todo va atado al scroll con `animation-timeline`: corre en el compositor
+   * y no cuesta un byte de JavaScript.
+   *
+   * LA REGLA DEL RESGUARDO, y es la que evita el desastre: el estado escrito
+   * en la regla base es el estado FINAL —panel a sangre, filete entero—. Donde
+   * `animation-timeline` no existe, la animación sencillamente no corre y la
+   * sección se ve terminada. Al revés —base en el estado inicial— un navegador
+   * sin soporte enseñaría un panel encogido para siempre.
+   */
+  .closing {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-content: center;
+    /* Casi una pantalla: la pregunta se queda sola. Con el acolchado suma por
+       debajo del alto de la ventana, que es la regla del sitio. */
+    min-height: 78svh;
+    padding-block: var(--space-l);
+    /* Lo pinta el panel, que es quien puede abrirse. */
+    background: transparent;
+  }
+
+  .closing__panel {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--surface);
+  }
+
   .closing__inner {
     display: grid;
     justify-items: center;
     text-align: center;
-    gap: var(--space-l);
+    gap: var(--space-m);
+  }
+
+  /*
+   * El filete de lima. Es la ración de acento que el sistema permite: un
+   * filete de 1px, nunca una superficie. El mismo criterio que la barra de
+   * progreso del newsroom y que la entrada del sitio.
+   */
+  .closing__rule {
+    width: min(160px, 40vw);
+    height: 1px;
+    background: var(--signal);
   }
 
   .closing__title {
     max-width: 24ch;
+  }
+
+  .closing__cta {
+    margin-top: var(--space-2xs);
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      /*
+       * `both` y no `forwards`: hace falta que el primer fotograma mande
+       * TAMBIÉN antes de que empiece el rango, o el panel aparecería a sangre
+       * y saltaría al marco en cuanto la sección asomara.
+       */
+      .closing__panel {
+        animation: closing-frame linear both;
+        animation-timeline: view();
+        /* Cierra antes del centro: cuando la pregunta se está leyendo, el
+           panel ya terminó su gesto y no compite con ella. */
+        animation-range: entry 0% entry 85%;
+      }
+
+      .closing__rule {
+        animation: closing-rule linear both;
+        animation-timeline: view();
+        animation-range: entry 25% entry 95%;
+      }
+    }
+  }
+
+  @keyframes closing-frame {
+    from {
+      inset: var(--pad-frame);
+      border-radius: var(--r-frame);
+    }
+    to {
+      inset: 0;
+      border-radius: 0;
+    }
+  }
+
+  /* Crece desde el centro hacia los dos lados: el origen por defecto ya es
+     el centro, y ese reparto es el que hace que se lea como una apertura y
+     no como una barra de carga. */
+  @keyframes closing-rule {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
   }
 </style>

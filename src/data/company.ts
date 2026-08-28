@@ -67,7 +67,7 @@ export const intro = {
 /**
  * La historia que explica el nombre y el método.
  *
- * No es adorno histórico: es el argumento de por qué la compañía no vende
+ * No es adorno histórico: es el argumento de por qué la compañía no entrega
  * licencias. Las cuatro fechas son públicas y verificables, y por eso esta es
  * la única sección del sitio con cifras que no necesitan una nota de fuente
  * —son hechos de manual, no mediciones de nuestro portafolio.
@@ -77,7 +77,7 @@ export const craft = {
   heading: 'Doscientos años tejiendo instrucciones.',
   body: [
     'En 1804, Joseph-Marie Jacquard construyó un telar que leía tarjetas perforadas para decidir el patrón de la tela. Cada tarjeta era una instrucción; cada hilo, una decisión. Sin saberlo, había inventado el programa.',
-    'Nosotros heredamos ese oficio. No vendemos licencias ni plantillas: estudiamos tu operación hilo por hilo y tejemos el sistema exacto que necesita, con la inteligencia artificial como instrumento — nunca como protagonista. Del conejo blanco tomamos solo el nombre y la costumbre: seguir lo que otros no ven.',
+    'Nosotros heredamos ese oficio. No entregamos licencias ni plantillas: estudiamos tu operación hilo por hilo y tejemos el sistema exacto que necesita, con la inteligencia artificial como instrumento — nunca como protagonista. Del conejo blanco tomamos solo el nombre y la costumbre: seguir lo que otros no ven.',
   ],
 
   /**
@@ -129,13 +129,21 @@ export const craft = {
 /* ------------------------------------------------------------------------ */
 
 /**
- * Las cuatro fases del encargo, con sus plazos.
+ * Las cuatro fases del encargo.
  *
  * Nombres llanos —diagnóstico, diseño, construcción, entrega— y no los del
  * telar. La historia del oficio se cuenta UNA vez, en su sección; vestir
  * también el método de urdimbre y trama convertiría una metáfora en un
- * disfraz, y aquí lo que el cliente necesita saber es cuándo ve la primera
- * entrega y cuándo se cierra el presupuesto.
+ * disfraz, y aquí lo que el cliente necesita saber es en qué orden ocurren
+ * las cosas.
+ *
+ * SIN PLAZOS POR FASE, y es una decisión, no un olvido. Cada fase llevaba su
+ * ventana en semanas —«Semanas 1–2», «Semanas 5–12»— y el conjunto se leía
+ * como un calendario de trece semanas igual para todos. Eso contradice cómo
+ * trabaja la compañía: en el menor tiempo que el alcance admita. Un encargo
+ * pequeño no tarda trece semanas porque la retícula lo diga, y uno grande no
+ * cabe en ellas. La duración típica se dice UNA vez, en `body`, y como rango
+ * de lo que suele ocurrir — no como promesa.
  *
  * `short` es la versión de portada: una línea. `body` es la de /company, que
  * tiene sitio para el detalle. Se escriben las dos aquí para que no acaben
@@ -144,7 +152,7 @@ export const craft = {
 export const method = {
   eyebrow: 'El método',
   heading: 'Cuatro tiempos.',
-  body: 'Un encargo tiene principio y final declarados desde el primer día: qué se entrega, cuándo y por cuánto.',
+  body: 'Un encargo tiene principio y final declarados desde el primer día. Trabajamos en el menor tiempo que el alcance admita sin bajar la calidad: un desarrollo completo suele tomar entre uno y dos meses.',
   cta: { label: 'Hablar con nosotros', href: '/contact' },
 
   phases: [
@@ -152,9 +160,8 @@ export const method = {
       n: '01',
       title: 'Entendemos su operación',
       name: 'Diagnóstico',
-      short: 'Dos semanas dentro de su proceso, con entrevistas, observación y datos.',
-      body: 'Dos semanas dentro de su proceso: entrevistas, observación y datos. Salimos con un mapa de dónde se pierde tiempo y dinero, y qué automatizar primero.',
-      when: 'Semanas 1–2',
+      short: 'Entramos en su proceso, con entrevistas, observación y datos.',
+      body: 'Entramos en su proceso: entrevistas, observación y datos. Salimos con un mapa de dónde se pierde tiempo y dinero, y qué automatizar primero.',
     },
     {
       n: '02',
@@ -162,7 +169,6 @@ export const method = {
       name: 'Diseño',
       short: 'Arquitectura, seguridad y presupuesto cerrado antes de escribir código.',
       body: 'Arquitectura, seguridad y plan de trabajo. Usted aprueba el diseño y el presupuesto cerrado antes de que se escriba una línea de código.',
-      when: 'Semanas 3–4',
     },
     {
       n: '03',
@@ -170,7 +176,6 @@ export const method = {
       name: 'Construcción',
       short: 'Entregas semanales que puede ver y usar desde el primer viernes.',
       body: 'Entregas semanales que puede ver y usar. Cada viernes hay algo nuevo funcionando; cada ajuste llega antes de que sea costoso.',
-      when: 'Semanas 5–12',
     },
     {
       n: '04',
@@ -178,7 +183,6 @@ export const method = {
       name: 'Entrega',
       short: 'Capacitación, documentación y medición del retorno cada trimestre.',
       body: 'Capacitación a su equipo, documentación completa y soporte continuo. El sistema queda amarrado: medimos juntos el retorno cada trimestre.',
-      when: 'Semana 13 en adelante',
     },
   ],
 } as const;
@@ -187,14 +191,21 @@ export const method = {
 /* Equipo                                                                     */
 /* ------------------------------------------------------------------------ */
 
+/**
+ * SIN LEDE, y es deliberado.
+ *
+ * Aquí hubo dos frases y las dos fallaban por lo mismo: hablaban del tamaño
+ * del equipo en vez de presentarlo. «Ingeniería y criterio jurídico en la
+ * misma mesa» prometía perfiles que no estaban publicados. La que la
+ * sustituyó —«cada proceso que entregamos tiene un responsable con nombre»—
+ * sonaba a que cada proceso lo sostiene una sola persona, que es exactamente
+ * lo contrario de lo que una empresa regulada quiere leer de su proveedor.
+ *
+ * La sección presenta al fundador y ya. La ficha dice quién es, qué hace y
+ * dónde verificarlo, que es más de lo que decía cualquiera de las dos frases.
+ * Cuando haya más fichas, el reparto en grupos vuelve solo — lo gobierna
+ * `showGroups` en la plantilla, no una frase escrita a mano.
+ */
 export const team = {
   eyebrow: 'Equipo',
-  /**
-   * El lede decía «Ingeniería y criterio jurídico en la misma mesa» cuando la
-   * página listaba tres fichas, una por disciplina. Publicada una sola, esa
-   * frase prometía dos perfiles que ya no se ven: la sección se desmentía a sí
-   * misma. Esta versión dice lo que la ficha de abajo demuestra —hay un
-   * responsable con nombre— y sigue siendo cierta cuando el equipo crezca.
-   */
-  lede: 'Cada proceso que entregamos tiene un responsable con nombre.',
 } as const;

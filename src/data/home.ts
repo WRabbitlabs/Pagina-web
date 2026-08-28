@@ -152,7 +152,7 @@ export const company = {
     'Nacimos en Bogotá en 2023, del cruce entre un equipo de ingeniería de datos y un grupo de abogados con el mismo diagnóstico.',
     'Los procesos de una entidad grande no fallan por falta de tecnología: fallan porque después nadie puede reconstruir qué se decidió y con qué información.',
     'Hoy trabajamos con entidades del orden nacional y territorial, firmas de práctica corporativa y compañías de los sectores financiero, asegurador y de infraestructura.',
-    'No vendemos modelos: vendemos procesos que se ejecutan igual la primera vez y la número diez mil, y que pueden explicarse línea por línea.',
+    'No entregamos modelos: entregamos procesos que se ejecutan igual la primera vez y la número diez mil, y que pueden explicarse línea por línea.',
   ],
   cta: { label: 'Ver la compañía', href: '/company' },
 } as const;
