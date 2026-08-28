@@ -39,6 +39,17 @@ const hasVideo = Boolean(media.video);
             poster={media.poster ?? undefined}
             tabindex="-1"
           >
+            {/*
+              El orden manda: el navegador se queda con la PRIMERA fuente que
+              sabe reproducir, así que van de la más eficiente a la más
+              compatible. La cadena de códec no es adorno — sin ella un
+              navegador sin AV1 aceptaría el archivo por ser .webm y luego no
+              sabría decodificarlo, y una vez elegida la fuente no hay vuelta
+              atrás: se quedaría en el póster para siempre.
+            */}
+            {media.av1 && (
+              <source src={media.av1} type='video/webm; codecs="av01.0.05M.08"' />
+            )}
             {media.webm && <source src={media.webm} type="video/webm" />}
             <source src={media.video!} type="video/mp4" />
           </video>
@@ -224,6 +235,29 @@ const hasVideo = Boolean(media.video);
     };
 
     /*
+     * Tres motivos para no descargar los 2 MB, y ninguno es una suposición
+     * nuestra: los tres son una preferencia declarada por quien visita.
+     *
+     *   saveData        el sistema pide ahorrar datos.
+     *   effectiveType   la conexión es 2G, donde 2 MB son una espera larga.
+     *   reduced-motion  se pidió menos movimiento, y un bucle de veinte
+     *                   segundos en bandeja es exactamente movimiento.
+     *
+     * En los tres casos se queda el póster, que es el primer fotograma del
+     * vídeo: el encuadre, el color y la composición no cambian. Solo deja de
+     * moverse, y no se descarga nada.
+     *
+     * `connection` no existe en Safari ni en Firefox. Ausente, no se deduce
+     * nada y el vídeo se reproduce: en la duda, la experiencia completa.
+     */
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } })
+      .connection;
+    const ahorra =
+      reduced.matches ||
+      Boolean(conn?.saveData) ||
+      /^(slow-)?2g$/.test(conn?.effectiveType ?? '');
+
+    /*
      * La descarga arranca cuando la página ya cargó del todo: con 2 MB
      * compitiendo por el ancho de banda el LCP se degrada. Hasta entonces se
      * ve el póster, que es exactamente el primer fotograma.
@@ -235,8 +269,13 @@ const hasVideo = Boolean(media.video);
       video.load();
     };
 
-    if (document.readyState === 'complete') start();
-    else addEventListener('load', start, { once: true });
+    if (ahorra) {
+      /* Nada que arrancar: el póster ya está puesto por el atributo. */
+    } else if (document.readyState === 'complete') {
+      start();
+    } else {
+      addEventListener('load', start, { once: true });
+    }
 
     /* Un bucle reproduciéndose fuera de pantalla gasta batería para nada. */
     new IntersectionObserver(

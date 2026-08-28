@@ -114,6 +114,7 @@ console.log(`Origen: ${src}  (${mb(src)})\n`);
 const loop = join(OUT, '_pingpong.mp4');
 const mp4 = join(OUT, 'hero.mp4');
 const webm = join(OUT, 'hero.webm');
+const av1 = join(OUT, 'hero.av1.webm');
 const poster = join(OUT, 'hero-poster.jpg');
 
 /*
@@ -151,6 +152,35 @@ run(
 );
 
 /*
+ * AV1. Es la fuente que se ofrece PRIMERO, así que casi todo el mundo se
+ * lleva esta y no las de arriba. Las otras dos se quedan como reserva para
+ * quien no sepa decodificarla.
+ *
+ * El CRF 38 no es un gusto: se eligió midiendo. SSIM contra el MP4, con el
+ * plano que hay hoy:
+ *
+ *     VP9 CRF 36   0,9635   2,02 MB   <- la referencia, lo que ya se servía
+ *     AV1 CRF 32   0,9673   1,51 MB
+ *     AV1 CRF 38   0,9660   1,05 MB   <- éste
+ *     AV1 CRF 44   0,9642   0,75 MB
+ *     AV1 CRF 50   0,9616   0,55 MB   <- por debajo de la referencia
+ *
+ * CRF 44 todavía superaba al VP9, pero por 0,0007, que es ruido. CRF 38 deja
+ * margen de sobra y aun así quita la mitad del peso. Si algún día hace falta
+ * apretar más, 44 está medido y comprobado a la vista.
+ *
+ * `cpu-used 6` es el compromiso de tiempo: más bajo tarda mucho más para
+ * ganar muy poco en una toma corta y sin apenas movimiento como ésta.
+ */
+run(
+  ['-i', loop, '-an', '-vf', scale,
+   '-c:v', 'libaom-av1', '-crf', '38', '-b:v', '0',
+   '-cpu-used', '6', '-row-mt', '1', '-tiles', '2x2', '-g', '240',
+   '-pix_fmt', 'yuv420p', av1],
+  'AV1',
+);
+
+/*
  * Póster ligero a propósito. Es el elemento LCP —lo primero grande que se
  * pinta— y solo tiene que cubrir el segundo que tarda el vídeo en arrancar,
  * sobre una imagen oscura y difusa donde la compresión no se aprecia. A
@@ -177,6 +207,10 @@ data = data
   .replace(/video: null as string \| null,[^\n]*/, "video: '/video/hero.mp4' as string | null,")
   .replace(/webm: null as string \| null,[^\n]*/, "webm: '/video/hero.webm' as string | null,")
   .replace(
+    /av1: null as string \| null,[^\n]*/,
+    "av1: '/video/hero.av1.webm' as string | null,",
+  )
+  .replace(
     /poster: null as string \| null,[^\n]*/,
     "poster: '/video/hero-poster.jpg' as string | null,",
   );
@@ -191,8 +225,9 @@ if (data !== before) {
 console.log(
   [
     '',
-    `  hero.mp4         ${mb(mp4)}`,
+    `  hero.av1.webm    ${mb(av1)}   <- la que se sirve`,
     `  hero.webm        ${mb(webm)}`,
+    `  hero.mp4         ${mb(mp4)}`,
     `  hero-poster.jpg  ${mb(poster)}`,
     '',
     'Listo. `npm run build` y el hero ya lo usa.',
