@@ -243,6 +243,9 @@
     --z-header: 100;
     --z-menu: 200;
     --z-skip: 300;
+    /* La entrada cubre incluso el enlace de salto: mientras está, no hay
+       página debajo con la que interactuar. */
+    --z-boot: 400;
   }
 
   /*

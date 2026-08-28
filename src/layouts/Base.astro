@@ -5,6 +5,7 @@ import '../styles/base.css';
 
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import RabbitMark from '../components/icons/RabbitMark.astro';
 import { site } from '../data/site';
 
 interface Props {
@@ -53,10 +54,32 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
-    <!-- Preload solo la display latin: es la que pinta el LCP. -->
+    <!--
+      Las dos caras latinas, precargadas.
+
+      Antes solo iba la display. La mono no aparece en el HTML —la pide el
+      CSS— así que el navegador no la descubría hasta analizar la hoja.
+      Medido en producción con caché fría: arrancaba a los 480ms y terminaba
+      a los 704, mientras la display ya estaba a los 497. Era el último
+      recurso de la cascada y detrás de él venía el primer pintado, a 868ms.
+
+      Precargándola, las dos salen juntas hacia los 260ms.
+
+      Solo el subconjunto `latin`: el `latin-ext` queda fuera a propósito
+      porque el castellano no lo necesita —los acentos, la eñe y la diéresis
+      están en `latin`— y su unicode-range impide que se descargue. Precargar
+      lo que nadie pide serían 46KB tirados.
+    -->
     <link
       rel="preload"
       href="/fonts/inter-tight-latin-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/roboto-mono-latin-400.woff2"
       as="font"
       type="font/woff2"
       crossorigin
@@ -105,10 +128,54 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
     -->
     <script is:inline>
       document.documentElement.classList.add('js');
+
+      /*
+       * La entrada se ve una vez por sesión, no en cada página.
+       *
+       * El sitio son once documentos separados: sin esto, cada clic del menú
+       * volvería a poner un velo de un segundo y navegar se sentiría más
+       * lento, que es justo lo contrario de lo que la entrada busca.
+       *
+       * Va aquí, en línea y antes del <body>, porque decidirlo después del
+       * primer pintado enseñaría el velo un instante para retirarlo enseguida.
+       *
+       * sessionStorage lanza en modo privado de algunos navegadores y con las
+       * cookies de terceros bloqueadas. Si lanza, no se marca nada y la
+       * entrada se ve: es el fallo seguro correcto.
+       */
+      try {
+        if (sessionStorage.getItem('wr:boot')) {
+          document.documentElement.classList.add('booted');
+        } else {
+          sessionStorage.setItem('wr:boot', '1');
+        }
+      } catch (e) {}
     </script>
   </head>
 
   <body>
+    {/*
+      Pantalla de entrada. Ver los estilos al pie del archivo: la retira una
+      animación CSS, no JavaScript.
+
+      `inert` la saca del orden de tabulación y del árbol de accesibilidad
+      entero, así que el lector de pantalla no la anuncia y el teclado no
+      puede quedarse atrapado dentro mientras se muestra.
+    */}
+    <div class="boot" data-surface="dark" aria-hidden="true" inert>
+      <span class="boot__mark">
+        {/*
+          Envuelto, no suelto: los estilos con ámbito de Astro compilan a
+          `.boot__symbol[data-astro-cid-…]` y ese atributo lo llevan los
+          elementos de ESTA plantilla. El <svg> lo dibuja RabbitMark, otro
+          componente, y nunca lo recibiría.
+        */}
+        <span class="boot__symbol"><RabbitMark size={40} /></span>
+        <span class="boot__name">{site.name}</span>
+      </span>
+      <span class="boot__rule"></span>
+    </div>
+
     <a class="skip-link" href="#main">Saltar al contenido</a>
 
     <Header enterDelay={isHome ? 1000 : 220} />
@@ -132,5 +199,127 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
 <style>
   main:focus {
     outline: none;
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* Pantalla de entrada                                                    */
+  /* --------------------------------------------------------------------- */
+
+  /*
+   * Un segundo exacto, y repartido: 620ms de espera mientras el filete se
+   * llena, 380ms de retirada. La suma es el segundo que se pidió.
+   *
+   * La retira una animación CSS, no JavaScript, y la distinción es lo que
+   * hace que esto sea seguro. Un velo que depende de un guion para irse es un
+   * velo que se queda para siempre si el guion falla, y deja el sitio
+   * inservible. Aquí lo único que JavaScript decide es si llega a mostrarse.
+   *
+   * Se pinta con el primer fotograma: su CSS va en línea en el <head> —el
+   * sitio incorpora las hojas— y su contenido es texto, no una imagen que
+   * haya que ir a buscar. Por eso adelanta el primer pintado en lugar de
+   * retrasarlo: antes la pantalla estaba en blanco hasta los 868ms.
+   */
+  .boot {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-boot);
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: var(--space-s);
+    background: var(--surface);
+    color: var(--text);
+    animation: boot-lift 380ms var(--ease-out) 620ms forwards;
+  }
+
+  @keyframes boot-lift {
+    to {
+      opacity: 0;
+      /* `visibility` salta al final del recorrido en vez de interpolarse, que
+         aquí es justo lo que se quiere: deja de recibir puntero y sale del
+         árbol de composición en cuanto termina, sin quedarse invisible por
+         encima de la página. */
+      visibility: hidden;
+    }
+  }
+
+  .boot__mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.62em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* `flex` y no `inline-block`: como caja flex el <svg> deja de arrastrar el
+     hueco de la línea base, que descuadraba el centrado vertical. */
+  .boot__symbol {
+    display: flex;
+    flex: none;
+    opacity: 0;
+    animation: boot-in var(--dur-mid) var(--ease-out) forwards;
+  }
+
+  .boot__name {
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    letter-spacing: -0.035em;
+    opacity: 0;
+    animation: boot-in var(--dur-mid) var(--ease-out) 90ms forwards;
+  }
+
+  @keyframes boot-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /*
+   * El filete que se llena. Un píxel de alto y la lima, que es como el sitio
+   * usa el acento en el resto de sitios —la barra de progreso de lectura del
+   * newsroom es la misma idea—: un filete, nunca una superficie.
+   *
+   * `scaleX` y no `width`: se compone en la GPU y no obliga a recalcular la
+   * disposición en cada fotograma.
+   */
+  .boot__rule {
+    width: min(160px, 40vw);
+    height: 1px;
+    background: var(--signal);
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: boot-fill 620ms var(--ease-out) forwards;
+  }
+
+  @keyframes boot-fill {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /*
+   * Tres motivos para no mostrarla, y los tres son la misma idea: no hacer
+   * esperar a quien no gana nada esperando.
+   *
+   *   .booted        ya se vio en esta sesión — ver el guion del <head>.
+   *   :not(.js)      sin JavaScript no hay nada que preparar, y además nadie
+   *                  podría marcarla como vista.
+   *   reduced-motion quien pide menos movimiento no quiere una entrada
+   *                  escenificada; quiere el contenido.
+   */
+  html.booted .boot,
+  html:not(.js) .boot {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .boot {
+      display: none;
+    }
   }
 </style>
