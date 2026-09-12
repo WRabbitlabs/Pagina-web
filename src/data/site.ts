@@ -18,8 +18,8 @@ export const site = {
    */
   indexable: false,
 
-  name: 'Wr AI Labs',
-  legalName: 'Wr AI S.A.S.',
+  name: 'WR AI Labs',
+  legalName: 'WR AI S.A.S.',
   nit: '901.000.000-0', // PENDIENTE — reemplazar con el NIT real
   /** Espejo de SITE_URL en astro.config.mjs: mismo origen del entorno. */
   url: import.meta.env.PUBLIC_SITE_URL ?? 'https://wrailabs.com',
@@ -47,7 +47,7 @@ export const site = {
   fields: 'AI Compliance · Automation · Data Governance',
   motto: 'Follow what others don\'t see.',
   description:
-    'Wr AI Labs construye software dedicado y automatizaciones para empresas medianas y grandes, buffets de abogados y entidades del Estado colombiano. Cada proceso deja evidencia auditable.',
+    'WR AI Labs construye software dedicado y automatizaciones para empresas medianas y grandes, buffets de abogados y entidades del Estado colombiano. Cada proceso deja evidencia auditable.',
 } as const;
 
 export const social = [

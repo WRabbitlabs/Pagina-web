@@ -72,7 +72,7 @@ async function search(q) {
  */
 async function grab(url, attempt = 0) {
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'WrAILabs-site-assets/1.0 (https://wrailabs.com; rafaelmanriquebrasil2@gmail.com)' },
+    headers: { 'User-Agent': 'WRAILabs-site-assets/1.0 (https://wrailabs.com; rafaelmanriquebrasil2@gmail.com)' },
     redirect: 'follow',
   });
   if (res.status === 429 && attempt < 3) {

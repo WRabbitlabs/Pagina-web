@@ -1,5 +1,5 @@
 ---
-title: 'Wr AI Labs incorpora el reporte regulatorio con validación previa a su catálogo'
+title: 'WR AI Labs incorpora el reporte regulatorio con validación previa a su catálogo'
 category: 'Anuncio'
 date: 2026-09-01
 excerpt: 'El catálogo de sistemas suma el reporte regulatorio con validación previa: un informe que se comprueba contra la taxonomía oficial antes de enviarse, con el registro de cada comprobación adjunto. El primer destino es el Informe 01 de la Superintendencia de Sociedades.'

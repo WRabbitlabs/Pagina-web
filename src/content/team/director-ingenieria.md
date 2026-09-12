@@ -4,7 +4,7 @@ role: 'Director de ingeniería'
 order: 3
 founder: false
 draft: true
-imageAlt: 'Retrato del director de ingeniería de Wr AI Labs.'
+imageAlt: 'Retrato del director de ingeniería de WR AI Labs.'
 links:
   - label: 'LinkedIn'
     href: 'https://www.linkedin.com/in/placeholder-ingenieria'

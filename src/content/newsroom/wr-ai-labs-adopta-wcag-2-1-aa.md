@@ -1,5 +1,5 @@
 ---
-title: 'Wr AI Labs adopta WCAG 2.1 AA como requisito de entrega para entidades públicas'
+title: 'WR AI Labs adopta WCAG 2.1 AA como requisito de entrega para entidades públicas'
 category: 'Anuncio'
 date: 2026-04-22
 excerpt: 'Ninguna interfaz destinada a una entidad pública colombiana se entrega sin una auditoría de accesibilidad en nivel AA de las pautas WCAG 2.1, el nivel que exige la Resolución 1519 de 2020 del MinTIC. El informe de la auditoría forma parte del entregable.'

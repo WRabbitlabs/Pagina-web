@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Sitio institucional de Wr AI Labs",
+  "description": "Sitio institucional de WR AI Labs",
   "scripts": {
     "fonts": "node scripts/fonts.mjs",
     "dev": "npm run fonts && astro dev",

@@ -139,8 +139,8 @@ await writeFile(
   join(root, 'public', 'site.webmanifest'),
   JSON.stringify(
     {
-      name: 'Wr AI Labs',
-      short_name: 'Wr AI Labs',
+      name: 'WR AI Labs',
+      short_name: 'WR AI Labs',
       description: 'Automatización auditable.',
       lang: 'es',
       start_url: '/',
