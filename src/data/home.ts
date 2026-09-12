@@ -15,7 +15,7 @@ export const hero = {
   /** Texto accesible del h1, sin la partición visual en líneas. */
   headlineFlat: 'IA aplicada, resultados medibles.',
   subtitle:
-    'Software dedicado y automatización para empresas, buffets de abogados y entidades del Estado colombiano.',
+    'Software dedicado y automatizaciones a través de la IA.',
   cta: { label: 'Ver la compañía', href: '/company' },
   scrollHint: 'Desplazar',
   /**
