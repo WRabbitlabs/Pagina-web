@@ -38,6 +38,14 @@ export const site = {
   },
   /** Tesis de la empresa. Se repite en el marquee y en el JSON-LD. */
   tagline: 'Automatización auditable.',
+  /**
+   * Las dos líneas que acompañan al logotipo fuera de la web: los tres campos
+   * y el lema en inglés. El director pidió el 12 de septiembre de 2026 que
+   * estuvieran en la página, y son la única excepción al idioma único del
+   * sitio junto con «Newsroom».
+   */
+  fields: 'AI Compliance · Automation · Data Governance',
+  motto: 'Follow what others don\'t see.',
   description:
     'Wr AI Labs construye software dedicado y automatizaciones para empresas medianas y grandes, buffets de abogados y entidades del Estado colombiano. Cada proceso deja evidencia auditable.',
 } as const;

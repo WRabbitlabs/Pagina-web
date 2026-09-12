@@ -48,7 +48,11 @@ const bg = footerData.bg;
   <div class="container footer__inner">
     <div class="footer__top">
       <div class="footer__pitch">
+        {/* Van en inglés a propósito: son las líneas del logotipo, y `lang`
+            hace que el lector de pantalla las pronuncie como inglés. */}
+        <p class="t-eyebrow footer__fields" lang="en">{site.fields}</p>
         <p class="t-statement footer__claim">{site.tagline}</p>
+        <p class="t-eyebrow footer__motto" lang="en">{site.motto}</p>
         {/*
           El envoltorio no es decorativo: los estilos con ámbito de este
           componente sólo alcanzan a los elementos escritos en su plantilla.
@@ -264,6 +268,16 @@ const bg = footerData.bg;
   .footer__claim {
     max-width: 18ch;
     text-wrap: balance;
+  }
+
+  /* Los campos, apagados, encima de la frase; el lema, a plena tinta, debajo. */
+  .footer__fields {
+    margin-bottom: var(--space-s);
+    color: var(--text-muted);
+  }
+
+  .footer__motto {
+    margin-top: var(--space-s);
   }
 
   .footer__cta {
