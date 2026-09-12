@@ -7,10 +7,17 @@ interface Props {
   /** Tono de la superficie. Se reparte desde quien coloca las tarjetas. */
   tone?: 'paper' | 'moss' | 'ink';
   delay?: number;
+  /**
+   * Si lleva el extracto bajo el título. En el índice del newsroom sí: sin él
+   * la tarjeta es una etiqueta con hueco, y el hueco crece con el título más
+   * largo de la fila. En la portada no: allí el destacado es el único que
+   * explica, y la asimetría marca cuál es la pieza que importa hoy.
+   */
+  excerpt?: boolean;
 }
-const { entry, tone = 'paper', delay = 0 } = Astro.props;
+const { entry, tone = 'paper', delay = 0, excerpt: withExcerpt = true } = Astro.props;
 const external = isExternal(entry);
-const { category, date, title } = entry.data;
+const { category, date, title, excerpt } = entry.data;
 
 /**
  * Tarjeta de artículo.
@@ -46,7 +53,10 @@ const { category, date, title } = entry.data;
       <time class="card__date t-eyebrow" datetime={isoDate(date)}>{formatDate(date)}</time>
     </span>
 
-    <h3 class="t-h3 card__title">{title}</h3>
+    <span class="card__body">
+      <h3 class="t-h3 card__title">{title}</h3>
+      {withExcerpt && <span class="t-small card__excerpt">{excerpt}</span>}
+    </span>
 
     <span class="card__foot t-eyebrow">
       Leer artículo
@@ -138,9 +148,29 @@ const { category, date, title } = entry.data;
     white-space: nowrap;
   }
 
-  .card__title {
+  /* Título y extracto van juntos, arriba; el pie se queda abajo. */
+  .card__body {
     align-self: start;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  .card__title {
     text-wrap: balance;
+  }
+
+  /*
+   * Tres líneas y se corta. Los extractos miden distinto y la fila mide lo
+   * que la tarjeta más alta: sin el corte, un extracto largo estira a sus dos
+   * vecinas y vuelve el hueco que el extracto venía a quitar.
+   */
+  .card__excerpt {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    color: var(--text-muted);
+    line-height: 1.5;
   }
 
   .card__foot {
