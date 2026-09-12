@@ -1,27 +1,33 @@
 /**
- * Vectoriza la marca del conejo y genera toda la cadena de iconos.
+ * Vectoriza la marca y genera toda la cadena de iconos.
  *
- *   node scripts/logo.mjs "<ruta del jpeg>"
+ *   node scripts/logo.mjs "<ruta del png>"
  *
- * El cliente entregó dos JPEG de 1024×1024, uno con el trazo negro y otro con
- * el blanco, ambos «sin fondo». No lo estaban: JPEG no admite transparencia,
- * así que el tablero de ajedrez que marca la transparencia venía **pintado
- * dentro del archivo**. Era un dibujo de la transparencia, no transparencia.
+ * La marca de septiembre de 2026 es el conejo corriendo con la W: el conejo
+ * en trazo negro, la W, la cola y los píxeles en azul. El director la entregó
+ * como PNG con fondo transparente y un halo azul difuso alrededor, y solo en
+ * negro: no pudo hacer la versión blanca. Aquí no hace falta que la haga.
  *
- * La separación tonal sí era limpia —el histograma da 0 puro para el trazo y
- * 208/240 para el tablero— así que se umbraliza en 100, se traza a vector y
- * se descarta el original.
+ * El archivo se separa en dos capas por color, y cada una se traza a vector
+ * por su cuenta:
  *
- * Con la marca en SVG el segundo archivo sobra: el trazo hereda `currentColor`,
- * así que el mismo símbolo sirve sobre claro y sobre oscuro. Ese era el motivo
- * de entregar dos versiones.
+ *   - lo oscuro (el conejo y el ojo) se rellena con `currentColor`, así que es
+ *     negro sobre claro y blanco sobre oscuro sin un segundo archivo: la
+ *     cabecera cambia de tinta al cruzar del hero al fondo claro y el conejo
+ *     la sigue;
+ *   - lo azul (la W, la cola y los píxeles) lleva su propio degradado, que es
+ *     el mismo sobre cualquier fondo.
+ *
+ * El halo se descarta: solo entran los píxeles opacos (alpha ≥ 128). Los dos
+ * trazados comparten el mismo recorte, así que encajan sin desplazamiento.
  *
  * Genera:
- *   src/components/icons/RabbitMark.astro   el símbolo, con currentColor
+ *   src/components/icons/RabbitMark.astro   el símbolo, dos trazados
  *   public/icon.svg                          favicon vectorial
  *   public/favicon.ico                       32×32
  *   public/apple-touch-icon.png              180×180
  *   public/icon-192.png  ·  public/icon-512.png
+ *   ../Logo/wr-ai-negro.svg · wr-ai-blanco.svg · y sus PNG   (para uso fuera de la web)
  */
 import sharp from 'sharp';
 import potrace from 'potrace';
@@ -33,106 +39,112 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = process.argv[2];
 if (!src) {
-  console.error('uso: node scripts/logo.mjs "<ruta del jpeg del logo>"');
+  console.error('uso: node scripts/logo.mjs "<ruta del png del logo>"');
   process.exit(1);
 }
 
 const INK = '#222f30';
 const PAPER = '#ffffff';
+/* El degradado del azul, de izquierda a derecha: los píxeles y el pie de la W
+   van en el azul profundo; la cola, en el claro. */
+const AZUL = ['#123e9e', '#1a6fd8', '#2aa2f5'];
 
 /* ------------------------------------------------------------------ */
-/* 1. Umbral: fuera el tablero, queda el trazo                         */
+/* 1. Dos capas por color, un solo recorte                             */
 /* ------------------------------------------------------------------ */
 
-const mono = sharp(src).greyscale().threshold(100);
+const { data, info } = await sharp(src).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+const W = info.width;
+const H = info.height;
 
-/*
- * El recorte va calculado a mano y no con `sharp.trim()`: el JPEG trae ruido
- * de compresión en el borde que basta para que trim no encuentre un marco
- * uniforme y devuelva el lienzo entero. Recorrer los píxeles y quedarse con
- * la caja de los negros no falla.
- *
- * Importa porque el original es una marca flotando en un cuadrado con mucho
- * aire: sin recortar, cada uso tendría que compensar ese margen a mano.
- */
-const { data: px, info } = await mono.clone().raw().toBuffer({ resolveWithObject: true });
-let x0 = info.width;
-let y0 = info.height;
+const dark = Buffer.alloc(W * H, 255);
+const blue = Buffer.alloc(W * H, 255);
+let x0 = W;
+let y0 = H;
 let x1 = -1;
 let y1 = -1;
-for (let y = 0; y < info.height; y++) {
-  for (let x = 0; x < info.width; x++) {
-    if (px[y * info.width + x] < 128) {
-      if (x < x0) x0 = x;
-      if (x > x1) x1 = x;
-      if (y < y0) y0 = y;
-      if (y > y1) y1 = y;
-    }
+let nDark = 0;
+let nBlue = 0;
+
+for (let y = 0; y < H; y++) {
+  for (let x = 0; x < W; x++) {
+    const i = (y * W + x) * 4;
+    const [r, g, b, a] = [data[i], data[i + 1], data[i + 2], data[i + 3]];
+    if (a < 128) continue; // el halo, fuera
+    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+    const sat = Math.max(r, g, b) - Math.min(r, g, b);
+    let capa = null;
+    if (sat < 70 && lum < 130) capa = dark;
+    else if (b > r + 30 && b >= g) capa = blue;
+    if (!capa) continue;
+    capa[y * W + x] = 0;
+    if (capa === dark) nDark++;
+    else nBlue++;
+    if (x < x0) x0 = x;
+    if (x > x1) x1 = x;
+    if (y < y0) y0 = y;
+    if (y > y1) y1 = y;
   }
 }
-if (x1 < 0) throw new Error('no se encontró ningún trazo: ¿el umbral es el correcto?');
+if (x1 < 0) throw new Error('no se encontró ningún trazo: ¿es el archivo correcto?');
 
-const bitmap = await mono
-  .extract({ left: x0, top: y0, width: x1 - x0 + 1, height: y1 - y0 + 1 })
-  .png()
-  .toBuffer();
+const box = { left: x0, top: y0, width: x1 - x0 + 1, height: y1 - y0 + 1 };
+console.log(`[logo] capas: ${nDark} px oscuros, ${nBlue} px azules; recorte ${box.width}×${box.height}`);
 
-const { width, height } = await sharp(bitmap).metadata();
-console.log(`[logo] trazo aislado: ${width}×${height} (recortado de ${info.width}×${info.height})`);
+const bitmap = (buf) =>
+  sharp(buf, { raw: { width: W, height: H, channels: 1 } }).extract(box).png().toBuffer();
 
 /* ------------------------------------------------------------------ */
 /* 2. Vectorizar                                                       */
 /* ------------------------------------------------------------------ */
 
-const traced = await new Promise((res, rej) => {
-  potrace.trace(
-    bitmap,
-    {
-      // El original es geometría de líneas rectas, no una silueta orgánica:
-      // sin suavizado de esquinas los vértices salen como los dibujó su autor.
-      alphaMax: 0,
-      turdSize: 2,
-      optCurve: true,
-      optTolerance: 0.2,
-      threshold: 128,
-      color: 'currentColor',
-      background: 'transparent',
-    },
-    (err, svg) => (err ? rej(err) : res(svg)),
-  );
-});
+const trace = (png, opts) =>
+  new Promise((res, rej) => {
+    potrace.trace(
+      png,
+      {
+        turdSize: 2,
+        optCurve: true,
+        optTolerance: 0.2,
+        threshold: 128,
+        color: 'currentColor',
+        background: 'transparent',
+        ...opts,
+      },
+      (err, svg) => (err ? rej(err) : res(svg)),
+    );
+  });
 
 /*
- * `floatPrecision` va en `convertPathData`, no en `cleanupNumericValues`: el
- * segundo redondea los atributos sueltos y deja el `d` intacto. Y no es
- * cosmético. El path se incrusta en el header, que
- * está en las once páginas, así que cada decimal de más viaja once veces.
- * Potrace saca tres decimales sobre un viewBox de 438×684: a los 26px que mide
- * en el header, y aun a 512 en el icono, el tercer decimal es medio milésimo
- * de píxel. Bajar a uno recorta el path a la mitad sin que se note.
+ * `floatPrecision` va en `convertPathData`: el path se incrusta en la
+ * cabecera de todas las páginas, así que cada decimal de más viaja en todas.
+ * A los 30 px de alto que mide ahí, el primer decimal ya sobra.
  */
-const { data: clean } = optimize(traced, {
-  multipass: true,
-  plugins: [
-    { name: 'preset-default', params: { overrides: { convertPathData: { floatPrecision: 1 } } } },
-  ],
-});
+const clean = (svg) =>
+  optimize(svg, {
+    multipass: true,
+    plugins: [
+      { name: 'preset-default', params: { overrides: { convertPathData: { floatPrecision: 1 } } } },
+    ],
+  }).data;
 
-/* El viewBox real, para que quien lo use no tenga que adivinarlo. */
-const vb = clean.match(/viewBox="([^"]+)"/)?.[1] ?? `0 0 ${width} ${height}`;
-const path = clean.match(/ d="([^"]+)"/)?.[1];
-if (!path) throw new Error('el trazado no devolvió ningún path');
+const pathOf = (svg) => {
+  const d = svg.match(/ d="([^"]+)"/)?.[1];
+  if (!d) throw new Error('el trazado no devolvió ningún path');
+  return d;
+};
 
-/*
- * `evenodd` no es opcional.
- *
- * Potrace devuelve los doce subtrazos de la marca en un solo path: los
- * contornos exteriores y los interiores mezclados. Con la regla de relleno
- * por defecto (`nonzero`) los interiores no calan y las orejas y la cara
- * salen macizas — la marca deja de ser línea y se vuelve silueta.
- */
+/* El conejo es curva orgánica: suavizado normal. Los píxeles son cuadrados y
+   la W es recta: menos suavizado para que las esquinas sigan siendo esquinas. */
+const svgDark = clean(await trace(await bitmap(dark), { alphaMax: 1 }));
+const svgBlue = clean(await trace(await bitmap(blue), { alphaMax: 0.5 }));
 
-console.log(`[logo] vectorizado: viewBox ${vb}, ${(path.length / 1024).toFixed(1)} KB de path`);
+const vb = svgDark.match(/viewBox="([^"]+)"/)?.[1] ?? `0 0 ${box.width} ${box.height}`;
+const dDark = pathOf(svgDark);
+const dBlue = pathOf(svgBlue);
+console.log(
+  `[logo] vectorizado: viewBox ${vb}; conejo ${(dDark.length / 1024).toFixed(1)} KB, azul ${(dBlue.length / 1024).toFixed(1)} KB`,
+);
 
 /* ------------------------------------------------------------------ */
 /* 3. El componente                                                    */
@@ -142,18 +154,25 @@ await mkdir(join(root, 'src', 'components', 'icons'), { recursive: true });
 
 const component = `---
 /**
- * La marca: el conejo con el circuito bajo la barbilla.
+ * La marca: el conejo corriendo con la W.
  *
- * GENERADO por scripts/logo.mjs a partir del JPEG del cliente. No se edita a
+ * GENERADO por scripts/logo.mjs a partir del PNG del director. No se edita a
  * mano: se vuelve a generar.
  *
- * Rellena con \`currentColor\`, así que el mismo símbolo sirve sobre claro y
- * sobre oscuro sin un segundo archivo. Por defecto es decorativo —el nombre
- * de la agencia va al lado, en texto— y solo toma \`title\` cuando aparece sin
- * él.
+ * Dos trazados. El conejo se rellena con \`currentColor\`, así que es negro
+ * sobre claro y blanco sobre oscuro sin un segundo archivo: sigue el cambio de
+ * tinta de la cabecera al cruzar del hero al fondo claro. La W, la cola y los
+ * píxeles llevan su degradado azul, que es el mismo sobre cualquier fondo.
+ *
+ * El id del degradado se genera por instancia: la cabecera y la pantalla de
+ * entrada dibujan la marca en la misma página, y dos \`<linearGradient>\` con
+ * el mismo id harían que la segunda dependiera de la primera.
+ *
+ * Por defecto es decorativo —el nombre va al lado, en texto— y solo toma
+ * \`title\` cuando aparece sin él.
  */
 interface Props {
-  /** Alto en px. El ancho sale de la proporción. */
+  /** Alto en px. El ancho sale de la proporción (${box.width}:${box.height}). */
   size?: number;
   /** Nombre accesible. Sin él, el símbolo es decorativo. */
   title?: string;
@@ -161,6 +180,7 @@ interface Props {
 }
 
 const { size = 24, title, class: className } = Astro.props;
+const gradId = \`wr-azul-\${Math.random().toString(36).slice(2, 8)}\`;
 ---
 
 <svg
@@ -174,30 +194,76 @@ const { size = 24, title, class: className } = Astro.props;
   xmlns="http://www.w3.org/2000/svg"
 >
   {title && <title>{title}</title>}
-  <path d="${path}" fill-rule="evenodd" />
+  <defs>
+    <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="${AZUL[0]}" />
+      <stop offset="0.55" stop-color="${AZUL[1]}" />
+      <stop offset="1" stop-color="${AZUL[2]}" />
+    </linearGradient>
+  </defs>
+  <path d="${dBlue}" fill={\`url(#\${gradId})\`} fill-rule="evenodd" />
+  <path d="${dDark}" fill-rule="evenodd" />
 </svg>
 `;
 
 await writeFile(join(root, 'src', 'components', 'icons', 'RabbitMark.astro'), component);
 
 /* ------------------------------------------------------------------ */
-/* 4. Los iconos                                                       */
+/* 4. SVG sueltos: la marca en negro y en blanco, con el azul           */
 /* ------------------------------------------------------------------ */
 
 const [, , vbW, vbH] = vb.split(/\s+/).map(Number);
+
+const marca = (tinta, { ancho = vbW, alto = vbH, ox = 0, oy = 0, fondo = null, radio = 0 } = {}) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ancho} ${alto}" width="${ancho}" height="${alto}">` +
+  `<defs><linearGradient id="azul" x1="0" y1="0" x2="1" y2="0">` +
+  `<stop offset="0" stop-color="${AZUL[0]}"/><stop offset="0.55" stop-color="${AZUL[1]}"/><stop offset="1" stop-color="${AZUL[2]}"/>` +
+  `</linearGradient></defs>` +
+  (fondo ? `<rect width="${ancho}" height="${alto}" rx="${radio}" fill="${fondo}"/>` : '') +
+  `<g transform="translate(${ox} ${oy})">` +
+  `<path d="${dBlue}" fill="url(#azul)" fill-rule="evenodd"/>` +
+  `<path d="${dDark}" fill="${tinta}" fill-rule="evenodd"/>` +
+  `</g></svg>`;
+
+const salida = join(root, '..', 'Logo');
+await mkdir(salida, { recursive: true });
+const negro = marca('#000000');
+const blanco = marca(PAPER);
+await writeFile(join(salida, 'wr-ai-negro.svg'), negro);
+await writeFile(join(salida, 'wr-ai-blanco.svg'), blanco);
+
+const png = (svg, ancho) =>
+  sharp(Buffer.from(svg), { density: 384 }).resize({ width: ancho }).png({ compressionLevel: 9 }).toBuffer();
+
+await writeFile(join(salida, 'wr-ai-negro.png'), await png(negro, 2000));
+await writeFile(join(salida, 'wr-ai-blanco.png'), await png(blanco, 2000));
+/* El blanco sobre transparente no se ve en un visor claro: una copia sobre
+   tinta para poder mirarlo. */
+const margen = vbW * 0.08;
+await writeFile(
+  join(salida, 'wr-ai-blanco-sobre-oscuro.png'),
+  await png(
+    marca(PAPER, { ancho: vbW + margen * 2, alto: vbH + margen * 2, ox: margen, oy: margen, fondo: INK }),
+    2000,
+  ),
+);
+console.log('[logo] Logo/: wr-ai-negro y wr-ai-blanco en SVG y PNG, más el blanco sobre oscuro');
+
+/* ------------------------------------------------------------------ */
+/* 5. Los iconos                                                       */
+/* ------------------------------------------------------------------ */
+
 /* Lienzo cuadrado con aire: un favicon pegado al borde se ve apretado. */
-const pad = Math.max(vbW, vbH) * 0.16;
+const pad = Math.max(vbW, vbH) * 0.12;
 const side = Math.max(vbW, vbH) + pad * 2;
-const ox = (side - vbW) / 2;
-const oy = (side - vbH) / 2;
-
-const icon = (bg, fg) =>
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${side} ${side}" width="${side}" height="${side}">` +
-  `<rect width="${side}" height="${side}" rx="${side * 0.18}" fill="${bg}"/>` +
-  `<g transform="translate(${ox} ${oy})" fill="${fg}">` +
-  `<path d="${path}" fill-rule="evenodd"/></g></svg>`;
-
-const svgIcon = icon(INK, PAPER);
+const svgIcon = marca(PAPER, {
+  ancho: side,
+  alto: side,
+  ox: (side - vbW) / 2,
+  oy: (side - vbH) / 2,
+  fondo: INK,
+  radio: side * 0.18,
+});
 await writeFile(join(root, 'public', 'icon.svg'), svgIcon);
 
 const raster = (px) =>
