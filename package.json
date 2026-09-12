@@ -1,9 +1,9 @@
 {
-  "name": "wrabbit-ai",
+  "name": "wr-ai-labs",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Sitio institucional de WRabbit AI",
+  "description": "Sitio institucional de Wr AI Labs",
   "scripts": {
     "fonts": "node scripts/fonts.mjs",
     "dev": "npm run fonts && astro dev",

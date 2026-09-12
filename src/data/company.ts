@@ -23,7 +23,7 @@ export const intro = {
    * página lo pone : «IA aplicada, resultados medibles.» es
    * ahora el del hero de la portada.
    */
-  eyebrow: 'WRabbit AI Labs — Consultora de inteligencia artificial',
+  eyebrow: 'Wr AI Labs — Consultora de inteligencia artificial',
 
   /**
    * El lema. Va en inglés y por eso lleva `lang` propio en la plantilla: sin
@@ -57,7 +57,7 @@ export const intro = {
   ],
 
   /** Fuente de las dos cifras. La misma que la de la home. */
-  source: 'Portafolio WRabbit AI Labs 2026',
+  source: 'Portafolio Wr AI Labs 2026',
 } as const;
 
 /* ------------------------------------------------------------------------ */
@@ -112,7 +112,7 @@ export const craft = {
     },
     {
       year: 2026,
-      title: 'WRabbit AI Labs',
+      title: 'Wr AI Labs',
       body: [
         'La IA ejecuta el trabajo repetitivo.',
         'El oficio continúa: seguimos las señales que otros dejan pasar.',

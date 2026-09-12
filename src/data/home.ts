@@ -1,7 +1,7 @@
 /**
  * Copy de la home.
  *
- * ⚠ PLACEHOLDER. Específico y plausible para WRabbit AI, pero pendiente de
+ * ⚠ PLACEHOLDER. Específico y plausible para Wr AI Labs, pero pendiente de
  * reemplazo por el copy real del cliente. Cero lorem ipsum. Cero texto
  * tomado del sitio de referencia.
  *

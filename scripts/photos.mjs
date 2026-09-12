@@ -102,7 +102,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  */
 async function download(url, attempt = 0) {
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'WRabbitAI-site-assets/1.0 (https://wrabbit.ai; rafaelmanriquebrasil2@gmail.com)' },
+    headers: { 'User-Agent': 'WrAILabs-site-assets/1.0 (https://wrailabs.com; rafaelmanriquebrasil2@gmail.com)' },
     redirect: 'follow',
   });
 
