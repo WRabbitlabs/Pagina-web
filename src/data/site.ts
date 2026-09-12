@@ -37,7 +37,7 @@ export const site = {
     country: 'CO',
   },
   /** Tesis de la empresa. Se repite en el marquee y en el JSON-LD. */
-  tagline: 'Automatización auditable para instituciones.',
+  tagline: 'Automatización auditable.',
   description:
     'Wr AI Labs construye software dedicado y automatizaciones para empresas medianas y grandes, buffets de abogados y entidades del Estado colombiano. Cada proceso deja evidencia auditable.',
 } as const;

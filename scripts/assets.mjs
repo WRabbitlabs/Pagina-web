@@ -141,7 +141,7 @@ await writeFile(
     {
       name: 'Wr AI Labs',
       short_name: 'Wr AI Labs',
-      description: 'Automatización auditable para instituciones.',
+      description: 'Automatización auditable.',
       lang: 'es',
       start_url: '/',
       display: 'standalone',
