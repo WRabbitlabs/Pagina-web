@@ -15,7 +15,7 @@ Sigue abierta la discusión sobre quién vigila: una autoridad propia bajo el Mi
 
 ## Qué hacer mientras no hay ley
 
-Esperar la ley para exigir trazabilidad es un error de cálculo. Las obligaciones que el proyecto anuncia ya existen por otras vías: la Ley 1581 de 2012 y la Circular Externa 002 de 2024 de la Superintendencia de Industria y Comercio para los datos personales; los lineamientos del MinTIC para las entidades públicas; la Sentencia T-323 de 2024 para la justicia.
+Esperar la ley para exigir trazabilidad es un error de cálculo. Las obligaciones que el proyecto anuncia ya existen por otras vías. Para los datos personales, la Ley 1581 de 2012 y la Circular Externa 002 de 2024 de la Superintendencia de Industria y Comercio. Para las entidades públicas, los lineamientos del MinTIC. Para la justicia, la Sentencia T-323 de 2024.
 
 Los sistemas que entregamos se diseñan para el escenario de alto riesgo aunque la ley no lo haya escrito: reglas declaradas y versionadas, registro de cada ejecución y supervisión humana en las decisiones que la exigen. Cuando la ley llegue, la evidencia ya estará acumulada.
 

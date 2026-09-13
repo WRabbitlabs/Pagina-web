@@ -17,7 +17,7 @@ Los datos que el sistema trate deben ser veraces, completos, exactos, actualizad
 
 La palabra que manda es «auditable». No basta con tener una política de tratamiento y una autorización: hay que poder demostrar, con documentos y registros, que se ponderaron los criterios, que se evaluó el riesgo y que las medidas de seguridad existen y se revisan.
 
-Todo sistema que construimos con datos de personas parte de esa exigencia: el estudio de impacto se hace en la fase de diseño, la finalidad de cada dato queda declarada junto a la regla que lo usa, y el registro de ejecución guarda qué dato entró, para qué y con qué autorización. Ante una visita de la superintendencia, la respuesta es un expediente, no una explicación.
+Todo sistema que construimos con datos de personas parte de esa exigencia. El estudio de impacto se hace en la fase de diseño y la finalidad de cada dato queda declarada junto a la regla que lo usa. El registro de ejecución guarda qué dato entró, para qué y con qué autorización. Ante una visita de la superintendencia, la respuesta es un expediente, no una explicación.
 
 ## Fuente
 

@@ -11,7 +11,7 @@ El Ministerio de Tecnologías de la Información y las Comunicaciones publicó e
 
 El documento está dirigido a las entidades públicas y sirve de referencia al sector privado. Fija directrices técnicas, organizativas y normativas para el diseño, el desarrollo, la implementación, la operación y el mantenimiento de un sistema de inteligencia artificial.
 
-Tres exigencias concretas: monitoreo continuo con análisis de anomalías y correlación de eventos; pruebas de robustez de los modelos, para saber cómo se comportan ante entradas que no esperaban; y cumplimiento del marco regulatorio vigente en todas las etapas, no solo en la salida a producción.
+Tres exigencias concretas. Monitoreo continuo, con análisis de anomalías y correlación de eventos. Pruebas de robustez de los modelos, para saber cómo se comportan ante entradas que no esperaban. Y cumplimiento del marco regulatorio vigente en todas las etapas, no solo en la salida a producción.
 
 ## Qué cambia para una entidad pública
 

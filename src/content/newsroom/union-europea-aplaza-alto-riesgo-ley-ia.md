@@ -15,7 +15,7 @@ Lo que no se mueve es el artículo 50. Desde el 2 de agosto de 2026 hay que avis
 
 ## Por qué importa en Colombia
 
-El proyecto de ley colombiano copia la clasificación europea por niveles de riesgo. Lo que Europa exige a un sistema de alto riesgo, documentación técnica, registro de actividad, supervisión humana y trazabilidad, es lo que un ente de control colombiano va a pedir cuando la ley llegue, y lo que ya piden hoy la Superintendencia de Industria y Comercio y el MinTIC en sus lineamientos.
+El proyecto de ley colombiano copia la clasificación europea por niveles de riesgo. Lo que Europa exige a un sistema de alto riesgo es documentación técnica, registro de actividad, supervisión humana y trazabilidad. Es lo mismo que un ente de control colombiano va a pedir cuando la ley llegue, y lo que ya piden hoy la Superintendencia de Industria y Comercio y el MinTIC en sus lineamientos.
 
 Nosotros construimos cada proceso como si el plazo ya hubiera vencido: reglas declaradas antes de la primera corrida, registro de cada ejecución y un aviso claro cuando quien responde es un sistema. El aplazamiento europeo da tiempo a quien no lo hizo. No cambia lo que hay que hacer.
 
