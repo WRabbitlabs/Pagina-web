@@ -10,8 +10,14 @@ const newsroom = defineCollection({
   schema: ({ image }) =>
     z.object({
       title: z.string().max(140),
-      /** Categoría visible en el tag. Cerrada a propósito. */
-      category: z.enum(['Publicación', 'Anuncio', 'Prensa']),
+      /**
+       * Categoría visible en el tag. Cerrada a propósito.
+       *
+       * «Actualidad» son noticias, normas y estudios reales de terceros sobre
+       * inteligencia artificial que tocan lo que hace la compañía; siempre
+       * enlazan fuera, a la fuente, y el extracto la nombra con fecha.
+       */
+      category: z.enum(['Publicación', 'Anuncio', 'Prensa', 'Actualidad']),
       date: z.coerce.date(),
       excerpt: z.string().max(320),
       /** Si el artículo vive fuera del sitio, el enlace apunta allá. */

@@ -53,7 +53,7 @@ const { image, imageAlt, category, date, title, excerpt } = entry.data;
       <p class="t-body feat__excerpt">{excerpt}</p>
 
       <p class="t-eyebrow feat__go">
-        Leer artículo
+        {external ? 'Leer en la fuente' : 'Leer artículo'}
         {external && <span class="sr-only"> (se abre en una pestaña nueva)</span>}
       </p>
     </div>

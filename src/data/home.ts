@@ -175,6 +175,7 @@ export const newsroom = {
     { value: 'Publicación', label: 'Publicaciones' },
     { value: 'Anuncio', label: 'Anuncios' },
     { value: 'Prensa', label: 'Prensa' },
+    { value: 'Actualidad', label: 'Actualidad' },
   ],
 } as const;
 

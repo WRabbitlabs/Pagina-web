@@ -59,7 +59,7 @@ const { category, date, title, excerpt } = entry.data;
     </span>
 
     <span class="card__foot t-eyebrow">
-      Leer artículo
+      {external ? 'Leer en la fuente' : 'Leer artículo'}
       {external && <span class="sr-only"> (se abre en una pestaña nueva)</span>}
     </span>
 
