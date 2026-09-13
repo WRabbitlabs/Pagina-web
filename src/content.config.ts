@@ -14,8 +14,9 @@ const newsroom = defineCollection({
        * Categoría visible en el tag. Cerrada a propósito.
        *
        * «Actualidad» son noticias, normas y estudios reales de terceros sobre
-       * inteligencia artificial que tocan lo que hace la compañía; siempre
-       * enlazan fuera, a la fuente, y el extracto la nombra con fecha.
+       * inteligencia artificial que tocan lo que hace la compañía. Cada pieza
+       * tiene página propia, escrita con la voz del sitio y relacionada con
+       * lo que hacemos, y cita y enlaza la fuente al final.
        */
       category: z.enum(['Publicación', 'Anuncio', 'Prensa', 'Actualidad']),
       date: z.coerce.date(),
