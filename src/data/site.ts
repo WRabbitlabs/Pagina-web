@@ -47,7 +47,7 @@ export const site = {
   fields: 'AI Compliance · Automation · Data Governance',
   motto: 'Follow what others don\'t see.',
   description:
-    'WR AI Labs construye software dedicado y automatizaciones para empresas medianas y grandes, buffets de abogados y entidades del Estado colombiano. Cada proceso deja evidencia auditable.',
+    'WR AI Labs construye software dedicado y automatizaciones para empresas medianas y grandes, bufetes de abogados y entidades del Estado colombiano. Cada proceso deja evidencia auditable.',
 } as const;
 
 export const social = [
