@@ -17,7 +17,7 @@ El envío es en XBRL, el lenguaje de reporte financiero que la superintendencia 
 
 Un informe que no cumple las reglas de la taxonomía se devuelve; uno que las cumple a medias se acepta y deja el problema para el ejercicio siguiente. La validación previa, comprobar cada regla de la taxonomía antes de enviar y dejar registro de la comprobación, es exactamente lo que hace el sistema de reporte regulatorio que construimos, con el Informe 01 de Supersociedades como primer destino.
 
-El calendario de 2026 ya venció. El de 2027 llegará en marzo, con la taxonomía del nuevo corte, y la ventana entre la publicación y el primer plazo vuelve a ser de unas dos semanas. Ese es el tiempo que hay para adaptar el proceso; no para empezarlo.
+Entre la publicación de la circular y el primer plazo pasan unas dos semanas, y cada marzo vuelve a ocurrir con la taxonomía del corte nuevo. Ese es el tiempo que hay para adaptar el proceso; no para empezarlo.
 
 ## Fuente
 

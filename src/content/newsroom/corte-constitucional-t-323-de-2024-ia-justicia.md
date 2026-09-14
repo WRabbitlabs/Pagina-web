@@ -9,7 +9,7 @@ Un juez de segunda instancia usó ChatGPT 3.5 para redactar parte de una sentenc
 
 ## Qué decidió la Corte
 
-La Corte no anuló la decisión, pero dejó claro el límite: la inteligencia artificial puede apoyar la labor del juez y no puede sustituir su razonamiento. Para el uso en la Rama Judicial fijó criterios que hoy se citan en decisiones posteriores. Son once: transparencia, responsabilidad, privacidad, no sustitución de la racionalidad humana, seriedad y verificación, prevención de riesgos, igualdad y equidad, control humano, regulación ética, adecuación a buenas prácticas y seguimiento continuo.
+La Corte no anuló la decisión, pero dejó claro el límite: la inteligencia artificial puede apoyar la labor del juez y no puede sustituir su razonamiento. Para el uso en la Rama Judicial fijó criterios que las decisiones posteriores ya citan. Son once: transparencia, responsabilidad, privacidad, no sustitución de la racionalidad humana, seriedad y verificación, prevención de riesgos, igualdad y equidad, control humano, regulación ética, adecuación a buenas prácticas y seguimiento continuo.
 
 Además ordenó al Consejo Superior de la Judicatura elaborar y difundir un manual sobre el uso de inteligencia artificial por los jueces, en un plazo de cuatro meses, y crear formación en la materia.
 
