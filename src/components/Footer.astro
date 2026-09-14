@@ -50,7 +50,9 @@ const bg = footerData.bg;
       <div class="footer__pitch">
         {/* Van en inglés a propósito: son las líneas del logotipo, y `lang`
             hace que el lector de pantalla las pronuncie como inglés. */}
-        <p class="t-eyebrow footer__fields" lang="en">{site.fields}</p>
+        <ul class="t-eyebrow footer__fields" role="list" lang="en">
+          {site.fields.map((campo) => <li>{campo}</li>)}
+        </ul>
         <p class="t-statement footer__claim">{site.tagline}</p>
         <p class="t-eyebrow footer__motto" lang="en">{site.motto}</p>
         {/*
@@ -270,10 +272,25 @@ const bg = footerData.bg;
     text-wrap: balance;
   }
 
-  /* Los campos, apagados, encima de la frase; el lema, a plena tinta, debajo. */
+  /*
+   * Los campos, apagados, encima de la frase; el lema, a plena tinta, debajo.
+   *
+   * Son una lista y no una cadena con puntos: un lector de pantalla lee tres
+   * elementos, no «punto medio» dos veces. El separador es un filete de un
+   * píxel, el mismo recurso que usa el logotipo entre «WR AI» y «Labs».
+   */
   .footer__fields {
-    margin-bottom: var(--space-s);
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 0 var(--space-s);
+    padding: 0;
     color: var(--text-muted);
+  }
+
+  .footer__fields li + li {
+    margin-left: 0.9ch;
+    padding-left: 0.9ch;
+    border-left: 1px solid color-mix(in srgb, currentColor 45%, transparent);
   }
 
   .footer__motto {
