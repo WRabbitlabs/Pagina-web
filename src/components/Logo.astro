@@ -5,10 +5,12 @@ import RabbitMark from './icons/RabbitMark.astro';
 /**
  * Marca: el símbolo del conejo y el logotipo tipográfico.
  *
- * El símbolo se rellena con `currentColor`, así que sigue por su cuenta el
- * cambio de tinta del header al cruzar del hero oscuro al fondo claro. Por eso
- * es un SVG y no los dos PNG que llegaron: un mapa de bits habría necesitado
- * dos archivos y un cruce entre ellos.
+ * El conejo del símbolo se rellena con `currentColor`, así que sigue por su
+ * cuenta el cambio de tinta del header al cruzar del hero oscuro al fondo
+ * claro; la W y los píxeles llevan su degradado azul, que sobre tinta se
+ * aclara con las variables --marca-azul-N (ver Header.astro y RabbitMark).
+ * Por eso es un SVG y no un mapa de bits: el director entregó un solo PNG en
+ * negro y el blanco sale solo.
  *
  * Va `aria-hidden`: el nombre de la agencia está al lado en texto, y el enlace
  * que los contiene lleva su propia etiqueta.
@@ -47,7 +49,7 @@ const word = parts.join(' ');
     aparecía encima del nombre en vez de a su izquierda.
   */}
   <span class="mark__symbol">
-    <RabbitMark size={30} />
+    <RabbitMark size={30} id="cabecera" />
   </span>
 
   <span class="mark__type">

@@ -170,7 +170,7 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
           elementos de ESTA plantilla. El <svg> lo dibuja RabbitMark, otro
           componente, y nunca lo recibiría.
         */}
-        <span class="boot__symbol"><RabbitMark size={40} /></span>
+        <span class="boot__symbol"><RabbitMark size={40} id="entrada" /></span>
         <span class="boot__name">{site.name}</span>
       </span>
       <span class="boot__rule"></span>
@@ -258,6 +258,10 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
     flex: none;
     opacity: 0;
     animation: boot-in var(--dur-mid) var(--ease-out) forwards;
+    /* Sobre tinta el azul profundo del símbolo se apaga (1,5:1): paleta clara. */
+    --marca-azul-0: #2f7fe0;
+    --marca-azul-1: #3a9bee;
+    --marca-azul-2: #4fc0ff;
   }
 
   .boot__name {

@@ -206,6 +206,14 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     color: var(--paper);
     --text: var(--paper);
     --focus: var(--signal);
+    /*
+     * Sobre el hero oscuro el azul profundo del símbolo se apaga (1,5:1
+     * contra la tinta): aquí va una paleta más clara. Al bajar, la pastilla
+     * es clara y `initial` deja actuar el azul original del logotipo.
+     */
+    --marca-azul-0: #2f7fe0;
+    --marca-azul-1: #3a9bee;
+    --marca-azul-2: #4fc0ff;
   }
 
   .header__brand::before {
@@ -220,6 +228,9 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     color: var(--ink);
     --text: var(--ink);
     --focus: var(--ink);
+    --marca-azul-0: initial;
+    --marca-azul-1: initial;
+    --marca-azul-2: initial;
   }
 
   .header.is-scrolled .header__brand::before {
@@ -360,6 +371,9 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     color: var(--ink);
     --text: var(--ink);
     --focus: var(--ink);
+    --marca-azul-0: initial;
+    --marca-azul-1: initial;
+    --marca-azul-2: initial;
   }
 
   html:not(.js) .header__cta {
