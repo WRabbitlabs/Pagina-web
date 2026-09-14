@@ -146,9 +146,10 @@ await writeFile(
       background_color: INK,
       theme_color: INK,
       icons: [
-        { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-        { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+        /* La versión va también aquí: el manifiesto se cachea como el favicon. */
+        { src: '/icon-192.png?v=2', sizes: '192x192', type: 'image/png' },
+        { src: '/icon-512.png?v=2', sizes: '512x512', type: 'image/png' },
+        { src: '/icon.svg?v=2', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
       ],
     },
     null,

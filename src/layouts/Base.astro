@@ -39,6 +39,9 @@ const {
 } = Astro.props;
 
 const fullTitle = isHome ? title : `${title} — ${site.name}`;
+
+/** Sube al cambiar la marca; ver los <link rel="icon"> de abajo. */
+const ICON_VERSION = 2;
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site).href;
 const ogImageUrl = new URL(ogImage, Astro.site).href;
 ---
@@ -104,9 +107,14 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
     <meta name="twitter:image" content={ogImageUrl} />
 
     <!-- Favicon -->
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {/*
+      La versión en la dirección no es decorativa: el navegador guarda el
+      favicon aparte de la página y no lo vuelve a pedir aunque el archivo
+      cambie. Subir el número al cambiar la marca es lo que lo renueva.
+    */}
+    <link rel="icon" href={`/favicon.ico?v=${ICON_VERSION}`} sizes="32x32" />
+    <link rel="icon" href={`/icon.svg?v=${ICON_VERSION}`} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={`/apple-touch-icon.png?v=${ICON_VERSION}`} />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#222f30" />
 
