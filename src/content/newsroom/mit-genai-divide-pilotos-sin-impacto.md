@@ -3,6 +3,9 @@ title: 'MIT: el 95 % de los pilotos de IA generativa no llega a los resultados'
 category: 'Actualidad'
 date: 2025-08-18
 excerpt: 'El informe «The GenAI Divide» de la iniciativa NANDA del MIT (agosto de 2025) revisó 300 despliegues: el 95 % de los pilotos no mostró impacto medible en resultados. Los que funcionaron atacaban un proceso concreto de back office, y las herramientas de proveedores especializados doblaron el éxito de las hechas en casa.'
+source:
+  text: 'Fortune, MIT report: 95% of generative AI pilots at companies are failing, 18 de agosto de 2025, sobre el informe «The GenAI Divide: State of AI in Business 2025» de la iniciativa NANDA del MIT'
+  href: 'https://fortune.com/2025/08/18/mit-report-95-percent-generative-ai-pilots-at-companies-failing-cfo'
 ---
 
 La iniciativa NANDA del Instituto Tecnológico de Massachusetts publicó en agosto de 2025 «The GenAI Divide: State of AI in Business 2025». Fortune lo resumió el 18 de agosto de 2025 con la cifra que dio la vuelta al mundo: el 95 % de los pilotos de inteligencia artificial generativa en empresas no produce un impacto medible en el estado de resultados.
@@ -19,6 +22,3 @@ Los proyectos que funcionaron compartían tres rasgos: un solo proceso operativo
 
 El 95 % que fracasa no fracasa por la tecnología. Fracasa porque nadie midió el punto de partida ni dejó constancia de lo que el sistema hizo. Sin esa constancia no hay resultado que enseñar, y un piloto sin resultado que enseñar se archiva.
 
-## Fuente
-
-Fortune, [MIT report: 95% of generative AI pilots at companies are failing](https://fortune.com/2025/08/18/mit-report-95-percent-generative-ai-pilots-at-companies-failing-cfo), 18 de agosto de 2025, sobre el informe «The GenAI Divide: State of AI in Business 2025» de la iniciativa NANDA del MIT.

@@ -20,7 +20,7 @@ const TONES = ['paper', 'moss', 'ink'] as const;
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const { title, category, date, excerpt, image, imageAlt, imageCredit } = entry.data;
+const { title, category, date, excerpt, image, imageAlt, imageCredit, source } = entry.data;
 
 const more = byDateDesc(published(await getCollection('newsroom')))
   .filter((e) => e.id !== entry.id)
@@ -35,6 +35,7 @@ const article = {
   dateModified: date.toISOString(),
   inLanguage: 'es-CO',
   articleSection: category,
+  ...(source ? { citation: source.href } : {}),
   mainEntityOfPage: {
     '@type': 'WebPage',
     '@id': new URL(`/newsroom/${entry.id}`, site.url).href,
@@ -124,6 +125,25 @@ const article = {
         <div class="prose article__body">
           <Content />
         </div>
+
+        {/* La fuente de una pieza de actualidad, con el mismo tratamiento de
+            enlace externo que el crédito de la foto. */}
+        {
+          source && (
+            <p class="t-eyebrow article__source">
+              Fuente:{' '}
+              <a
+                class="article__creditlink external"
+                href={source.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {source.text}
+                <span class="sr-only"> (se abre en una pestaña nueva)</span>
+              </a>
+            </p>
+          )
+        }
       </div>
     </div>
   </article>
@@ -233,6 +253,15 @@ const article = {
 
   .article__creditlink:hover {
     text-decoration-color: currentColor;
+  }
+
+  .article__source {
+    max-width: 62ch;
+    margin-top: var(--space-l);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--rule);
+    color: var(--text-muted);
+    line-height: 1.6;
   }
 
   .article__img {

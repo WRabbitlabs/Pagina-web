@@ -33,6 +33,12 @@ const newsroom = defineCollection({
       imageCredit: z
         .object({ text: z.string(), href: z.string().url() })
         .optional(),
+      /**
+       * La fuente de una pieza de actualidad: quién lo publicó y dónde. Se
+       * pinta al final del artículo con el tratamiento de enlace externo del
+       * sitio y va al JSON-LD como `citation`. Obligatoria en esa categoría.
+       */
+      source: z.object({ text: z.string(), href: z.string().url() }).optional(),
       /** Un solo destacado por índice; si hay varios gana el más reciente. */
       featured: z.boolean().default(false),
       draft: z.boolean().default(false),
@@ -40,6 +46,10 @@ const newsroom = defineCollection({
       .refine((d) => !d.image || (d.imageAlt && d.imageAlt.length > 0), {
         message: 'Una imagen de contenido necesita alt real.',
         path: ['imageAlt'],
+      })
+      .refine((d) => d.category !== 'Actualidad' || Boolean(d.source), {
+        message: 'Una pieza de actualidad necesita su fuente.',
+        path: ['source'],
       }),
 });
 

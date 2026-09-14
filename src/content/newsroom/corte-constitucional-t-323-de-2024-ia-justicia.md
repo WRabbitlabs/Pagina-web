@@ -3,6 +3,9 @@ title: 'La Corte Constitucional fija reglas para el uso de IA por los jueces'
 category: 'Actualidad'
 date: 2024-08-02
 excerpt: 'Sentencia T-323 de 2024 (2 de agosto de 2024): la Corte revisó un fallo en el que un juez usó ChatGPT y fijó criterios para la IA en la justicia: transparencia, responsabilidad, no sustitución de la razón humana, verificación y control humano. Ordenó a la Judicatura un manual de uso.'
+source:
+  text: 'Corte Constitucional de Colombia, relatoría, Sentencia T-323 de 2024, 2 de agosto de 2024'
+  href: 'https://www.corteconstitucional.gov.co/relatoria/2024/T-323-24.htm'
 ---
 
 Un juez de segunda instancia usó ChatGPT 3.5 para redactar parte de una sentencia de tutela y lo dijo en el propio fallo. La Corte Constitucional revisó el caso y el 2 de agosto de 2024 profirió la Sentencia T-323 de 2024, la primera decisión colombiana que fija cómo puede usarse la inteligencia artificial en la administración de justicia.
@@ -19,6 +22,3 @@ Lo que la Corte exige a un juez lo va a exigir un cliente a su abogado y un audi
 
 Los sistemas que construimos para práctica jurídica registran cada intervención del modelo: la instrucción, el resultado, la regla contra la que se revisó y quién aprobó. Es la manera de que «control humano» sea un hecho documentado y no una declaración.
 
-## Fuente
-
-Corte Constitucional de Colombia, relatoría, [Sentencia T-323 de 2024](https://www.corteconstitucional.gov.co/relatoria/2024/T-323-24.htm), 2 de agosto de 2024.

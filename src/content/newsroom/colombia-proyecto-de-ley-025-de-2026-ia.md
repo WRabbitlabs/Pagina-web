@@ -3,6 +3,9 @@ title: 'Colombia reinicia su ley de inteligencia artificial con el proyecto 025 
 category: 'Actualidad'
 date: 2026-08-28
 excerpt: 'Semana informa el 28 de agosto de 2026 que el proyecto 043 de 2025 del Senado se archivó por tránsito de legislatura y que el Gobierno radicó el 025 de 2026 con el mismo enfoque: niveles de riesgo, obligaciones para quien desarrolla y usa IA, y transparencia de las decisiones automatizadas. Sin debates aprobados.'
+source:
+  text: 'Semana, «Más controles o más innovación: el dilema que abre la nueva ley de IA», 28 de agosto de 2026'
+  href: 'https://www.semana.com/economia/empresas/articulo/mas-controles-o-mas-innovacion-el-dilema-que-abre-la-nueva-ley-de-ia/202600/'
 ---
 
 Colombia todavía no tiene ley de inteligencia artificial, pero el trámite volvió a empezar. Según Semana, el 28 de agosto de 2026, el proyecto de ley 043 de 2025 del Senado, acumulado con el 324 de 2025 de la Cámara, se archivó por tránsito de legislatura sin completar sus debates. El Gobierno radicó en la legislatura nueva el proyecto de ley 025 de 2026, que repite en lo esencial el articulado anterior.
@@ -19,6 +22,3 @@ Esperar la ley para exigir trazabilidad es un error de cálculo. Las obligacione
 
 Los sistemas que entregamos se diseñan para el escenario de alto riesgo aunque la ley no lo haya escrito: reglas declaradas y versionadas, registro de cada ejecución y supervisión humana en las decisiones que la exigen. Cuando la ley llegue, la evidencia ya estará acumulada.
 
-## Fuente
-
-Semana, [Más controles o más innovación: el dilema que abre la nueva ley de IA](https://www.semana.com/economia/empresas/articulo/mas-controles-o-mas-innovacion-el-dilema-que-abre-la-nueva-ley-de-ia/202600/), 28 de agosto de 2026. Ministerio de Ciencia, Tecnología e Innovación, radicación del proyecto de ley de inteligencia artificial, 7 de mayo de 2025.
