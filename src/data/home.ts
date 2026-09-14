@@ -1,3 +1,5 @@
+import { CATEGORIES } from '../lib/categories';
+
 /**
  * Copy de la home.
  *
@@ -164,18 +166,13 @@ export const newsroom = {
   /**
    * Los filtros del índice.
    *
-   * El primero no filtra nada. Los demás casan literalmente con el campo
-   * `category` del artículo, que es un enum cerrado en content.config.ts: si
-   * ahí se añade una categoría, aquí hay que añadir su fila o dejará de poder
-   * filtrarse. El rótulo va en plural porque cuenta un conjunto; el valor, en
-   * singular, porque es el dato.
+   * El primero no filtra nada. Los demás salen de la misma lista que el enum
+   * del esquema (lib/categories.ts), así que no hay dos sitios que
+   * sincronizar.
    */
   filters: [
     { value: 'all', label: 'Todo' },
-    { value: 'Publicación', label: 'Publicaciones' },
-    { value: 'Anuncio', label: 'Anuncios' },
-    { value: 'Prensa', label: 'Prensa' },
-    { value: 'Actualidad', label: 'Actualidad' },
+    ...Object.entries(CATEGORIES).map(([value, label]) => ({ value, label })),
   ],
 } as const;
 

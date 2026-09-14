@@ -1,5 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { CATEGORY_VALUES } from './lib/categories';
 
 /**
  * Colecciones tipadas. Nada de contenido hardcodeado en componentes.
@@ -10,15 +11,8 @@ const newsroom = defineCollection({
   schema: ({ image }) =>
     z.object({
       title: z.string().max(140),
-      /**
-       * Categoría visible en el tag. Cerrada a propósito.
-       *
-       * «Actualidad» son noticias, normas y estudios reales de terceros sobre
-       * inteligencia artificial que tocan lo que hace la compañía. Cada pieza
-       * tiene página propia, escrita con la voz del sitio y relacionada con
-       * lo que hacemos, y cita y enlaza la fuente al final.
-       */
-      category: z.enum(['Publicación', 'Anuncio', 'Prensa', 'Actualidad']),
+      /** Categoría visible en el tag. Cerrada a propósito; la lista vive en lib/categories.ts. */
+      category: z.enum(CATEGORY_VALUES),
       date: z.coerce.date(),
       excerpt: z.string().max(320),
       /** Si el artículo vive fuera del sitio, el enlace apunta allá. */
