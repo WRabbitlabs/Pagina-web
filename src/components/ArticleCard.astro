@@ -1,6 +1,6 @@
 ---
 import Arrow from './Arrow.astro';
-import { href, isExternal, formatDate, isoDate, type Article } from '../lib/newsroom';
+import { href, isExternal, readLabel, formatDate, isoDate, type Article } from '../lib/newsroom';
 
 interface Props {
   entry: Article;
@@ -62,7 +62,7 @@ const { category, date, title, excerpt } = entry.data;
     </div>
 
     <span class="card__foot t-eyebrow">
-      {external ? 'Leer en la fuente' : 'Leer artículo'}
+      {readLabel(entry)}
       {external && <span class="sr-only"> (se abre en una pestaña nueva)</span>}
     </span>
 

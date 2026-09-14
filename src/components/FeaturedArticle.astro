@@ -1,7 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
 import Arrow from './Arrow.astro';
-import { href, isExternal, formatDate, isoDate, type Article } from '../lib/newsroom';
+import { href, isExternal, readLabel, formatDate, isoDate, type Article } from '../lib/newsroom';
 
 interface Props {
   entry: Article;
@@ -53,7 +53,7 @@ const { image, imageAlt, category, date, title, excerpt } = entry.data;
       <p class="t-body feat__excerpt">{excerpt}</p>
 
       <p class="t-eyebrow feat__go">
-        {external ? 'Leer en la fuente' : 'Leer artículo'}
+        {readLabel(entry)}
         {external && <span class="sr-only"> (se abre en una pestaña nueva)</span>}
       </p>
     </div>

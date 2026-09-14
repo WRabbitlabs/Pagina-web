@@ -21,6 +21,11 @@ export function isExternal(entry: Article): boolean {
   return Boolean(entry.data.externalUrl);
 }
 
+/** Rótulo del enlace: lo propio se lee aquí; lo externo, en su fuente. */
+export function readLabel(entry: Article): string {
+  return isExternal(entry) ? 'Leer en la fuente' : 'Leer artículo';
+}
+
 const formatter = new Intl.DateTimeFormat('es-CO', {
   day: 'numeric',
   month: 'short',
