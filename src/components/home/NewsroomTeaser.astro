@@ -34,7 +34,7 @@ const TONES = ['paper', 'moss', 'ink'] as const;
       rest.length > 0 && (
         <ul class="news__cards" role="list">
           {rest.map((entry, i) => (
-            <ArticleCard entry={entry} tone={TONES[i] ?? 'paper'} delay={i * 100} />
+            <ArticleCard entry={entry} tone={TONES[i] ?? 'paper'} delay={i * 100} withExcerpt={false} />
           ))}
         </ul>
       )

@@ -44,7 +44,7 @@ export function sanitizeHeader(value: unknown, max = 200): string {
   return sanitize(value, max).replace(/[\r\n]+/g, ' ');
 }
 
-export const ORG_TYPES = ['Empresa', 'Buffet de abogados', 'Entidad pública', 'Otro'] as const;
+export const ORG_TYPES = ['Empresa', 'Bufete de abogados', 'Entidad pública', 'Otro'] as const;
 export type OrgType = (typeof ORG_TYPES)[number];
 
 /** Campo trampa: un bot lo llena, una persona no lo ve. */

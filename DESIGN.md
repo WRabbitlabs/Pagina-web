@@ -1,4 +1,4 @@
-# WRabbit AI — Sistema de diseño
+# WR AI Labs — Sistema de diseño
 
 Documento vivo. Fija los tokens y **por qué** son esos y no otros.
 Fase 0 aprobada — 26 de agosto de 2026.
@@ -116,7 +116,7 @@ comunica solo con color (mensaje de texto + borde de 2 px + `aria-invalid`).
 
 ### Por qué `--signal` y no `bioluminescent-lime`
 
-La semántica biológica del original no aplica a WRabbit. La que sí aplica: **estado activo del sistema**. Un proceso corriendo. Ese es el producto, y es lo que legitima un lime frente a un comprador de gobierno o un buffet de abogados — no es decoración, es un indicador.
+La semántica biológica del original no aplica a WR AI Labs. La que sí aplica: **estado activo del sistema**. Un proceso corriendo. Ese es el producto, y es lo que legitima un lime frente a un comprador de gobierno o un bufete de abogados — no es decoración, es un indicador.
 
 ### Contrastes verificados (WCAG 2.1)
 
@@ -259,7 +259,7 @@ El presupuesto pasó de ≈40 KB a ≈1.1 KB.
 - Un único token `--signal` recorre una ruta y se detiene en el nodo de auditoría.
 - Se dibuja **una vez** (`stroke-dashoffset`) y queda quieto.
 
-**Por qué encaja con WRabbit.** La empresa vende procesos que antes ejecutaba gente y ahora ejecuta una máquina, a compradores — buffets, entidades del Estado — cuya pregunta número uno no es *¿funciona?* sino *¿puedo auditar lo que hizo?*. El signature es el producto dibujado, y termina en la respuesta.
+**Por qué encaja con WR AI Labs.** La empresa vende procesos que antes ejecutaba gente y ahora ejecuta una máquina, a compradores — bufetes, entidades del Estado — cuya pregunta número uno no es *¿funciona?* sino *¿puedo auditar lo que hizo?*. El signature es el producto dibujado, y termina en la respuesta.
 
 **Reglas que lo salvan del default generado por IA:**
 

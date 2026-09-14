@@ -1,8 +1,8 @@
-# WRabbit AI Labs — sitio institucional
+# WR AI Labs — sitio institucional
 
 **Creado por Moshe Rafael Manrique.**
 
-Sitio institucional de WRabbit AI Labs, compañía colombiana de automatización y
+Sitio institucional de WR AI Labs, compañía colombiana de automatización y
 software dedicado para empresas reguladas, firmas de abogados y entidades del
 Estado. Vive en **[wrailabs.com](https://wrailabs.com)**.
 
@@ -17,7 +17,7 @@ adjudique, y ningún botón dice «agenda una demo». Lo que hay es una tesis, u
 proceso explicado paso a paso, y evidencia publicada en el newsroom para que
 cualquiera pueda revisarla antes de contratar.
 
-Esa decisión no es estética. El comprador de WRabbit AI —un jefe de
+Esa decisión no es estética. El comprador de WR AI Labs —un jefe de
 cumplimiento, un socio de un bufete, un ordenador del gasto público— no compra
 por entusiasmo: compra por trazabilidad. Un sitio que promete mucho y prueba
 poco es exactamente el que ese comprador descarta.

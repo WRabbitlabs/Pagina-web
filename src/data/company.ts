@@ -1,3 +1,5 @@
+import { site } from './site';
+
 /**
  * El relato de la compañía: de dónde viene, cómo trabaja y qué promete.
  *
@@ -23,13 +25,15 @@ export const intro = {
    * página lo pone : «IA aplicada, resultados medibles.» es
    * ahora el del hero de la portada.
    */
-  eyebrow: 'WRabbit AI Labs — Consultora de inteligencia artificial',
+  eyebrow: 'WR AI Labs — Consultora de inteligencia artificial',
 
   /**
    * El lema. Va en inglés y por eso lleva `lang` propio en la plantilla: sin
-   * él, un lector de pantalla en español lo pronuncia como si lo fuera.
+   * él, un lector de pantalla en español lo pronuncia como si lo fuera. Se
+   * define una sola vez, en site.ts, para que el pie y esta cabecera digan
+   * lo mismo letra por letra.
    */
-  motto: 'follow what others don’t see',
+  motto: site.motto,
 
   body: 'Heredamos el oficio del primer telar: seguir las señales que otros dejan pasar y tejer los sistemas que ejecutan el trabajo repetitivo — automatización, datos en orden y cumplimiento normativo en una sola capa de ejecución.',
 
@@ -57,7 +61,7 @@ export const intro = {
   ],
 
   /** Fuente de las dos cifras. La misma que la de la home. */
-  source: 'Portafolio WRabbit AI Labs 2026',
+  source: 'Portafolio WR AI Labs 2026',
 } as const;
 
 /* ------------------------------------------------------------------------ */
@@ -112,7 +116,7 @@ export const craft = {
     },
     {
       year: 2026,
-      title: 'WRabbit AI Labs',
+      title: 'WR AI Labs',
       body: [
         'La IA ejecuta el trabajo repetitivo.',
         'El oficio continúa: seguimos las señales que otros dejan pasar.',

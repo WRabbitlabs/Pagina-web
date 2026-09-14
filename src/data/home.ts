@@ -1,7 +1,9 @@
+import { CATEGORIES } from '../lib/categories';
+
 /**
  * Copy de la home.
  *
- * ⚠ PLACEHOLDER. Específico y plausible para WRabbit AI, pero pendiente de
+ * ⚠ PLACEHOLDER. Específico y plausible para WR AI Labs, pero pendiente de
  * reemplazo por el copy real del cliente. Cero lorem ipsum. Cero texto
  * tomado del sitio de referencia.
  *
@@ -15,7 +17,7 @@ export const hero = {
   /** Texto accesible del h1, sin la partición visual en líneas. */
   headlineFlat: 'IA aplicada, resultados medibles.',
   subtitle:
-    'Software dedicado y automatización para empresas, buffets de abogados y entidades del Estado colombiano.',
+    'Software dedicado y automatizaciones a través de la IA.',
   cta: { label: 'Ver la compañía', href: '/company' },
   scrollHint: 'Desplazar',
   /**
@@ -164,17 +166,13 @@ export const newsroom = {
   /**
    * Los filtros del índice.
    *
-   * El primero no filtra nada. Los demás casan literalmente con el campo
-   * `category` del artículo, que es un enum cerrado en content.config.ts: si
-   * ahí se añade una categoría, aquí hay que añadir su fila o dejará de poder
-   * filtrarse. El rótulo va en plural porque cuenta un conjunto; el valor, en
-   * singular, porque es el dato.
+   * El primero no filtra nada. Los demás salen de la misma lista que el enum
+   * del esquema (lib/categories.ts), así que no hay dos sitios que
+   * sincronizar.
    */
   filters: [
     { value: 'all', label: 'Todo' },
-    { value: 'Publicación', label: 'Publicaciones' },
-    { value: 'Anuncio', label: 'Anuncios' },
-    { value: 'Prensa', label: 'Prensa' },
+    ...Object.entries(CATEGORIES).map(([value, label]) => ({ value, label })),
   ],
 } as const;
 

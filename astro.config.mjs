@@ -38,6 +38,16 @@ export default defineConfig({
    */
   output: 'static',
 
+  /**
+   * El anuncio del MSPI cambió de dirección con el nombre nuevo (12 de
+   * septiembre de 2026). La antigua estuvo publicada, así que se redirige en
+   * vez de dejarla en 404: en salida estática Astro genera una página con
+   * meta refresh.
+   */
+  redirects: {
+    '/newsroom/wrabbit-ai-mintic-mspi': '/newsroom/wr-ai-labs-mintic-mspi',
+  },
+
   integrations: [
     sitemap({
       filter: (page) => !page.includes('/404'),

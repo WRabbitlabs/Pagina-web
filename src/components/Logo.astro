@@ -5,10 +5,12 @@ import RabbitMark from './icons/RabbitMark.astro';
 /**
  * Marca: el símbolo del conejo y el logotipo tipográfico.
  *
- * El símbolo se rellena con `currentColor`, así que sigue por su cuenta el
- * cambio de tinta del header al cruzar del hero oscuro al fondo claro. Por eso
- * es un SVG y no los dos PNG que llegaron: un mapa de bits habría necesitado
- * dos archivos y un cruce entre ellos.
+ * El conejo del símbolo se rellena con `currentColor`, así que sigue por su
+ * cuenta el cambio de tinta del header al cruzar del hero oscuro al fondo
+ * claro; la W y los píxeles llevan su degradado azul, que sobre tinta se
+ * aclara con las variables --marca-azul-N (ver Header.astro y RabbitMark).
+ * Por eso es un SVG y no un mapa de bits: el director entregó un solo PNG en
+ * negro y el blanco sale solo.
  *
  * Va `aria-hidden`: el nombre de la agencia está al lado en texto, y el enlace
  * que los contiene lleva su propia etiqueta.
@@ -32,7 +34,7 @@ const word = parts.join(' ');
 {/*
   Flujo en línea, no flex. Con flex el espacio entre las dos piezas lo pone
   `gap` y en el DOM no queda separador: el nombre visible se calcula como
-  "WRabbitAI", deja de coincidir con el nombre accesible del enlace y rompe
+  "WRAI", deja de coincidir con el nombre accesible del enlace y rompe
   el criterio de etiqueta en el nombre (WCAG 2.5.3) para control por voz.
   En línea el espacio es un nodo de texto de verdad, y además la alineación
   a la línea base sale sola.
@@ -47,7 +49,7 @@ const word = parts.join(' ');
     aparecía encima del nombre en vez de a su izquierda.
   */}
   <span class="mark__symbol">
-    <RabbitMark size={30} />
+    <RabbitMark size={30} id="cabecera" />
   </span>
 
   <span class="mark__type">
@@ -69,9 +71,9 @@ const word = parts.join(' ');
    * Fila: símbolo a la izquierda, logotipo a la derecha, centrados entre sí.
    *
    * El flex vive AQUÍ y no dentro del logotipo. La distinción importa: el
-   * espacio entre «WRabbit AI», el filete y «Labs» sigue siendo un nodo de
+   * espacio entre «WR AI», el filete y «Labs» sigue siendo un nodo de
    * texto de verdad dentro de .mark__type, no un `gap`. Con `gap` el nombre
-   * visible se calcularía como «WRabbit AILabs», dejaría de estar contenido en
+   * visible se calcularía como «WR AILabs», dejaría de estar contenido en
    * el nombre accesible del enlace y rompería el criterio de etiqueta en el
    * nombre (WCAG 2.5.3) para quien navega por voz.
    */

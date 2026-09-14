@@ -6,11 +6,9 @@
  * Pendiente de reemplazo por los assets definitivos del cliente.
  *
  *   src/assets/company.png     2400×1350  fuente para <Picture> (AVIF/WebP)
- *   public/og/default.png      1200×630   Open Graph
- *   public/apple-touch-icon.png  180×180
- *   public/icon.svg                       favicon vectorial
- *   public/favicon.ico           32×32
- *   public/site.webmanifest    + icon-192 / icon-512
+ *   public/site.webmanifest               el manifiesto (los iconos que
+ *                                         enlaza los genera scripts/logo.mjs;
+ *                                         la tarjeta Open Graph, scripts/og.mjs)
  */
 import sharp from 'sharp';
 import { mkdir, writeFile, stat } from 'node:fs/promises';
@@ -139,9 +137,9 @@ await writeFile(
   join(root, 'public', 'site.webmanifest'),
   JSON.stringify(
     {
-      name: 'WRabbit AI Labs',
-      short_name: 'WRabbit',
-      description: 'Automatización auditable para instituciones.',
+      name: 'WR AI Labs',
+      short_name: 'WR AI Labs',
+      description: 'Automatización auditable.',
       lang: 'es',
       start_url: '/',
       display: 'standalone',

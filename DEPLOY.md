@@ -137,9 +137,9 @@ hay que resolverlo antes de recoger un solo dato real.
 | NIT | `901.000.000-0` | pie de todas las páginas y cuerpo de `/privacidad` |
 | Teléfono | `+57 601 000 0000` | JSON-LD `Organization` |
 | Dirección | `Calle 100 # 00-00` | JSON-LD y `/privacidad` |
-| Razón social | `WRabbit AI S.A.S.` | pie y `/privacidad` — la marca es «WRabbit AI Labs»; el nombre registrado hay que confirmarlo |
-| LinkedIn de la compañía | `/company/wrabbit-ai` | **404** — pie y `sameAs` |
-| X | `x.com/wrabbitai` | **404** — pie y `sameAs` |
+| Razón social | `WR AI S.A.S.` | pie y `/privacidad` — la marca es «WR AI Labs» desde el 12 de septiembre de 2026; el nombre registrado hay que confirmarlo |
+| LinkedIn de la compañía | `/company/wrailabs` | **404** — pie y `sameAs` |
+| X | `x.com/wrailabs` | **404** — pie y `sameAs` |
 | Correo | `contacto@wrailabs.com` | hay que crear el buzón |
 
 El LinkedIn del director general sí es real y ya está en su ficha.
