@@ -13,7 +13,7 @@ import { newsroom } from '../../data/home';
 const { featured, rest } = splitFeatured(await getCollection('newsroom'), 3);
 
 /** Claro, medio, tinta. La fila se lee como un conjunto, no como tres copias. */
-const TONES = ['paper', 'moss', 'ink'] as const;
+const TONES = ['paper', 'deep', 'ink'] as const;
 ---
 
 <section class="section news" data-surface="frost" aria-labelledby="news-title">

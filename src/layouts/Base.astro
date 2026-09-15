@@ -41,7 +41,7 @@ const {
 const fullTitle = isHome ? title : `${title} — ${site.name}`;
 
 /** Sube al cambiar la marca; ver los <link rel="icon"> de abajo. */
-const ICON_VERSION = 2;
+const ICON_VERSION = 3;
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site).href;
 const ogImageUrl = new URL(ogImage, Astro.site).href;
 ---
@@ -116,7 +116,7 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
     <link rel="icon" href={`/icon.svg?v=${ICON_VERSION}`} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={`/apple-touch-icon.png?v=${ICON_VERSION}`} />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#222f30" />
+    <meta name="theme-color" content="#1a2a45" />
 
     <link rel="sitemap" href="/sitemap-index.xml" />
 
@@ -266,10 +266,10 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
     flex: none;
     opacity: 0;
     animation: boot-in var(--dur-mid) var(--ease-out) forwards;
-    /* Sobre tinta el azul profundo del símbolo se apaga (1,5:1): paleta clara. */
-    --marca-azul-0: #2f7fe0;
-    --marca-azul-1: #3a9bee;
-    --marca-azul-2: #4fc0ff;
+    /* Sobre tinta el azul profundo del símbolo se apaga: paleta clara de tokens.css. */
+    --marca-azul-0: var(--marca-oscura-0);
+    --marca-azul-1: var(--marca-oscura-1);
+    --marca-azul-2: var(--marca-oscura-2);
   }
 
   .boot__name {

@@ -52,6 +52,13 @@ const { inFrame = false } = Astro.props;
     display: block;
     width: 100%;
     height: 100%;
+    /*
+     * Los dos colores que pinta el canvas. Viven aquí, no en el script, para
+     * que un cambio de paleta no exija tocar JavaScript: el script los lee
+     * con getComputedStyle al construir el campo.
+     */
+    --campo-reticula: var(--graphite);
+    --campo-pulso: var(--signal);
     /* Igual que la referencia: el fondo vive por debajo del texto, no compite. */
     opacity: 0.55;
     /* La escala evita que los bordes del campo se lean como un recuadro. */
@@ -96,6 +103,10 @@ const { inFrame = false } = Astro.props;
 
     type Pt = { x: number; y: number };
     type Route = { pts: Pt[]; len: number; segs: number[] };
+
+    /* Colores del campo, leídos de los tokens (ver .campo__canvas). */
+    let colorReticula = '';
+    let colorPulso = '';
 
     let routes: Route[] = [];
     let pulses: { r: number; d: number }[] = [];
@@ -168,6 +179,10 @@ const { inFrame = false } = Astro.props;
       h = rect.height;
       if (!w || !h) return;
 
+      const estilo = getComputedStyle(canvas);
+      colorReticula = estilo.getPropertyValue('--campo-reticula').trim();
+      colorPulso = estilo.getPropertyValue('--campo-pulso').trim();
+
       const dpr = Math.min(devicePixelRatio || 1, 2);
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
@@ -210,11 +225,11 @@ const { inFrame = false } = Astro.props;
     /** La retícula latente: rutas y nodos, siempre visibles y muy tenues. */
     const grid = () => {
       ctx.clearRect(0, 0, w, h);
-      ctx.strokeStyle = '#4d5757';
+      ctx.strokeStyle = colorReticula;
       ctx.lineCap = 'square';
       routes.forEach((r) => line(r, 0.5, 1));
 
-      ctx.fillStyle = '#4d5757';
+      ctx.fillStyle = colorReticula;
       ctx.globalAlpha = 0.75;
       routes.forEach((r) =>
         r.pts.forEach((p) => ctx.fillRect(p.x * STEP - 1.5, p.y * STEP - 1.5, 3, 3)),
@@ -229,7 +244,7 @@ const { inFrame = false } = Astro.props;
 
       grid();
 
-      ctx.strokeStyle = '#cef79e';
+      ctx.strokeStyle = colorPulso;
       pulses.forEach((p) => {
         const r = routes[p.r];
         p.d += SPEED * dt;

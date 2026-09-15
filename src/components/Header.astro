@@ -207,13 +207,13 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
     --text: var(--paper);
     --focus: var(--signal);
     /*
-     * Sobre el hero oscuro el azul profundo del símbolo se apaga (1,5:1
-     * contra la tinta): aquí va una paleta más clara. Al bajar, la pastilla
-     * es clara y `initial` deja actuar el azul original del logotipo.
+     * Sobre el hero oscuro el azul profundo del símbolo se apaga contra la
+     * tinta: aquí va la paleta clara de tokens.css. Al bajar, la pastilla es
+     * clara y `initial` deja actuar el azul original del logotipo.
      */
-    --marca-azul-0: #2f7fe0;
-    --marca-azul-1: #3a9bee;
-    --marca-azul-2: #4fc0ff;
+    --marca-azul-0: var(--marca-oscura-0);
+    --marca-azul-1: var(--marca-oscura-1);
+    --marca-azul-2: var(--marca-oscura-2);
   }
 
   .header__brand::before {

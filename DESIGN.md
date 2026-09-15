@@ -89,48 +89,80 @@ El segundo eje de contraste no es tipográfico sino de superficie: **dos lienzos
 
 ## 4. Color
 
+Desde septiembre de 2026 la paleta se deriva del logotipo (el conejo con la W
+en degradado azul, ver decisión 31). Antes la tinta era verde-fría y la señal
+lima; con la W azul convivían dos señales cromáticas. La regla nueva: **la W es
+lo único saturado de la página.** La tinta toma el matiz de la W pero no su
+croma, para leerse como tinta de sello sobre papel y no como pantalla; el
+lienzo claro sigue siendo cálido, así que el cambio de superficie es también un
+cambio de temperatura (claro cálido, oscuro frío); y la señal es la parada
+clara de la W llevada a luz.
+
 ### Núcleo
 
 | Token | Hex | Nombre | Rol |
 |---|---|---|---|
-| `--ink` | `#222F30` | Tinta abisal | Lienzo oscuro + todo el texto sobre claro. Casi negro con matiz verde frío. **No es `#000`.** |
-| `--bone` | `#F7F7F5` | Bone | Lienzo claro. Off-white con carga cálida mínima. |
+| `--ink` | `#1A2A45` | Tinta de sello | Lienzo oscuro + todo el texto sobre claro. Azul marino desaturado (matiz 220°, saturación 45 %). **No es `#000`.** |
+| `--bone` | `#F7F7F5` | Bone | Lienzo claro. Off-white con carga cálida mínima. No cambia. |
 | `--paper` | `#FFFFFF` | Papel | Tarjetas sobre bone; texto sobre tinta. |
-| `--graphite` | `#4D5757` | Grafito | Texto secundario y prosa larga. Es `--ink` al 80 % sobre `--bone` — coherencia matemática, no elección arbitraria. |
-| `--signal` | `#CEF79E` | Señal | Micro-superficies interactivas **exclusivamente**. |
+| `--graphite` | `#465368` | Grafito | Texto secundario y prosa larga. Es `--ink` al 80 % sobre `--bone` — coherencia matemática, no elección arbitraria. |
+| `--signal` | `#7FC7F9` | Señal | Micro-superficies interactivas **exclusivamente**. Es `#2AA2F5` (la parada clara de la W) al 60 % con blanco. |
+| `--ember` | `#F3A469` | Ascua | Solo el estado de puntero de la llamada a la acción. Complementario de la tinta (26° frente a 220°): el cambio de matiz completo hace el hover inconfundible. Única excepción registrada a «un solo acento». |
 
 ### Derivados utilitarios
 
+Los tres neutros salen de la misma regla que el grafito: tinta sobre hueso al
+20, 8 y 4 %.
+
 | Token | Hex | Rol |
 |---|---|---|
-| `--lichen` | `#C9CBBE` | Hairline de 1 px, decorativo |
-| `--tissue` | `#E7E8E1` | Tarjeta alterna cálida |
-| `--frost` | `#EEEEEE` | Banda del newsroom |
-| `--void` | `#000000` | Solo footer. Cierre absoluto del sitio. |
+| `--lichen` | `#CBCED2` | Hairline de 1 px, decorativo |
+| `--tissue` | `#E5E7E7` | Tarjeta alterna |
+| `--frost` | `#EEEFEE` | Banda del newsroom |
+| `--void` | `#000000` | Solo footer. Cierre absoluto del sitio y fondo natal del logotipo. |
 | `--error` | `#8E2F22` / `#E8836F` | Estado de error de formulario |
+| `--marca-oscura-0/1/2` | `#3F8FF0` → `#52AEF7` → `#7FC7F9` | La W del símbolo sobre tinta. El degradado original (`#123E9E` → `#1A6FD8` → `#2AA2F5`) se apaga sobre azul; sobre oscuro sube tres pasos de luz y su última parada es exactamente la señal. |
 
 `--error` **no es un segundo acento**: es color funcional, y el error nunca se
 comunica solo con color (mensaje de texto + borde de 2 px + `aria-invalid`).
-Óxido desaturado, dentro de la familia. 7.59:1 sobre bone; sobre tinta sube a
-`#E8836F` para dar 5.21:1.
+Óxido desaturado, a más de 180° de la señal para que aviso y proceso nunca se
+confundan. 7.59:1 sobre bone; sobre tinta sube a `#E8836F` para dar 5.41:1.
 
-### Por qué `--signal` y no `bioluminescent-lime`
+### Por qué `--signal` es azul claro y no lima
 
-La semántica biológica del original no aplica a WR AI Labs. La que sí aplica: **estado activo del sistema**. Un proceso corriendo. Ese es el producto, y es lo que legitima un lime frente a un comprador de gobierno o un bufete de abogados — no es decoración, es un indicador.
+La semántica que aplica es **estado activo del sistema**: un proceso corriendo.
+Antes lo decía un lima; con el logotipo azul, el lima era una segunda voz. La
+señal es ahora el píxel de la estela de la W cuando está encendido: la marca y
+la interfaz se encienden con el mismo píxel. Frente a un comprador de gobierno
+o un bufete sigue sin ser decoración: es un indicador, racionado a 44 × 44 px y
+a puntos de 6 px.
+
+### Vídeo y fotografía
+
+Los tres soportes apuntan al mismo azul. El vídeo del hero se lleva a la
+familia con un duotono (`scripts/video-tinte.mjs`): se desatura y la
+luminancia se mapea entre `#0A1225` (negro), `#285490` (medio) y
+`#5CB8FF` (blanco, la segunda parada de la W sobre oscuro). El blanco se limita
+a esa parada y nunca alcanza la señal: la señal queda reservada a la interfaz.
+Las fotografías se desaturan y se tiñen hacia `#273B56`
+(`scripts/foto-tinte.mjs`), la tinta subida unos puntos de luz.
 
 ### Contrastes verificados (WCAG 2.1)
 
 | Combinación | Ratio | Nivel |
 |---|---|---|
-| `--ink` sobre `--bone` | **12.90:1** | AAA |
-| `--paper` sobre `--ink` | **13.84:1** | AAA |
-| `--signal` sobre `--ink` | **11.48:1** | AAA |
-| `--ink` sobre `--signal` | **11.48:1** | AAA |
-| `--graphite` sobre `--bone` | **6.95:1** | AA normal / AAA large |
-| `--lichen` sobre `--bone` | 1.53:1 | ✗ solo decorativo |
-| `--signal` sobre `--bone` | 1.12:1 | ✗ solo relleno |
+| `--ink` sobre `--bone` | **13.40:1** | AAA |
+| `--paper` sobre `--ink` | **14.37:1** | AAA |
+| `--signal` sobre `--ink` | **7.83:1** | AAA |
+| `--ink` sobre `--signal` | **7.83:1** | AAA |
+| `--ink` sobre `--ember` | **7.07:1** | AAA |
+| `--graphite` sobre `--bone` | **7.26:1** | AAA |
+| `--marca-oscura-0` sobre `--ink` | **4.38:1** | AA (gráfico ≥ 3:1) |
+| `--lichen` sobre `--bone` | 1.47:1 | ✗ solo decorativo |
+| `--signal` sobre `--bone` | 1.71:1 | ✗ solo relleno |
+| `#2AA2F5` (W clara) sobre `--bone` | 2.58:1 | logotipo, exento (1.4.11) |
 
-Las dos últimas filas son **restricciones de uso**, no fallos pendientes.
+Las tres últimas filas son **restricciones de uso**, no fallos pendientes.
 
 ---
 
@@ -324,7 +356,12 @@ aparte: status 404, título propio, un solo `h1`, `noindex`.
 ### Accesibilidad
 
 - **Cero fallos de contraste** en 172 elementos de texto sobre 4 páginas,
-  medidos sobre el color computado (no sobre los tokens).
+  medidos sobre el color computado (no sobre los tokens). Repetido tras el
+  cambio de paleta de septiembre de 2026: 438 elementos sobre 6 páginas, los
+  mismos dos avisos preexistentes que antes (la cola apagada del titular de
+  la plataforma, decisión deliberada, y el cierre de `/company`, que va sobre
+  el fotograma del pie y la medición no puede resolver), y el mínimo de los
+  pares reales sube de 4.70:1 a 5.19:1.
 - Cero scroll horizontal entre **320 y 1920 px**.
 - Zoom 200 % (viewports de 720 y 640 px): sin desbordes ni texto cortado.
 - Un solo `h1` por página, sin saltos de nivel en ninguna ruta.
@@ -375,6 +412,7 @@ sexto envío) y 405 en métodos no permitidos.
 | 28 | Iluminación por palabras con `--ramp: 7` | Con un frente de una palabra el borde es un corte seco. Siete palabras de degradado reproducen la onda de lectura de la referencia. El frente viaja hasta `--n + --ramp` porque si parase en `--n` las últimas palabras nunca se encenderían del todo. |
 | 29 | El troceo en palabras se hace en el servidor | En el cliente habría reflujo al hidratar, y sin JS el texto se quedaría sin partir. Cada declaración lleva además una copia intacta en `.sr-only`: leerla palabra por palabra sería insufrible. |
 | 30 | El Trazado se muda a `/company#plataforma` | La reestructuración del hero lo dejó sin sitio. Ahí ilustraba la secuencia que describe el texto —entrada, transformación, validación, salida— en vez de hacer de fondo. **Revertida:** se retiró de `/company` a petición del cliente; los tres pilares ya dicen lo mismo en texto y la sección pasó de +815 px sobre la ventana a +181 px. El componente sigue en el repo, sin montar. |
+| 31 | La paleta se deriva del logotipo: tinta de sello azul, señal azul claro | Con el logotipo de septiembre de 2026 (W en degradado azul) el sitio tenía dos señales cromáticas, el lima y el azul. Revierte la mitad del lima de la decisión 1; el negro del pie se mantiene. Se eligió entre tres direcciones (heredera pura, marina con ámbar, evolución conservadora): el ámbar se descartó porque en el sector público significa advertencia, y la heredera pura porque teñía también el lienzo claro y se leía como pantalla. Tinta desaturada y hueso cálido para que siga siendo papel y tinta. Vídeo y fotos reteñidos hacia el mismo azul. Los pilares (decisión 17) siguen llenando una tarjeta con la señal: en azul claro es un panel calmado, no un foco. |
 
 ---
 
