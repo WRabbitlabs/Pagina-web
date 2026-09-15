@@ -16,9 +16,9 @@ import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const INK = '#222f30';
-const RULE = '#4d5757';
-const SIGNAL = '#cef79e';
+const INK = '#1a2a45';
+const RULE = '#465368';
+const SIGNAL = '#7fc7f9';
 const PAPER = '#ffffff';
 
 await mkdir(join(root, 'src', 'assets'), { recursive: true });
@@ -147,9 +147,9 @@ await writeFile(
       theme_color: INK,
       icons: [
         /* La versión va también aquí: el manifiesto se cachea como el favicon. */
-        { src: '/icon-192.png?v=2', sizes: '192x192', type: 'image/png' },
-        { src: '/icon-512.png?v=2', sizes: '512x512', type: 'image/png' },
-        { src: '/icon.svg?v=2', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+        { src: '/icon-192.png?v=3', sizes: '192x192', type: 'image/png' },
+        { src: '/icon-512.png?v=3', sizes: '512x512', type: 'image/png' },
+        { src: '/icon.svg?v=3', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
       ],
     },
     null,

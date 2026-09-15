@@ -50,7 +50,7 @@ if (!src) {
   process.exit(1);
 }
 
-const INK = '#222f30';
+const INK = '#1a2a45';
 const PAPER = '#ffffff';
 /* El degradado del azul, de izquierda a derecha: los píxeles y el pie de la W
    van en el azul profundo; la cola, en el claro. Las paradas van en el mismo
