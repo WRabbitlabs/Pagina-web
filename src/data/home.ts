@@ -77,8 +77,8 @@ export const whatWeDo = {
       'regla y en qué momento exacto.',
     ],
     [
-      'Trabajamos donde equivocarse',
-      'tiene consecuencias jurídicas:',
+      'Trabajamos donde cada paso',
+      'debe poder sustentarse:',
       'contratación pública, litigio,',
       'cumplimiento normativo y',
       'reporte regulatorio.',
@@ -130,7 +130,7 @@ export const marquee = {
 
 export const company = {
   eyebrow: 'La compañía',
-  heading: 'Construimos donde equivocarse tiene consecuencias legales.',
+  heading: 'Construimos para organizaciones que rinden cuentas.',
   image: {
     src: '/img/company.avif',
     alt: 'Dos personas revisando y firmando un documento sobre una mesa de trabajo, junto a un portátil.',
