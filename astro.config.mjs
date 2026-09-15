@@ -46,6 +46,11 @@ export default defineConfig({
    */
   redirects: {
     '/newsroom/wrabbit-ai-mintic-mspi': '/newsroom/wr-ai-labs-mintic-mspi',
+    /* La pieza de ejemplo que era destacada se retiró el 15 de septiembre de
+       2026; su lugar lo ocupa el concepto de Colombia Compra Eficiente, que
+       trata el mismo terreno. */
+    '/newsroom/registro-ejecucion-contratacion-publica':
+      '/newsroom/colombia-compra-eficiente-ia-contratacion-estatal',
   },
 
   integrations: [
