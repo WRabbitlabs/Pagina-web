@@ -50,7 +50,7 @@ if (!src) {
   process.exit(1);
 }
 
-const INK = '#222f30';
+const INK = '#1a2a45';
 const PAPER = '#ffffff';
 /* El degradado del azul, de izquierda a derecha: los píxeles y el pie de la W
    van en el azul profundo; la cola, en el claro. Las paradas van en el mismo
@@ -102,6 +102,34 @@ if (x1 < 0) throw new Error('no se encontró ningún trazo: ¿es el archivo corr
 
 const caja = { left: x0, top: y0, width: x1 - x0 + 1, height: y1 - y0 + 1 };
 console.log(`[logo] capas: ${nOscuro} px oscuros, ${nAzul} px azules; recorte ${caja.width}×${caja.height}`);
+
+/*
+ * Para el icono, la marca sin la estela de píxeles. La W y el conejo casi
+ * caben en un cuadrado; la estela los convierte en una franja que en la
+ * pestaña del navegador, a 16 px, se ve diminuta. La W empieza en la primera
+ * columna con un tramo vertical azul largo: los píxeles son cuadrados
+ * pequeños y no llegan a un cuarto del alto.
+ */
+let inicioW = x0;
+for (let x = x0; x <= x1; x++) {
+  let tramo = 0;
+  let mejor = 0;
+  for (let y = y0; y <= y1; y++) {
+    if (azul[y * ancho + x] === 0) {
+      tramo++;
+      if (tramo > mejor) mejor = tramo;
+    } else {
+      tramo = 0;
+    }
+  }
+  if (mejor > caja.height * 0.25) {
+    inicioW = x;
+    break;
+  }
+}
+/* Cuánto se descarta por la izquierda, en unidades del viewBox. */
+const recorteIcono = Math.max(0, inicioW - x0 - caja.width * 0.02);
+console.log(`[logo] icono: la W empieza en x=${inicioW - x0}; se descartan ${Math.round(recorteIcono)} px de estela`);
 
 const bitmap = (buf) =>
   sharp(buf, { raw: { width: ancho, height: alto, channels: 1 } }).extract(caja).png().toBuffer();
@@ -270,16 +298,18 @@ const rasterizar = (svg, { ancho: w, lado } = {}) =>
 /* ------------------------------------------------------------------ */
 
 /*
- * La marca es apaisada y el icono, cuadrado: el ancho manda. Un margen del
- * seis por ciento a cada lado y el conejo centrado en vertical: llena el
- * icono sin tocar el borde, que es lo que se ve bien en una pestaña.
+ * El icono lleva la W y el conejo, sin la estela (ver recorteIcono): así el
+ * dibujo ocupa dos tercios del cuadrado en vez de la mitad. Margen del seis
+ * por ciento y centrado en vertical; lo que queda a la izquierda del recorte
+ * cae fuera del viewBox y no se pinta.
  */
-const margen = vbW * 0.06;
-const lado = vbW + margen * 2;
+const anchoIcono = vbW - recorteIcono;
+const margen = anchoIcono * 0.06;
+const lado = Math.max(anchoIcono, vbH) + margen * 2;
 const svgIcono = marca(PAPER, {
   ancho: lado,
   alto: lado,
-  ox: margen,
+  ox: margen - recorteIcono,
   oy: (lado - vbH) / 2,
   fondo: INK,
   radio: lado * 0.18,

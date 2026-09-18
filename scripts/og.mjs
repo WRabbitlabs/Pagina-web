@@ -37,7 +37,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const W = 1200;
 const H = 630;
-const SIGNAL = '#cef79e';
+const SIGNAL = '#7fc7f9';
 const PAPER = '#ffffff';
 
 /*
@@ -65,8 +65,8 @@ await mkdir(join(root, 'public', 'og'), { recursive: true });
 const overlay = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
     <radialGradient id="veil" cx="50%" cy="50%" r="72%">
-      <stop offset="0%"   stop-color="#11191a" stop-opacity="0.78"/>
-      <stop offset="100%" stop-color="#11191a" stop-opacity="0.42"/>
+      <stop offset="0%"   stop-color="#1a2a45" stop-opacity="0.78"/>
+      <stop offset="100%" stop-color="#1a2a45" stop-opacity="0.42"/>
     </radialGradient>
   </defs>
 

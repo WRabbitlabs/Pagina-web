@@ -5,7 +5,7 @@ import { href, isExternal, readLabel, formatDate, isoDate, type Article } from '
 interface Props {
   entry: Article;
   /** Tono de la superficie. Se reparte desde quien coloca las tarjetas. */
-  tone?: 'paper' | 'moss' | 'ink';
+  tone?: 'paper' | 'deep' | 'ink';
   delay?: number;
   /**
    * Si lleva el extracto bajo el título. En el índice del newsroom y en
@@ -90,7 +90,7 @@ const { category, date, title, excerpt } = entry.data;
 
   /* El tono medio sale de la tinta tirada hacia el acento: verde, no gris,
      y sin meter un color nuevo en el sistema. */
-  .card[data-tone='moss'] {
+  .card[data-tone='deep'] {
     --surface: color-mix(in srgb, var(--ink) 86%, var(--signal));
     --text: var(--paper);
     --text-muted: color-mix(in srgb, var(--paper) 74%, transparent);

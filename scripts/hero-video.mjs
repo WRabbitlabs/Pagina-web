@@ -20,6 +20,7 @@ import { readdirSync, statSync, existsSync, mkdirSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { FILTRO_COLOR } from './video-tinte.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public', 'video');
@@ -122,12 +123,15 @@ const poster = join(OUT, 'hero-poster.jpg');
  * es viable con tomas cortas — de ahí que el prompt pida 10–14 s.
  * El segundo tramo se recorta un fotograma por cada extremo para que el
  * fotograma bisagra no se repita y el movimiento no “tartamudee” al girar.
+ *
+ * El color se aplica aquí, antes del split, para que MP4, WebM, AV1 y el
+ * póster hereden el mismo duotono de la marca (ver video-tinte.mjs).
  */
 run(
   [
     '-i', src,
     '-filter_complex',
-    '[0:v]split[a][b];[b]reverse,trim=start_frame=1[r];[a][r]concat=n=2:v=1[v]',
+    `[0:v]${FILTRO_COLOR},split[a][b];[b]reverse,trim=start_frame=1[r];[a][r]concat=n=2:v=1[v]`,
     '-map', '[v]', '-an',
     '-c:v', 'libx264', '-crf', '18', '-preset', 'medium', '-pix_fmt', 'yuv420p',
     loop,

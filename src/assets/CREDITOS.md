@@ -11,7 +11,7 @@ Fotografía obtenida vía **Openverse**. Cada archivo indica su licencia:
   Mientras la foto siga publicada, ese crédito es obligatorio; si se sustituye
   por material CC0 o por fotografía propia, puede borrarse el campo.
 
-Tratamiento común: desaturación a 0.18, brillo 0.94, tinte hacia `#2f4041`.
+Tratamiento común: desaturación a 0.18, brillo 0.94, tinte hacia `#273b56`.
 
 | Archivo | Título | Autor | Licencia | Origen |
 |---|---|---|---|---|

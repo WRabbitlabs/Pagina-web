@@ -96,30 +96,54 @@
     /* Color                                                             */
     /* ---------------------------------------------------------------- */
 
-    /* Núcleo */
-    --ink: #222f30; /* tinta abisal — lienzo oscuro y texto sobre claro    */
-    --bone: #f7f7f5; /* lienzo claro                                       */
+    /*
+     * Núcleo. Desde septiembre de 2026 la paleta se deriva del logotipo: la
+     * tinta toma el matiz de la W (azul de sello, desaturado: se lee como
+     * tinta sobre papel, no como pantalla), el lienzo claro sigue siendo
+     * cálido para que el cambio de superficie sea también un cambio de
+     * temperatura, y la señal es la parada clara de la W llevada a luz. La W
+     * es lo único saturado de la página.
+     */
+    --ink: #1a2a45; /* tinta de sello — lienzo oscuro y texto sobre claro  */
+    --bone: #f7f7f5; /* lienzo claro, cálido                               */
     --paper: #ffffff; /* tarjetas sobre bone, texto sobre tinta            */
-    --graphite: #4d5757; /* texto secundario  = ink al 80% sobre bone      */
-    --signal: #cef79e; /* acento — SOLO micro-superficies de relleno       */
+    --graphite: #465368; /* texto secundario  = ink al 80% sobre bone      */
+    --signal: #7fc7f9; /* acento — SOLO micro-superficies de relleno       */
     /*
      * Acento cálido. Existe SOLO para el estado de puntero de la llamada a la
-     * acción: no aparece en reposo en ninguna parte del sitio. El tono sale de
-     * los cobres del propio vídeo del hero, así que no introduce un color
-     * ajeno. Sobre él, la flecha en tinta da 6.8:1.
+     * acción: no aparece en reposo en ninguna parte del sitio. Es el
+     * complementario de la tinta (26° frente a 220°): el cambio de matiz
+     * completo hace el estado de puntero inconfundible. Sobre él, la flecha
+     * en tinta da 7.07:1. Es la única excepción registrada a «un solo acento».
      */
     --ember: #f3a469;
 
-    /* Derivados utilitarios */
-    --lichen: #c9cbbe; /* hairline 1px, decorativo. 1.53:1 — nunca texto   */
-    --tissue: #e7e8e1; /* tarjeta alterna cálida                          */
-    --frost: #eeeeee; /* banda del newsroom                               */
-    --void: #000000; /* solo footer                                       */
+    /*
+     * Derivados utilitarios. Los tres neutros salen de la misma regla que el
+     * grafito: tinta sobre hueso al 20, 8 y 4 por ciento.
+     */
+    --lichen: #cbced2; /* hairline 1px, decorativo. 1.47:1 — nunca texto   */
+    --tissue: #e5e7e7; /* tarjeta alterna                                 */
+    --frost: #eeefee; /* banda del newsroom                               */
+    --void: #000000; /* solo footer: el fondo natal del logotipo           */
+
+    /*
+     * La W del símbolo sobre tinta. El degradado original del logotipo
+     * (--marca-azul-N, definido en RabbitMark.astro) se apaga sobre una tinta
+     * azul: sobre oscuro se usan estas tres paradas, más claras, y la última
+     * es exactamente la señal: la marca y la interfaz se encienden con el
+     * mismo píxel. Las aplican la cabecera sobre el hero y la pantalla de
+     * entrada.
+     */
+    --marca-oscura-0: #3f8ff0;
+    --marca-oscura-1: #52aef7;
+    --marca-oscura-2: #7fc7f9;
 
     /*
      * Estado de error. NO es un segundo acento: es color funcional, y el
      * error nunca se comunica solo con color (texto + borde + aria-invalid).
-     * Óxido desaturado, dentro de la familia. 7.59:1 sobre bone.
+     * Óxido desaturado, a más de 180° de la señal para que aviso y proceso
+     * nunca se confundan. 7.59:1 sobre bone.
      */
     --error: #8e2f22;
 
@@ -260,7 +284,7 @@
     --rule: var(--graphite);
     --rule-strong: color-mix(in srgb, var(--paper) 45%, var(--ink));
     --focus: var(--signal);
-    /* El óxido oscuro no se lee sobre tinta: sobre oscuro sube a 5.21:1. */
+    /* El óxido oscuro no se lee sobre tinta: sobre oscuro sube a 5.41:1. */
     --error: #e8836f;
   }
 

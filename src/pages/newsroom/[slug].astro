@@ -16,7 +16,7 @@ export async function getStaticPaths() {
 }
 
 /** Claro, medio, tinta, y vuelta a empezar. */
-const TONES = ['paper', 'moss', 'ink'] as const;
+const TONES = ['paper', 'deep', 'ink'] as const;
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);

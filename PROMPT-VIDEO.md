@@ -11,6 +11,20 @@ Pegar en Sora, Veo 3, Runway Gen-4, Kling o Luma Dream Machine.
 
 ---
 
+> **Paleta de septiembre de 2026.** El vídeo publicado se generó con el
+> párrafo de color verde de abajo y después se llevó al azul del logotipo con
+> un duotono de ffmpeg (`scripts/video-tinte.mjs`, aplicado por
+> `scripts/hero-tint.mjs` sobre el archivo publicado). Para generar uno nuevo,
+> sustituye en el prompt el párrafo «Colour:» por este, y `hero-video.mjs`
+> aplicará además el mismo duotono, que es lo que garantiza un solo matiz:
+>
+> ```
+> Colour: near-black background (#0a1225). The forms read as deep navy ink
+> (#1a2a45) with a cool slate sheen (#465368). Edge highlights are a
+> luminous pale blue (#7fc7f9), used sparingly — only where an edge
+> catches light.
+> ```
+
 ## 1. Prompt principal — copiar tal cual
 
 ```

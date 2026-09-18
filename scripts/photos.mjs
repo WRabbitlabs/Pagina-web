@@ -19,6 +19,7 @@ import { existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
+import { TINTE_FOTOS, SATURACION_FOTOS, BRILLO_FOTOS } from './foto-tinte.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ASSETS = join(ROOT, 'src', 'assets');
@@ -126,8 +127,8 @@ async function download(url, attempt = 0) {
 function treat(buf, w, h) {
   return sharp(buf)
     .resize(w, h, { fit: 'cover', position: 'attention' })
-    .modulate({ saturation: 0.18, brightness: 0.94 })
-    .tint('#2f4041')
+    .modulate({ saturation: SATURACION_FOTOS, brightness: BRILLO_FOTOS })
+    .tint(TINTE_FOTOS)
     .linear(1.06, -10)
     .png({ quality: 92, compressionLevel: 9 })
     .toBuffer();
@@ -214,8 +215,9 @@ const md = [
   'constancia igualmente para que la procedencia de cada activo sea',
   'auditable.',
   '',
-  'Tratamiento aplicado a todas: desaturación a 0.18, brillo 0.94 y tinte',
-  'hacia `#2f4041`. Generado por `scripts/photos.mjs`.',
+  'Tratamiento común: desaturación a ' + SATURACION_FOTOS + ', brillo ' + BRILLO_FOTOS +
+    ', tinte hacia `' + TINTE_FOTOS + '`.',
+  'Generado por `scripts/photos.mjs`; para reteñir sin descargar, `scripts/photos-retint.mjs`.',
   '',
   '| Archivo | Título | Autor | Licencia | Origen |',
   '|---|---|---|---|---|',
