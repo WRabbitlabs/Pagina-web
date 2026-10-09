@@ -1,26 +1,27 @@
 /**
  * Datos de sitio. Nada de esto se escribe dentro de un componente.
  *
- * PENDIENTE DEL CLIENTE: razón social, NIT, dirección, teléfono y los
- * perfiles sociales reales. Los valores actuales son marcadores.
+ * La empresa legal (Wrabbit AI LLC), sus direcciones y las condiciones de
+ * pago viven en `legal.ts`, que no deja publicar con datos de relleno.
+ *
+ * PENDIENTE: los perfiles sociales reales.
  */
 
 export const site = {
   /**
    * Mientras esto sea `false`, cada página emite `noindex, nofollow` y
    * robots.txt prohíbe el rastreo completo. Es el interruptor de seguridad del
-   * prototipo: hay datos de relleno publicados —NIT, teléfono, dirección— y
-   * dos páginas legales que se declaran borrador. Ninguna de esas cosas debe
-   * acabar en un índice de búsqueda.
+   * prototipo: las biografías del equipo siguen pendientes y los textos
+   * legales no han pasado por abogado. Nada de eso debe acabar en un índice
+   * de búsqueda.
    *
-   * Se pone en `true` cuando: hay dominio propio, el NIT y los datos de
-   * contacto son reales, y jurídica aprobó /privacidad y /terminos.
+   * Se pone en `true` cuando: el equipo está completo y jurídica revisó
+   * /privacidad, /terminos y /pagos. Los datos legales ya no bloquean: sin
+   * ellos, el build no termina.
    */
   indexable: false,
 
   name: 'WR AI Labs',
-  legalName: 'WR AI S.A.S.',
-  nit: '901.000.000-0', // PENDIENTE — reemplazar con el NIT real
   /** Espejo de SITE_URL en astro.config.mjs: mismo origen del entorno. */
   url: import.meta.env.PUBLIC_SITE_URL ?? 'https://wrailabs.com',
   lang: 'es',
@@ -29,13 +30,6 @@ export const site = {
   city: 'Bogotá',
   country: 'CO',
   email: 'contacto@wrailabs.com',
-  phone: '+57 601 000 0000', // PENDIENTE
-  address: {
-    street: 'Calle 100 # 00-00',
-    city: 'Bogotá D.C.',
-    region: 'Cundinamarca',
-    country: 'CO',
-  },
   /** Tesis de la empresa. La cinta de la portada lleva su propio texto en home.ts; conviene que coincidan. */
   tagline: 'Automatización auditable.',
   /**
@@ -70,4 +64,5 @@ export const cta = {
 export const legalNav = [
   { label: 'Privacidad', href: '/privacidad' },
   { label: 'Términos', href: '/terminos' },
+  { label: 'Pagos y reembolsos', href: '/pagos' },
 ] as const;

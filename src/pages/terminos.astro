@@ -1,116 +1,264 @@
 ---
-import Base from '../layouts/Base.astro';
-import { site } from '../data/site';
+import Legal from '../layouts/Legal.astro';
+import Empresa from '../components/Empresa.astro';
+import { legal, condiciones } from '../data/legal';
 
 /**
- * ⚠ BORRADOR. Pendiente de revisión y aprobación jurídica del cliente.
+ * Términos y condiciones: el uso del sitio y la contratación de servicios.
+ *
+ * Antes eran «Términos de uso» del sitio y nada más. La revisión previa a
+ * Stripe (9 de octubre de 2026) pidió identificar a la empresa legal y dejar
+ * claro cómo se cotiza, en qué moneda y cómo se paga, se cancela y se
+ * reembolsa. La estructura sigue la de unos términos de servicio de EE. UU.
+ * (la LLC es de allí) adaptada a lo que vendemos —software a la medida y su
+ * operación, entre empresas— y a la ley colombiana, que es la de los clientes
+ * y la operación. Los plazos y porcentajes salen de `condiciones`, los mismos
+ * que lee /pagos.
+ *
+ * Pendiente de lectura por el área jurídica.
  */
-const updated = '2026-08-26';
+const updated = '2026-10-09';
 
-const title = 'Términos de uso';
+const title = 'Términos y condiciones';
 const description =
-  'Términos de uso del sitio institucional de WR AI Labs: alcance, propiedad intelectual, enlaces externos y ley aplicable.';
+  'Términos y condiciones de WR AI Labs (Wrabbit AI LLC): uso del sitio, cotizaciones, precios en USD, pagos, propiedad intelectual, confidencialidad y ley aplicable.';
+
+const c = condiciones;
 ---
 
-<Base title={title} description={description}>
-  <section class="section page-head" data-surface="dark">
-    <div class="container">
-      <p class="t-eyebrow">Legal</p>
-      <h1 class="t-h1 page-head__title">{title}</h1>
-      <p class="t-eyebrow page-head__date">
-        Última actualización: <time datetime={updated}>26 de agosto de 2026</time>
-      </p>
-    </div>
-  </section>
+<Legal title={title} description={description} updated={updated}>
+  <p>
+    Estos términos regulan el uso de este sitio y la contratación de los servicios de {legal.nombreComercial}.
+    En ellos, «nosotros» es {legal.entidad}, y «usted» o «el
+    cliente» es quien visita el sitio o contrata nuestros servicios, junto con la
+    organización a la que representa.
+  </p>
 
-  <section class="section">
-    <div class="container">
-      <div class="notice t-small" role="note">
-        <strong>Borrador pendiente de revisión jurídica.</strong> Debe ser revisado y
-        aprobado por el área jurídica de {site.legalName} antes de publicarse.
-      </div>
+  <h2>1. Quiénes somos</h2>
+  <p>
+    {legal.nombreComercial} es el nombre comercial con el que opera {legal.entidad}.
+    La empresa legal, la que firma los contratos, factura y recibe los pagos, es {legal.entidad};
+    el equipo trabaja desde Colombia.
+  </p>
+  <Empresa />
 
-      <div class="prose legal">
-        <h2>1. Objeto</h2>
-        <p>
-          Estos términos regulan el acceso y uso del sitio web de {site.legalName}. El
-          acceso al sitio implica la aceptación de estos términos.
-        </p>
+  <h2>2. Aceptación y documentos que rigen</h2>
+  <p>
+    Al usar el sitio, usted acepta estos términos. Si contrata en nombre de una
+    organización, declara que tiene facultades para obligarla.
+  </p>
+  <p>
+    Cada servicio se rige además por la cotización aceptada y, cuando lo hay, por el
+    contrato firmado. Si alguno de ellos contradice estos términos, prevalece primero
+    el contrato, después la cotización y después estos términos. Forman parte de
+    estos términos la <a href="/privacidad">Política de Tratamiento de Datos
+    Personales</a> y la política de <a href="/pagos">Pagos, cancelaciones y
+    reembolsos</a>.
+  </p>
 
-        <h2>2. Naturaleza del contenido</h2>
-        <p>
-          El contenido de este sitio tiene carácter informativo. No constituye asesoría
-          jurídica, técnica ni comercial, ni una oferta vinculante. Cualquier relación
-          contractual se rige exclusivamente por el contrato que las partes suscriban.
-        </p>
+  <h2>3. Qué ofrecemos</h2>
+  <p>
+    Diseñamos, construimos y operamos software dedicado y automatizaciones para
+    empresas, bufetes de abogados y entidades públicas. Contratamos con
+    organizaciones, no con consumidores finales. El contenido de este sitio es
+    informativo: no es una oferta vinculante ni asesoría de ningún tipo.
+  </p>
 
-        <h2>3. Propiedad intelectual</h2>
-        <p>
-          Los textos, marcas, logotipos, diagramas y demás elementos del sitio son
-          propiedad de {site.legalName} o se usan bajo licencia. Las tipografías
-          empleadas se distribuyen bajo sus propias licencias, disponibles junto a los
-          archivos de fuente.
-        </p>
+  <h2>4. Cotizaciones, precios y moneda</h2>
+  <ul>
+    <li>
+      No tenemos precios de lista. Cada proyecto se cotiza a la medida y por escrito,
+      después de entender el proceso del cliente. La cotización fija el alcance, los
+      entregables, los criterios de aceptación, el calendario, el precio y la forma
+      de pago, y vale {c.vigenciaCotizacionDias} días desde su envío.
+    </li>
+    <li>
+      Los precios se expresan y se cobran en {c.monedaNombre} ({c.moneda}), salvo que
+      la cotización indique expresamente otra moneda.
+    </li>
+    <li>
+      Los precios no incluyen impuestos, retenciones ni comisiones bancarias o de
+      cambio. Los que correspondan se liquidan conforme a la ley aplicable y se
+      detallan en la cotización o en la factura.
+    </li>
+    <li>
+      El trabajo empieza cuando la cotización está aceptada por escrito y, si la
+      cotización lo pide, se ha recibido el anticipo.
+    </li>
+  </ul>
 
-        <h2>4. Enlaces externos</h2>
-        <p>
-          El sitio enlaza contenido alojado por terceros. {site.legalName} no controla
-          ese contenido ni responde por él. Los enlaces externos se señalan visualmente
-          y se abren en una pestaña nueva.
-        </p>
+  <h2>5. Pagos, cancelaciones y reembolsos</h2>
+  <p>
+    Se rigen por nuestra política de <a href="/pagos">Pagos, cancelaciones y
+    reembolsos</a>. En resumen: los proyectos se pagan según el calendario de la
+    cotización —si no fija otro, {c.anticipoPorcentaje} % al aceptarla y el resto a la
+    entrega—; los servicios recurrentes se pagan por mes adelantado, se renuevan
+    solos y se cancelan con {c.avisoCancelacionDias} días de aviso; y si un proyecto
+    se cancela, se paga el trabajo hecho y se devuelve lo que sobre del anticipo.
+    Los pagos con tarjeta los procesa Stripe.
+  </p>
 
-        <h2>5. Disponibilidad</h2>
-        <p>
-          Procuramos que el sitio esté disponible de forma continua, pero no garantizamos
-          ausencia de interrupciones. Podemos modificar o retirar contenido en cualquier
-          momento.
-        </p>
+  <h2>6. Lo que le pedimos al cliente</h2>
+  <ul>
+    <li>Información completa y veraz sobre el proceso que se va a automatizar.</li>
+    <li>
+      Los accesos, los datos, las aprobaciones y las personas de contacto que el
+      proyecto necesite, a tiempo.
+    </li>
+    <li>
+      Tener el derecho a usar y a entregarnos la información, los documentos y los
+      datos personales que nos confía.
+    </li>
+  </ul>
+  <p>
+    Los plazos de la cotización son estimaciones de buena fe. Dependen de que el
+    cliente responda a tiempo y de terceros que no controlamos, como proveedores de
+    software, plataformas del Estado o servicios externos. Si un plazo se mueve por
+    esas causas, se lo avisamos y lo ajustamos.
+  </p>
 
-        <h2>6. Datos personales</h2>
-        <p>
-          El tratamiento de datos personales se rige por la
-          <a href="/privacidad">Política de Tratamiento de Datos Personales</a>.
-        </p>
+  <h2>7. Propiedad intelectual</h2>
+  <p>
+    Los textos, marcas, logotipos, diagramas y demás elementos de este sitio son
+    nuestros o se usan con licencia. No pueden copiarse con fines comerciales sin
+    autorización escrita.
+  </p>
+  <p>
+    En los proyectos, salvo que el contrato diga otra cosa: una vez pagado el precio
+    completo, el cliente es titular de los entregables hechos específicamente para
+    él, como el código, las configuraciones y la documentación del proyecto.
+    Conservamos la titularidad de nuestras herramientas, componentes y conocimientos
+    previos o de uso general, y le damos al cliente una licencia perpetua, no
+    exclusiva y sin costo adicional para usarlos como parte de lo entregado. Los
+    componentes de terceros y de código abierto se rigen por sus propias licencias.
+  </p>
 
-        <h2>7. Ley aplicable</h2>
-        <p>
-          Estos términos se rigen por la ley colombiana. Cualquier controversia se
-          someterá a los jueces de la República de Colombia.
-        </p>
-      </div>
-    </div>
-  </section>
-</Base>
+  <h2>8. Confidencialidad</h2>
+  <p>
+    La información que el cliente nos confía —sus procesos, documentos, datos y
+    expedientes— es confidencial. La usamos solo para prestar el servicio, la
+    compartimos solo con quien la necesita para hacerlo y bajo el mismo deber, y la
+    protegemos durante la relación y después de ella. No es confidencial lo que ya
+    era público, lo que el cliente autorice divulgar o lo que una autoridad ordene
+    revelar con base en la ley.
+  </p>
 
-<style>
-  .page-head {
-    padding-top: calc(var(--header-h) + var(--space-2xl));
-  }
+  <h2>9. Datos personales</h2>
+  <p>
+    El tratamiento de datos personales se rige por la <a href="/privacidad">Política
+    de Tratamiento de Datos Personales</a>. Cuando un proyecto trata datos personales
+    del cliente, actuamos como encargado del tratamiento conforme a la Ley 1581 de
+    2012 y al contrato.
+  </p>
 
-  .page-head__title {
-    margin-top: var(--space-s);
-    max-width: 22ch;
-  }
+  <h2>10. Inteligencia artificial y alcance de nuestro trabajo</h2>
+  <p>
+    Algunos de nuestros sistemas usan modelos de inteligencia artificial. Los
+    diseñamos para que sus resultados se puedan revisar y dejen evidencia, pero un
+    resultado automático puede contener errores: las decisiones que el cliente tome
+    con ellos siguen siendo suyas, y el contrato define qué revisión humana aplica.
+  </p>
+  <p>
+    No somos un bufete de abogados ni prestamos asesoría jurídica, contable ni
+    tributaria. Nuestros sistemas apoyan el cumplimiento normativo del cliente pero
+    no lo sustituyen: la interpretación de la norma y las decisiones jurídicas
+    corresponden al cliente y a sus asesores.
+  </p>
 
-  .page-head__date {
-    margin-top: var(--space-m);
-  }
+  <h2>11. Garantía</h2>
+  <p>
+    Prestamos los servicios con diligencia profesional y conforme a lo pactado. Si un
+    entregable no cumple los criterios de aceptación de la cotización, lo corregimos
+    sin costo durante los {c.garantiaDias} días siguientes a su entrega, o durante
+    el plazo que fije la cotización. Fuera de lo pactado, y en la medida en que la
+    ley lo permita, el sitio y los servicios se ofrecen sin otras garantías.
+  </p>
 
-  .notice {
-    max-width: var(--measure);
-    margin-bottom: var(--space-l);
-    padding: var(--space-xs);
-    border: 1px solid var(--rule-strong);
-    border-radius: var(--radius-btn);
-    background: var(--tissue);
-    color: var(--ink);
-  }
+  <h2>12. Limitación de responsabilidad</h2>
+  <p>
+    En la medida en que la ley lo permita, no respondemos por lucro cesante ni por
+    daños indirectos o consecuenciales, y nuestra responsabilidad total por un
+    servicio se limita a lo que el cliente nos haya pagado por él en los doce meses
+    anteriores al hecho que la origina. Esta limitación no aplica en caso de dolo o
+    culpa grave, ni cuando la ley no permita limitar la responsabilidad.
+  </p>
 
-  .legal h2 {
-    margin-top: 2.2em;
-    font-size: var(--text-h3);
-    line-height: var(--lh-h3);
-    letter-spacing: var(--ls-heading);
-    color: var(--text);
-  }
-</style>
+  <h2>13. Indemnidad</h2>
+  <p>
+    El cliente nos mantendrá indemnes frente a reclamos de terceros causados por la
+    información o los datos que nos entregue sin tener derecho a hacerlo, o por el
+    uso de los entregables en contra de la ley. Nosotros mantendremos indemne al
+    cliente frente a reclamos de terceros que aleguen que un entregable hecho por
+    nosotros infringe sus derechos de propiedad intelectual, salvo que el reclamo
+    venga de componentes de terceros o de cambios hechos por el cliente.
+  </p>
+
+  <h2>14. Suspensión y terminación</h2>
+  <p>
+    Podemos pausar un proyecto o suspender un servicio recurrente por falta de pago,
+    con aviso previo por escrito y en las condiciones de la política de pagos.
+    Cualquiera de las partes puede terminar un servicio si la otra incumple de forma
+    grave y no lo corrige en los quince (15) días siguientes al aviso escrito. Al
+    terminar, el cliente paga lo prestado hasta esa fecha y le entregamos lo
+    construido y sus datos.
+  </p>
+
+  <h2>15. Contratos con entidades públicas</h2>
+  <p>
+    Cuando el cliente es una entidad pública colombiana, la relación se rige por el
+    contrato estatal y por las normas de contratación pública que le apliquen. Estos
+    términos solo aplican en lo que no las contradigan.
+  </p>
+
+  <h2>16. Uso del sitio</h2>
+  <p>
+    No use este sitio para fines ilícitos ni intente vulnerar su seguridad. El sitio
+    enlaza contenido de terceros que no controlamos: los enlaces externos se señalan
+    y se abren en una pestaña nueva, y ese contenido es responsabilidad de quien lo
+    publica. Procuramos que el sitio esté disponible de forma continua, pero no
+    garantizamos que no haya interrupciones, y podemos cambiar o retirar contenido en
+    cualquier momento.
+  </p>
+
+  <h2>17. Cambios a estos términos</h2>
+  <p>
+    Podemos actualizar estos términos. La versión vigente es la publicada aquí, con su
+    fecha al inicio. Los cambios no afectan las cotizaciones ya aceptadas ni los
+    contratos firmados, que siguen con las condiciones con que se pactaron.
+  </p>
+
+  <h2>18. Ley aplicable y controversias</h2>
+  <p>
+    Estos términos se rigen por las leyes de la República de Colombia. Ante una
+    controversia, las partes intentarán primero un arreglo directo durante los treinta
+    (30) días siguientes al aviso escrito. Si no lo logran, la controversia se
+    someterá a los jueces competentes de Bogotá, D.C., salvo que el contrato pacte
+    otro mecanismo, como el arbitraje.
+  </p>
+
+  <h2>19. Disposiciones generales</h2>
+  <ul>
+    <li>
+      Las partes son contratistas independientes: ninguna es agente, socia ni
+      empleadora de la otra.
+    </li>
+    <li>
+      El cliente no puede ceder sus derechos ni obligaciones sin nuestro
+      consentimiento escrito.
+    </li>
+    <li>
+      Si una cláusula resulta inválida, el resto sigue vigente. No ejercer un derecho
+      a tiempo no significa renunciar a él.
+    </li>
+    <li>
+      Las comunicaciones, avisos y aceptaciones por correo electrónico son válidos
+      entre las partes.
+    </li>
+    <li>Si hay traducciones de estos términos, prevalece la versión en español.</li>
+  </ul>
+
+  <h2>20. Contacto</h2>
+  <p>
+    Para cualquier pregunta sobre estos términos, escríbanos a <a href={`mailto:${legal.correo}`}>{legal.correo}</a>.
+  </p>
+</Legal>

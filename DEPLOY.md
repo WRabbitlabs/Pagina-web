@@ -124,23 +124,29 @@ al pegarlo en WhatsApp; no se encuentra buscando.
 Es deliberado. Para abrirlo hay que resolver esto primero, y nada de ello es
 código:
 
-### Bloqueante — las páginas legales
+### Las páginas legales
 
-`/privacidad` y `/terminos` muestran, visible para cualquiera, un aviso que dice
-que el texto es un borrador sin revisión jurídica. Bajo la Ley 1581 de 2012 eso
-hay que resolverlo antes de recoger un solo dato real.
+`/privacidad`, `/terminos` y `/pagos` identifican a la empresa legal, Wrabbit AI
+LLC, y ya no llevan el aviso de borrador: la revisión previa a Stripe (9 de
+octubre de 2026) pidió quitarlo. Los textos los redactó el equipo y falta que
+los lea el área jurídica.
+
+### Los datos legales
+
+Viven en `src/data/legal.ts`. Un dato que falta vale `null`: el servidor de
+desarrollo lo pinta como «[pendiente: …]» y el build de producción **se
+detiene** nombrando lo que falta, así que ningún despliegue sale con un relleno.
+Hoy faltan el estado de constitución de la LLC, la dirección legal en EE. UU.,
+la dirección operativa en Colombia y el teléfono (obligatorio en la política de
+datos por el Decreto 1377 de 2013).
 
 ### Datos de relleno que hoy se renderizan
 
 | Dato | Valor actual | Dónde sale |
 |---|---|---|
-| NIT | `901.000.000-0` | pie de todas las páginas y cuerpo de `/privacidad` |
-| Teléfono | `+57 601 000 0000` | JSON-LD `Organization` |
-| Dirección | `Calle 100 # 00-00` | JSON-LD y `/privacidad` |
-| Razón social | `WR AI S.A.S.` | pie y `/privacidad` — la marca es «WR AI Labs» desde el 12 de septiembre de 2026; el nombre registrado hay que confirmarlo |
 | LinkedIn de la compañía | `/company/wrailabs` | **404** — pie y `sameAs` |
 | X | `x.com/wrailabs` | **404** — pie y `sameAs` |
-| Correo | `contacto@wrailabs.com` | hay que crear el buzón |
+| Correo | `contacto@wrailabs.com` | hay que confirmar que el buzón recibe |
 
 El LinkedIn del director general sí es real y ya está en su ficha.
 

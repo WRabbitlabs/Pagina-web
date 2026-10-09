@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Arrow from '../components/Arrow.astro';
 import { ORG_TYPES, HONEYPOT_FIELD } from '../lib/contact';
 import { site } from '../data/site';
+import { legal, condiciones, enLinea, telefonoHref } from '../data/legal';
 
 const title = 'Trabaja con nosotros';
 const description =
@@ -19,7 +20,9 @@ const description =
  * Sin esa variable NO se pinta un formulario. Un formulario que envía a
  * ninguna parte es peor que no tenerlo: el visitante escribe, pulsa enviar y
  * cree que le llegó a alguien. En su lugar se enseñan los canales directos,
- * que sí funcionan.
+ * que sí funcionan, y la página no se disculpa por el formulario que falta:
+ * el aviso «vuelve en cuanto esté configurado» salió en la revisión previa a
+ * Stripe (9 de octubre de 2026).
  *
  * La validación por campo sobrevive entera: siempre corrió en el navegador
  * con el mismo módulo, y de eso no dependía el servidor.
@@ -40,8 +43,15 @@ const fields = [
       <p class="t-eyebrow">{title}</p>
       <h1 class="t-h1 page-head__title" data-text-reveal>Cuéntenos qué proceso quiere automatizar.</h1>
       <p class="t-lead page-head__sub">
-        Respondemos dentro de los dos días hábiles siguientes. Si prefiere escribir
-        directamente: <a class="mail" href={`mailto:${site.email}`}>{site.email}</a>.
+        Respondemos dentro de los dos días hábiles siguientes.
+        {
+          formEndpoint && (
+            <>
+              Si prefiere escribir directamente:{' '}
+              <a class="mail" href={`mailto:${site.email}`}>{site.email}</a>.
+            </>
+          )
+        }
       </p>
     </div>
   </section>
@@ -125,9 +135,8 @@ const fields = [
               aria-describedby="consentimiento-error"
             />
             <label class="t-small consent__label" for="consentimiento">
-              Autorizo a {site.legalName} a tratar mis datos personales para responder
-              esta solicitud, conforme a la
-              <a href="/privacidad">Política de Tratamiento de Datos Personales</a> y a
+              Autorizo a {legal.entidad} a tratar mis datos personales para responder
+              esta solicitud, conforme a la <a href="/privacidad">Política de Tratamiento de Datos Personales</a> y a
               la Ley 1581 de 2012.<span aria-hidden="true"> *</span>
             </label>
             <span class="field__error t-small" id="consentimiento-error"></span>
@@ -151,19 +160,55 @@ const fields = [
           <div class="direct">
             <p class="t-h3 direct__lead">Escríbanos directamente.</p>
             <p class="prose direct__body">
-              El formulario vuelve en cuanto esté configurado el servicio de envío.
-              Mientras tanto el correo llega igual, y lo leemos nosotros.
+              Cuéntenos qué proceso quiere automatizar, quién lo hace hoy y qué le
+              gustaría que cambiara. El correo lo leemos nosotros.
             </p>
             <p class="direct__channels">
               <a class="link-arrow" href={`mailto:${site.email}`}>
                 {site.email}
                 <Arrow />
               </a>
+              <a class="link-arrow" href={telefonoHref(legal.telefono)}>
+                {legal.telefono}
+                <Arrow />
+              </a>
             </p>
-            <p class="t-small direct__note">Operamos desde {site.city}.</p>
           </div>
         )
       }
+
+      {/*
+        Lo que un comprador —y Stripe— busca antes de escribir: que no hay
+        precios de lista, en qué moneda se cobra y dónde están las
+        condiciones. Va con formulario y sin él.
+      */}
+      <div class="terms">
+        <h2 class="t-eyebrow terms__title">Cómo cotizamos</h2>
+        <p class="prose terms__body">
+          No tenemos precios de lista. Cada proyecto se cotiza a la medida y por
+          escrito, después de entender el proceso: la cotización fija el alcance, los
+          entregables, el calendario y la forma de pago.
+          Cotizamos y cobramos en {condiciones.monedaNombre} ({condiciones.moneda}).
+        </p>
+        <p class="prose terms__body">
+          Las condiciones de pago, cancelación y reembolso están en <a href="/pagos">Pagos, cancelaciones y reembolsos</a>.
+        </p>
+
+        <dl class="t-small who">
+          <div>
+            <dt>Empresa</dt>
+            <dd>{legal.nombreComercial} es un nombre comercial de {legal.entidad}.</dd>
+          </div>
+          <div>
+            <dt>Domicilio legal</dt>
+            <dd>{enLinea(legal.direccionLegal)}</dd>
+          </div>
+          <div>
+            <dt>Operación</dt>
+            <dd>{enLinea(legal.direccionOperativa)}</dd>
+          </div>
+        </dl>
+      </div>
     </div>
   </section>
 </Base>
@@ -193,14 +238,37 @@ const fields = [
   }
 
   .direct__channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-m);
     margin-top: var(--space-m);
   }
 
-  .direct__note {
-    margin-top: var(--space-m);
-    padding-top: var(--space-xs);
+  /* Condiciones y empresa: después del canal, separadas por un filete. */
+  .terms {
+    max-width: var(--measure);
+    margin-top: var(--space-xl);
+    padding-top: var(--space-s);
     border-top: 1px solid var(--rule);
+  }
+
+  .terms__body {
+    margin-top: var(--space-xs);
+  }
+
+  .terms__body a {
+    color: var(--text);
+  }
+
+  .who {
+    display: grid;
+    gap: var(--space-2xs);
+    margin-top: var(--space-m);
     color: var(--text-muted);
+  }
+
+  .who dt {
+    color: var(--text);
   }
 
   .mail {
