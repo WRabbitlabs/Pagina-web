@@ -1,6 +1,12 @@
 /**
  * Validación del formulario de contacto — sin dependencias.
  *
+ * SIN USO desde el 9 de octubre de 2026: por decisión del director, /contact
+ * no tiene formulario y la web no recoge datos personales; el único canal es
+ * el correo. El módulo se conserva para cuando el formulario vuelva; el
+ * marcado y el script de envío están en el historial de git de
+ * src/pages/contact.astro, justo antes de ese cambio.
+ *
  * El MISMO módulo corre en el cliente y en el servidor. No es que las
  * reglas "coincidan": son literalmente el mismo código, así que no pueden
  * divergir. El servidor valida siempre; lo del cliente es una cortesía.

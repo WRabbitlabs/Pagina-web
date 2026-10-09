@@ -163,7 +163,7 @@ src/
                            y condiciones de pago; sin un dato, el build no termina
     home.ts                todo el copy de la home
   lib/
-    contact.ts             validación del formulario (cliente + servidor)
+    contact.ts             validación del formulario; sin uso mientras no haya formulario
     newsroom.ts            orden, formato de fecha, destacado/compactos
   layouts/Base.astro       head, OG, JSON-LD, skip link, header, footer
   layouts/Legal.astro      marco de /privacidad, /terminos y /pagos
@@ -223,6 +223,10 @@ más reciente marcado `featured`.
 
 ## Formulario de contacto
 
+**Retirado el 9 de octubre de 2026** por decisión del director: la web no
+recoge datos personales y `/contact` solo enseña el correo de la empresa. Lo que
+sigue describe el formulario por si vuelve.
+
 `src/lib/contact.ts` valida en el navegador: errores por campo, foco al primero
 que falla, y consentimiento obligatorio.
 
@@ -259,11 +263,9 @@ HTML al navegador, **no si la página se mueve**. Todas las animaciones son CSS
 y JavaScript de cliente y funcionan igual. De hecho van mejor: el HTML sale de
 un CDN sin que ningún proceso lo genere, así que pinta antes.
 
-La renuncia es el formulario de contacto, que tenía endpoint propio y ya no lo
-tiene. La validación por campo sobrevive —siempre corrió en el navegador— y lo
-que falta es quién recibe el mensaje: un servicio de formularios, con su
-dirección en `PUBLIC_FORM_ENDPOINT`. Sin esa variable, `/contact` enseña los
-canales directos en vez de un formulario que no envía a ninguna parte.
+La renuncia fue el formulario de contacto, que tenía endpoint propio. Desde el
+9 de octubre de 2026 no hay formulario: `/contact` enseña solo el correo de la
+empresa, para que la web no recoja datos personales.
 
 El paso a paso completo, el DNS y lo que falta antes de abrirlo al público
 están en [`DEPLOY.md`](./DEPLOY.md).

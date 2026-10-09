@@ -86,6 +86,13 @@ emite el certificado solo; tarda unos minutos desde que el DNS resuelve.
 
 ## El formulario de contacto
 
+**Hoy no hay formulario.** Desde el 9 de octubre de 2026, por decisión del
+director, la web no recoge datos personales: `/contact` enseña solo el correo
+de la empresa y no lee ninguna variable de entorno, así que poner
+`PUBLIC_FORM_ENDPOINT` no lo hace aparecer. Si vuelve, el marcado y el script
+están en el historial de `src/pages/contact.astro` y la validación sigue en
+`src/lib/contact.ts`; lo que sigue explica cómo funcionaba.
+
 Aquí está la renuncia de haber elegido GitHub Pages, y conviene tenerla escrita.
 
 Había un endpoint propio, `/api/contacto`, que validaba, saneaba y limitaba por
