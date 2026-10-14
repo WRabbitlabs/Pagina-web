@@ -9,11 +9,14 @@
  *
  * Un dato que falta vale `null`, nunca un valor de ejemplo. La web publicó una
  * vez un NIT, una dirección y un teléfono de relleno, y la revisión previa a
- * Stripe lo señaló (9 de octubre de 2026). Desde entonces:
- *   - en desarrollo, el dato que falta se pinta «[pendiente: …]» en su sitio,
- *     para que se vea dónde va;
- *   - en el build de producción, el build se detiene y nombra lo que falta.
- *     Ningún despliegue sale con un hueco ni con un relleno.
+ * Stripe lo señaló (9 de octubre de 2026). Hay dos clases de dato:
+ *   - obligatorios (estado de constitución y domicilio legal): si faltan, en
+ *     desarrollo se pinta «[pendiente: …]» y el build de producción se
+ *     detiene nombrando lo que falta. Sin ellos no hay página legal que valga;
+ *   - opcionales (dirección operativa y teléfono): si faltan, la web los
+ *     omite. El director decidió el 14 de octubre de 2026 publicar con lo que
+ *     hay y dejar estos como pendiente interno, no en la página. Mientras
+ *     falte la dirección operativa, la web dice solo la ciudad, que es real.
  *
  * No se importa desde ningún <script> de cliente: el error es para el build,
  * no para el navegador del visitante.
@@ -44,20 +47,30 @@ const datos: {
   telefono: string | null;
 } = {
   /**
-   * Grafía de la revisión previa a Stripe que reenvió el director el 9 de
-   * octubre de 2026. Confirmar contra el certificado (mayúsculas, coma).
+   * Nombre legal tal como figura en el certificado, «Ai» con la i
+   * minúscula: documento de datos de la LLC que pasó el director el 14 de
+   * octubre de 2026.
    */
-  entidad: 'Wrabbit AI LLC',
-  /** Estado de EE. UU. donde se constituyó la LLC. */
-  estadoDeConstitucion: null,
-  /** La del certificado o la del agente registrado. */
-  direccionLegal: null,
-  /** Donde trabaja el equipo, en Colombia. */
+  entidad: 'Wrabbit Ai LLC',
+  /** Estado de EE. UU. donde se constituyó la LLC. Mismo documento. */
+  estadoDeConstitucion: 'Delaware',
+  /** Mismo documento: la dirección legal en Dover, Delaware. */
+  direccionLegal: {
+    calle: '8 The Green, Suite B',
+    ciudad: 'Dover',
+    region: 'Delaware',
+    codigoPostal: '19901',
+    pais: 'US',
+  },
+  /**
+   * PENDIENTE INTERNO: donde trabaja el equipo, en Colombia. Mientras falte,
+   * la web dice solo la ciudad.
+   */
   direccionOperativa: null,
   /**
-   * Obligatorio en la política de datos: el Decreto 1377 de 2013 (hoy en el
-   * Decreto 1074 de 2015) exige nombre, domicilio, dirección, correo y
-   * teléfono del responsable.
+   * PENDIENTE INTERNO. La política de datos debería llevarlo: el Decreto 1377
+   * de 2013 (hoy en el Decreto 1074 de 2015) pide nombre, domicilio,
+   * dirección, correo y teléfono del responsable. En cuanto exista, va aquí.
    */
   telefono: null,
 };
@@ -86,8 +99,11 @@ export const legal = {
   nombreComercial: site.name,
   estadoDeConstitucion: exigir(datos.estadoDeConstitucion, 'estado de constitución de la LLC', marca('estado de constitución')),
   direccionLegal: exigir(datos.direccionLegal, 'dirección legal en EE. UU.', direccionPendiente('dirección legal en EE. UU.', 'US')),
-  direccionOperativa: exigir(datos.direccionOperativa, 'dirección operativa en Colombia', direccionPendiente('dirección operativa en Colombia', 'CO')),
-  telefono: exigir(datos.telefono, 'teléfono', marca('teléfono')),
+  /** Opcional: `null` mientras falte. Para pintarla, `operacionEnLinea()`. */
+  direccionOperativa: datos.direccionOperativa,
+  /** Opcional: `null` mientras falte; quien lo pinta lo omite. */
+  telefono: datos.telefono,
+  ciudadOperativa: site.city,
   correo: site.email,
 } as const;
 
@@ -114,6 +130,20 @@ export function direccionSchema(d: Direccion) {
     ...(d.codigoPostal ? { postalCode: d.codigoPostal } : {}),
     addressCountry: d.pais,
   };
+}
+
+/** La dirección de operación completa, o solo la ciudad mientras falte. */
+export function operacionEnLinea(): string {
+  return legal.direccionOperativa
+    ? enLinea(legal.direccionOperativa)
+    : `${legal.ciudadOperativa}, ${PAISES.CO}`;
+}
+
+/** Lo mismo para JSON-LD: sin calle mientras no se tenga. */
+export function operacionSchema() {
+  return legal.direccionOperativa
+    ? direccionSchema(legal.direccionOperativa)
+    : { '@type': 'PostalAddress', addressLocality: legal.ciudadOperativa, addressCountry: 'CO' };
 }
 
 /** Para `href="tel:…"`: solo el signo y los dígitos. */

@@ -1,7 +1,7 @@
 /**
  * Datos de sitio. Nada de esto se escribe dentro de un componente.
  *
- * La empresa legal (Wrabbit AI LLC), sus direcciones y las condiciones de
+ * La empresa legal (Wrabbit Ai LLC), sus direcciones y las condiciones de
  * pago viven en `legal.ts`, que no deja publicar con datos de relleno.
  *
  * PENDIENTE: los perfiles sociales reales.

@@ -140,12 +140,13 @@ los lea el área jurídica.
 
 ### Los datos legales
 
-Viven en `src/data/legal.ts`. Un dato que falta vale `null`: el servidor de
-desarrollo lo pinta como «[pendiente: …]» y el build de producción **se
-detiene** nombrando lo que falta, así que ningún despliegue sale con un relleno.
-Hoy faltan el estado de constitución de la LLC, la dirección legal en EE. UU.,
-la dirección operativa en Colombia y el teléfono (obligatorio en la política de
-datos por el Decreto 1377 de 2013).
+Viven en `src/data/legal.ts`. Un dato que falta vale `null`, nunca un relleno.
+El estado de constitución y el domicilio legal son **obligatorios**: si faltan,
+el build de producción se detiene nombrándolos. La dirección operativa y el
+teléfono son **opcionales**: si faltan, la web los omite (de la operación dice
+solo la ciudad). Desde el 14 de octubre de 2026 están Wrabbit Ai LLC, Delaware y
+8 The Green, Suite B, Dover; faltan la dirección operativa y el teléfono, que la
+política de datos debería llevar (Decreto 1377 de 2013).
 
 ### Datos de relleno que hoy se renderizan
 

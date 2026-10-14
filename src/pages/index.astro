@@ -11,7 +11,7 @@ import Marquee from '../components/home/Marquee.astro';
 import Company from '../components/home/Company.astro';
 import NewsroomTeaser from '../components/home/NewsroomTeaser.astro';
 import { site, social } from '../data/site';
-import { legal, direccionSchema } from '../data/legal';
+import { legal, direccionSchema, operacionSchema } from '../data/legal';
 import { hero } from '../data/home';
 
 const organization = {
@@ -23,10 +23,11 @@ const organization = {
   logo: new URL('/icon-512.png', site.url).href,
   description: site.description,
   email: legal.correo,
-  telephone: legal.telefono,
+  // Opcional: sin teléfono, la propiedad no se emite.
+  ...(legal.telefono ? { telephone: legal.telefono } : {}),
   foundingDate: site.founded,
   // Primero el domicilio legal de la LLC, después donde opera el equipo.
-  address: [direccionSchema(legal.direccionLegal), direccionSchema(legal.direccionOperativa)],
+  address: [direccionSchema(legal.direccionLegal), operacionSchema()],
   sameAs: social.map((s) => s.href),
 };
 

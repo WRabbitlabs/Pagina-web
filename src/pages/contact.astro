@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Arrow from '../components/Arrow.astro';
 import { site } from '../data/site';
-import { legal, condiciones, enLinea } from '../data/legal';
+import { legal, condiciones, enLinea, operacionEnLinea } from '../data/legal';
 
 const title = 'Trabaja con nosotros';
 const description =
@@ -76,7 +76,7 @@ const description =
           </div>
           <div>
             <dt>Operación</dt>
-            <dd>{enLinea(legal.direccionOperativa)}</dd>
+            <dd>{operacionEnLinea()}</dd>
           </div>
         </dl>
       </div>

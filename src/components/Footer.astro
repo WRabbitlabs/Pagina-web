@@ -2,7 +2,7 @@
 import Arrow from './Arrow.astro';
 import Cta from './Cta.astro';
 import { nav, cta, social, legalNav, site } from '../data/site';
-import { legal, enLinea } from '../data/legal';
+import { legal, enLinea, operacionEnLinea } from '../data/legal';
 import { footer as footerData } from '../data/home';
 
 const year = new Date().getFullYear();
@@ -135,7 +135,7 @@ const bg = footerData.bg;
             donde trabaja el equipo. */}
         <p class="t-eyebrow footer__copy footer__addr">
           <span>Domicilio legal: {enLinea(legal.direccionLegal)}</span>
-          <span>Operación: {enLinea(legal.direccionOperativa)}</span>
+          <span>Operación: {operacionEnLinea()}</span>
         </p>
       </div>
     </div>

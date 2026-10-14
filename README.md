@@ -335,9 +335,8 @@ CLS 0 y TBT 0 ms en todas. Cero auditorías en rojo.
 
 - Copy real. Lo actual son placeholders específicos, sin lorem ipsum y sin
   texto tomado de ninguna referencia.
-- Estado de constitución, dirección legal en EE. UU., dirección operativa en
-  Colombia y teléfono de Wrabbit AI LLC en `src/data/legal.ts`. Sin ellos el
-  build se detiene y dice cuál falta.
+- Dirección operativa en Colombia y teléfono de Wrabbit Ai LLC en
+  `src/data/legal.ts`. Mientras falten, la web los omite.
 - Perfiles de LinkedIn y X reales.
 - Biografías del equipo.
 - Assets definitivos: imagen de Compañía, imágenes de artículos y OG.
