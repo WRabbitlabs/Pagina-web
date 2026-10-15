@@ -1,0 +1,34 @@
+---
+/**
+ * Ficha de la empresa para los textos legales: quién es el responsable, dónde
+ * está y cómo se le escribe. La usan /privacidad y /terminos; el pie y
+ * /contact dicen lo mismo en corto. Todo sale de `data/legal.ts`.
+ *
+ * El teléfono es opcional: mientras falte, la fila no se pinta.
+ */
+import { legal, enLinea, operacionEnLinea, telefonoHref } from '../data/legal';
+---
+
+<dl>
+  <dt>Empresa</dt>
+  <dd>
+    {legal.entidad}, sociedad de responsabilidad limitada (LLC) constituida en el estado de {legal.estadoDeConstitucion},
+    Estados Unidos.
+  </dd>
+  <dt>Nombre comercial</dt>
+  <dd>{legal.nombreComercial}</dd>
+  <dt>Domicilio legal</dt>
+  <dd>{enLinea(legal.direccionLegal)}</dd>
+  <dt>Operación</dt>
+  <dd>{operacionEnLinea()}</dd>
+  <dt>Correo</dt>
+  <dd><a href={`mailto:${legal.correo}`}>{legal.correo}</a></dd>
+  {
+    legal.telefono && (
+      <>
+        <dt>Teléfono</dt>
+        <dd><a href={telefonoHref(legal.telefono)}>{legal.telefono}</a></dd>
+      </>
+    )
+  }
+</dl>

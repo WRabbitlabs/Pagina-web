@@ -1,0 +1,104 @@
+---
+/**
+ * Marco de las tres páginas legales: /privacidad, /terminos y /pagos.
+ *
+ * Antes cada página traía su cabecera y su copia de los estilos; con una
+ * tercera página la copia se triplicaba. Aquí van la cabecera oscura, la
+ * fecha de actualización y la tipografía del texto legal. Los datos de la
+ * empresa no se escriben en ninguna página: salen de `data/legal.ts`.
+ */
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Fecha de la última actualización, `AAAA-MM-DD`. */
+  updated: string;
+}
+
+const { title, description, updated } = Astro.props;
+
+// En UTC: la fecha es un día del calendario, no un instante. Sin esto, un
+// build en un huso al oeste de Greenwich la retrasaría un día.
+const updatedLabel = new Intl.DateTimeFormat('es-CO', {
+  dateStyle: 'long',
+  timeZone: 'UTC',
+}).format(new Date(updated));
+---
+
+<Base title={title} description={description}>
+  <section class="section page-head" data-surface="dark">
+    <div class="container">
+      <p class="t-eyebrow">Legal</p>
+      <h1 class="t-h1 page-head__title">{title}</h1>
+      <p class="t-eyebrow page-head__date">
+        Última actualización: <time datetime={updated}>{updatedLabel}</time>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="prose legal">
+        <slot />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-top: calc(var(--header-h) + var(--space-2xl));
+  }
+
+  .page-head__title {
+    margin-top: var(--space-s);
+    max-width: 22ch;
+  }
+
+  .page-head__date {
+    margin-top: var(--space-m);
+  }
+
+  /* El contenido llega por el slot: sin :global, el estilo no lo alcanza. */
+  .legal :global(h2) {
+    margin-top: 2.2em;
+    font-size: var(--text-h3);
+    line-height: var(--lh-h3);
+    letter-spacing: var(--ls-heading);
+    color: var(--text);
+  }
+
+  .legal :global(h3) {
+    margin-top: 1.6em;
+    color: var(--text);
+  }
+
+  .legal :global(ul) {
+    padding-left: 1.2em;
+  }
+
+  .legal :global(li + li) {
+    margin-top: 0.4em;
+  }
+
+  /* Ficha de la empresa: etiqueta y dato en dos columnas desde tableta. */
+  .legal :global(dl) {
+    display: grid;
+    gap: 0.5em var(--gutter);
+  }
+
+  @media (min-width: 48rem) {
+    .legal :global(dl) {
+      grid-template-columns: max-content 1fr;
+    }
+  }
+
+  .legal :global(dt) {
+    color: var(--text);
+  }
+
+  .legal :global(dd) {
+    margin: 0;
+  }
+</style>

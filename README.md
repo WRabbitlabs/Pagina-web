@@ -158,12 +158,15 @@ src/
     newsroom/*.md          artículos — orden por fecha descendente
     team/*.md              equipo — orden por campo `order`
   data/
-    site.ts                razón social, NIT, navegación, redes
+    site.ts                nombre, correo, navegación, redes
+    legal.ts               empresa legal (Wrabbit AI LLC), direcciones, teléfono
+                           y condiciones de pago; sin un dato, el build no termina
     home.ts                todo el copy de la home
   lib/
-    contact.ts             validación del formulario (cliente + servidor)
+    contact.ts             validación del formulario; sin uso mientras no haya formulario
     newsroom.ts            orden, formato de fecha, destacado/compactos
   layouts/Base.astro       head, OG, JSON-LD, skip link, header, footer
+  layouts/Legal.astro      marco de /privacidad, /terminos y /pagos
   components/
     Header.astro           widgets flotantes: marca y navegación
     Trazado.astro          el signature — sin montar hoy; ver DESIGN.md §8
@@ -183,8 +186,9 @@ src/
     company.astro          /company
     newsroom/              /newsroom y /newsroom/[slug]
     contact.astro          /contact
-    privacidad.astro       /privacidad     ⚠ borrador legal
-    terminos.astro         /terminos       ⚠ borrador legal
+    privacidad.astro       /privacidad     pendiente de lectura jurídica
+    terminos.astro         /terminos       pendiente de lectura jurídica
+    pagos.astro            /pagos          pagos, cancelaciones y reembolsos
     404.astro              /404
     api/contacto.ts        endpoint del formulario (única ruta con servidor)
 ```
@@ -218,6 +222,10 @@ más reciente marcado `featured`.
 **Copy de la home.** Todo en `src/data/home.ts`.
 
 ## Formulario de contacto
+
+**Retirado el 9 de octubre de 2026** por decisión del director: la web no
+recoge datos personales y `/contact` solo enseña el correo de la empresa. Lo que
+sigue describe el formulario por si vuelve.
 
 `src/lib/contact.ts` valida en el navegador: errores por campo, foco al primero
 que falla, y consentimiento obligatorio.
@@ -255,11 +263,9 @@ HTML al navegador, **no si la página se mueve**. Todas las animaciones son CSS
 y JavaScript de cliente y funcionan igual. De hecho van mejor: el HTML sale de
 un CDN sin que ningún proceso lo genere, así que pinta antes.
 
-La renuncia es el formulario de contacto, que tenía endpoint propio y ya no lo
-tiene. La validación por campo sobrevive —siempre corrió en el navegador— y lo
-que falta es quién recibe el mensaje: un servicio de formularios, con su
-dirección en `PUBLIC_FORM_ENDPOINT`. Sin esa variable, `/contact` enseña los
-canales directos en vez de un formulario que no envía a ninguna parte.
+La renuncia fue el formulario de contacto, que tenía endpoint propio. Desde el
+9 de octubre de 2026 no hay formulario: `/contact` enseña solo el correo de la
+empresa, para que la web no recoja datos personales.
 
 El paso a paso completo, el DNS y lo que falta antes de abrirlo al público
 están en [`DEPLOY.md`](./DEPLOY.md).
@@ -281,8 +287,9 @@ Cloudflare no emitan enlaces absolutos al dominio de producción.
 cada página emite `noindex, nofollow` y `robots.txt` responde `Disallow: /`. El
 sitio se puede enseñar por enlace pero no se encuentra buscando.
 
-Es deliberado: hay datos de relleno publicados —NIT, teléfono, dirección— y dos
-páginas legales que se declaran borrador. Nada de eso debe acabar en un índice.
+Es deliberado: las biografías del equipo siguen pendientes y los textos legales
+no han pasado por abogado. Los datos legales ya no son motivo: `legal.ts` no deja
+terminar un build con un dato de relleno.
 Se abre poniéndolo en `true`, y las condiciones para hacerlo están en
 [`DEPLOY.md`](./DEPLOY.md).
 
@@ -328,12 +335,14 @@ CLS 0 y TBT 0 ms en todas. Cero auditorías en rojo.
 
 - Copy real. Lo actual son placeholders específicos, sin lorem ipsum y sin
   texto tomado de ninguna referencia.
-- Razón social, NIT, dirección y teléfono reales en `src/data/site.ts`.
+- Dirección operativa en Colombia y teléfono de Wrabbit Ai LLC en
+  `src/data/legal.ts`. Mientras falten, la web los omite.
 - Perfiles de LinkedIn y X reales.
 - Biografías del equipo.
 - Assets definitivos: imagen de Compañía, imágenes de artículos y OG.
-- **Textos legales revisados por abogado.** `/privacidad` y `/terminos` son
-  borradores con la estructura que exige la norma, no textos aprobados.
+- **Lectura jurídica** de `/privacidad`, `/terminos` y `/pagos`. Ya no se
+  declaran borrador (lo pidió la revisión previa a Stripe, 9 de octubre de
+  2026), pero los redactó el equipo, no un abogado.
 
 ---
 

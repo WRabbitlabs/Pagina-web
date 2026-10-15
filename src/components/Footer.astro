@@ -2,6 +2,7 @@
 import Arrow from './Arrow.astro';
 import Cta from './Cta.astro';
 import { nav, cta, social, legalNav, site } from '../data/site';
+import { legal, enLinea, operacionEnLinea } from '../data/legal';
 import { footer as footerData } from '../data/home';
 
 const year = new Date().getFullYear();
@@ -127,7 +128,14 @@ const bg = footerData.bg;
         </ul>
 
         <p class="t-eyebrow footer__copy">
-          {site.legalName} · NIT {site.nit} · © {year}. Todos los derechos reservados.
+          {site.name} es un nombre comercial de {legal.entidad} · © {year}. Todos los derechos reservados.
+        </p>
+
+        {/* Las dos direcciones, por separado: la legal de la LLC y la de
+            donde trabaja el equipo. */}
+        <p class="t-eyebrow footer__copy footer__addr">
+          <span>Domicilio legal: {enLinea(legal.direccionLegal)}</span>
+          <span>Operación: {operacionEnLinea()}</span>
         </p>
       </div>
     </div>
@@ -495,6 +503,19 @@ const bg = footerData.bg;
 
   .footer__copy {
     color: var(--text-muted);
+    /* La eyebrow trae interlineado 1. Con la empresa legal y las
+       direcciones, la letra pequeña parte en varias líneas en móvil y sin
+       esto se tocan. */
+    line-height: 1.5;
+  }
+
+  /*
+   * Una dirección por línea. En fila con un «·» entre ellas, en móvil la
+   * segunda bajaba de línea y el punto quedaba colgando en el margen.
+   */
+  .footer__addr {
+    display: grid;
+    gap: var(--space-3xs);
   }
 
   /* Letra pequeña obligatoria, no un elemento de diseño: peso mínimo. */

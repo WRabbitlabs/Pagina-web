@@ -39,6 +39,30 @@ export default defineConfig({
   output: 'static',
 
   /**
+   * Es el valor por defecto de Astro 7; se escribe para que la regla que
+   * impone quede a la vista. En modo 'jsx' el compilador trata los espacios
+   * como JSX: borra entero el espacio que contiene un salto de línea cuando
+   * toca un elemento o una expresión `{...}`. Así,
+   *
+   *   publicamos nuestro método en el
+   *   <a href="/newsroom">newsroom</a>
+   *
+   * sale como «en el<a …>newsroom</a>», y en la página «en elnewsroom». Pasó
+   * en producción (9 de octubre de 2026) en /company, /privacidad, /terminos
+   * y en la casilla de consentimiento de /contact.
+   *
+   * La regla al escribir plantillas: un enlace, un <em>, un <strong> o una
+   * `{expresion}` van en la misma línea que la palabra que los precede y la
+   * que los sigue. Se puede partir la línea entre dos palabras de texto, que
+   * ahí el salto sí queda como un espacio.
+   *
+   * No se cambia a `true` (compresión que respeta los espacios del HTML):
+   * el sitio entero se diseñó con este modo, y volver a tener espacio entre
+   * todos los elementos en línea pediría su propia revisión visual.
+   */
+  compressHTML: 'jsx',
+
+  /**
    * El anuncio del MSPI cambió de dirección con el nombre nuevo (12 de
    * septiembre de 2026). La antigua estuvo publicada, así que se redirige en
    * vez de dejarla en 404: en salida estática Astro genera una página con

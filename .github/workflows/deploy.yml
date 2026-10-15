@@ -56,11 +56,9 @@ jobs:
       - run: npm run build
         env:
           PUBLIC_SITE_URL: https://wrailabs.com
-          # La dirección del servicio de formularios. Se define como variable
-          # del repositorio en Settings → Secrets and variables → Actions →
-          # Variables. Vacía, /contact enseña los canales directos en vez de un
-          # formulario que no envía a ninguna parte.
-          PUBLIC_FORM_ENDPOINT: ${{ vars.PUBLIC_FORM_ENDPOINT }}
+          # Aquí iba PUBLIC_FORM_ENDPOINT, la dirección del servicio de
+          # formularios. Desde el 9 de octubre de 2026 /contact no tiene
+          # formulario (la web no recoge datos personales) y ya no la lee.
 
       # Aquí iba `actions/configure-pages`, y se fue.
       #

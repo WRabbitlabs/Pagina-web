@@ -1,0 +1,181 @@
+---
+import Legal from '../layouts/Legal.astro';
+import { legal, condiciones } from '../data/legal';
+
+/**
+ * Pagos, cancelaciones y reembolsos.
+ *
+ * Página nueva por la revisión previa a Stripe (9 de octubre de 2026): un
+ * procesador de pagos revisa que el sitio diga, antes de cobrar, en qué moneda
+ * se cobra, cómo se entrega lo que se vende, cómo se cancela y cuándo se
+ * devuelve el dinero. Separa los dos negocios porque se cancelan distinto: el
+ * proyecto a la medida (anticipo e hitos) y el servicio recurrente
+ * (mensualidad que se renueva sola).
+ *
+ * Cada número sale de `condiciones` en data/legal.ts; /terminos los resume
+ * desde el mismo sitio. Pendiente de lectura por el área jurídica.
+ */
+const updated = '2026-10-09';
+
+const title = 'Pagos, cancelaciones y reembolsos';
+const description = `Cómo cotiza y cobra ${legal.nombreComercial} (${legal.entidad}): precios a la medida en ${condiciones.moneda}, medios de pago, cancelación de proyectos y servicios recurrentes, y reembolsos.`;
+
+const c = condiciones;
+const mailto = `mailto:${legal.correo}`;
+---
+
+<Legal title={title} description={description} updated={updated}>
+  <p>
+    Cómo cotizamos y cobramos, cómo se cancela un servicio y cuándo devolvemos el
+    dinero. Aplica a los servicios de {legal.entidad} ({legal.nombreComercial}) y
+    forma parte de los <a href="/terminos">Términos y condiciones</a>. Si una
+    cotización firmada fija otras condiciones, mandan las de la cotización.
+  </p>
+
+  <h2>1. Cómo cotizamos</h2>
+  <p>
+    No tenemos precios de lista. Cada proyecto se cotiza a la medida y por escrito,
+    después de entender el proceso que se quiere automatizar. La cotización detalla
+    el alcance, los entregables, los criterios de aceptación, el calendario, el
+    precio y el calendario de pagos, y vale {c.vigenciaCotizacionDias} días desde su
+    envío.
+  </p>
+
+  <h2>2. Moneda</h2>
+  <p>
+    Cotizamos y cobramos en {c.monedaNombre} ({c.moneda}). Si una cotización se emite
+    en otra moneda, lo dice expresamente y esa es la moneda del pago. Cuando el
+    cliente paga desde otra moneda, la conversión y las comisiones de su banco o de
+    su tarjeta corren por su cuenta.
+  </p>
+
+  <h2>3. Medios de pago</h2>
+  <p>
+    Tarjeta de crédito o débito y los demás medios que ofrezca Stripe, nuestro
+    procesador de pagos, o transferencia bancaria cuando la cotización lo indique.
+    Los datos de la tarjeta los procesa Stripe: nosotros no los vemos ni los
+    guardamos. Cada pago tiene su factura o recibo a nombre de {legal.entidad}.
+  </p>
+  <p>
+    Los precios no incluyen impuestos, retenciones ni comisiones bancarias o de
+    cambio; los que correspondan se detallan en la cotización o en la factura.
+  </p>
+
+  <h2>4. Proyectos a la medida</h2>
+  <ul>
+    <li>
+      Se pagan por hitos, según el calendario de la cotización. Si no fija otro: {c.pagoAnticipo} %
+      al aceptar la cotización, como anticipo para arrancar; {c.pagoPrimerEntregable} % con el
+      primer entregable, y {c.pagoEntregaFinal} % a la entrega final.
+    </li>
+    <li>
+      Las facturas se pagan dentro de los {c.plazoPagoFacturaDias} días calendario
+      siguientes a su emisión.
+    </li>
+    <li>
+      Si un pago se retrasa más de {c.pausaPorMoraDias} días después de su
+      vencimiento, podemos pausar el trabajo con aviso previo por escrito. Los plazos
+      del proyecto se corren lo que dure la pausa.
+    </li>
+  </ul>
+
+  <h2>5. Servicios recurrentes</h2>
+  <p>
+    La operación, el soporte y el gobierno continuo de un sistema ya entregado se
+    cobran por mes adelantado y se renuevan automáticamente cada mes hasta que se
+    cancelan. Si se pagan con tarjeta, Stripe cobra la mensualidad en la fecha de
+    renovación. Un cambio de precio se avisa por escrito con {c.avisoCambioPrecioDias} días
+    de anticipación y nunca afecta un período ya pagado.
+  </p>
+
+  <h2>6. Cancelaciones</h2>
+  <h3>Proyectos</h3>
+  <ul>
+    <li>
+      El cliente puede cancelar un proyecto en cualquier momento, por escrito.
+    </li>
+    <li>
+      Si cancela antes de que empiece el trabajo, devolvemos el anticipo completo.
+    </li>
+    <li>
+      Si cancela con el trabajo empezado, paga el trabajo hecho hasta la fecha de
+      cancelación —según los hitos de la cotización o, si no los hay, en proporción
+      al avance— y los costos de terceros ya comprometidos para el proyecto. Si el
+      anticipo supera ese valor, devolvemos la diferencia. En todo caso le
+      entregamos lo construido hasta ese momento.
+    </li>
+  </ul>
+  <h3>Servicios recurrentes</h3>
+  <ul>
+    <li>
+      Se cancelan por escrito con {c.avisoCancelacionDias} días de aviso. El servicio
+      sigue activo hasta el final del período mensual en que se cumple el aviso, y
+      no se cobran períodos posteriores.
+    </li>
+    <li>
+      Al terminar, entregamos al cliente sus datos y la documentación del sistema.
+    </li>
+  </ul>
+  <h3>Si cancelamos nosotros</h3>
+  <p>
+    Si cancelamos un servicio sin que haya incumplimiento del cliente, devolvemos lo
+    pagado por trabajo o períodos que no alcanzamos a prestar.
+  </p>
+
+  <h2>7. Reembolsos</h2>
+  <p>Hay reembolso:</p>
+  <ul>
+    <li>del anticipo completo, si el proyecto se cancela antes de empezar;</li>
+    <li>de la parte del anticipo que supere el trabajo hecho, si se cancela después;</li>
+    <li>de lo pagado y no prestado, si cancelamos nosotros;</li>
+    <li>siempre, de un cobro duplicado o hecho por error.</li>
+  </ul>
+  <p>
+    No hay reembolso de los meses de servicio recurrente ya iniciados, que no se
+    prorratean, ni del trabajo ya hecho y aceptado. Si un entregable no cumple lo
+    pactado, la solución es corregirlo sin costo durante la garantía
+    ({c.garantiaDias} días desde la entrega, o el plazo que fije la cotización); si
+    no logramos corregirlo, acordamos con el cliente un reembolso proporcional.
+  </p>
+  <p>
+    <strong>Cómo pedirlo:</strong> escriba a <a href={mailto}>{legal.correo}</a> con
+    el asunto «Reembolso», el número de factura y el motivo. Respondemos en {c.respuestaReembolsoDiasHabiles} días
+    hábiles. Un reembolso aprobado se procesa en {c.procesoReembolsoDiasHabiles} días
+    hábiles por el mismo medio con que se
+    pagó; el banco o el emisor de la tarjeta puede tardar unos días más en
+    reflejarlo.
+  </p>
+
+  <h2>8. Antes de disputar un cargo</h2>
+  <p>
+    Si no reconoce un cargo o cree que hay un error, escríbanos antes de abrir una
+    disputa con su banco: la mayoría se resuelven en pocos días, y la disputa
+    bancaria tarda semanas.
+  </p>
+
+  <h2>9. Cómo se entregan los servicios</h2>
+  <p>
+    Nuestros servicios son digitales. Se entregan en línea, en los ambientes del
+    cliente o en los nuestros, según el calendario de la cotización. No hacemos
+    envíos físicos.
+  </p>
+
+  <h2>10. Derecho de retracto</h2>
+  <p>
+    Contratamos con organizaciones y nuestros servicios se hacen a la medida de cada
+    cliente, por lo que el derecho de retracto de las ventas a distancia a
+    consumidores (artículo 47 de la Ley 1480 de 2011) por lo general no aplica. Si
+    en un caso concreto la ley lo reconoce, lo respetamos.
+  </p>
+
+  <h2>11. Entidades públicas</h2>
+  <p>
+    Con entidades públicas colombianas, la forma de pago, los plazos y las
+    condiciones de terminación son las del contrato estatal.
+  </p>
+
+  <h2>12. Contacto</h2>
+  <p>
+    Para cualquier pregunta sobre pagos, facturas o reembolsos, escríbanos a <a href={mailto}>{legal.correo}</a>.
+  </p>
+</Legal>

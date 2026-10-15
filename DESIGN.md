@@ -419,7 +419,7 @@ sexto envío) y 405 en métodos no permitidos.
 ## 12. Pendiente
 
 - **Copy real.** Todo el contenido actual son placeholders específicos y plausibles. Cero lorem ipsum, cero texto de la referencia.
-- **Razón social y NIT** para el footer y la política de privacidad.
+- **Datos de Wrabbit Ai LLC** en `src/data/legal.ts`: faltan la dirección operativa en Colombia y el teléfono. Mientras falten, la web los omite.
 - **Imágenes.** Falta la del bloque Compañía y la OG de 1200 × 630.
-- **Política de Tratamiento de Datos Personales** (Ley 1581 de 2012): hace falta el texto legal aprobado por el cliente antes de publicar `/privacidad`.
+- **Lectura jurídica** de `/privacidad` (Ley 1581 de 2012), `/terminos` y `/pagos`, redactadas por el equipo el 9 de octubre de 2026.
 - **Dominio canónico** — apex o www, una sola forma. Decisión pendiente.

@@ -86,6 +86,13 @@ emite el certificado solo; tarda unos minutos desde que el DNS resuelve.
 
 ## El formulario de contacto
 
+**Hoy no hay formulario.** Desde el 9 de octubre de 2026, por decisión del
+director, la web no recoge datos personales: `/contact` enseña solo el correo
+de la empresa y no lee ninguna variable de entorno, así que poner
+`PUBLIC_FORM_ENDPOINT` no lo hace aparecer. Si vuelve, el marcado y el script
+están en el historial de `src/pages/contact.astro` y la validación sigue en
+`src/lib/contact.ts`; lo que sigue explica cómo funcionaba.
+
 Aquí está la renuncia de haber elegido GitHub Pages, y conviene tenerla escrita.
 
 Había un endpoint propio, `/api/contacto`, que validaba, saneaba y limitaba por
@@ -124,23 +131,30 @@ al pegarlo en WhatsApp; no se encuentra buscando.
 Es deliberado. Para abrirlo hay que resolver esto primero, y nada de ello es
 código:
 
-### Bloqueante — las páginas legales
+### Las páginas legales
 
-`/privacidad` y `/terminos` muestran, visible para cualquiera, un aviso que dice
-que el texto es un borrador sin revisión jurídica. Bajo la Ley 1581 de 2012 eso
-hay que resolverlo antes de recoger un solo dato real.
+`/privacidad`, `/terminos` y `/pagos` identifican a la empresa legal, Wrabbit AI
+LLC, y ya no llevan el aviso de borrador: la revisión previa a Stripe (9 de
+octubre de 2026) pidió quitarlo. Los textos los redactó el equipo y falta que
+los lea el área jurídica.
+
+### Los datos legales
+
+Viven en `src/data/legal.ts`. Un dato que falta vale `null`, nunca un relleno.
+El estado de constitución y el domicilio legal son **obligatorios**: si faltan,
+el build de producción se detiene nombrándolos. La dirección operativa y el
+teléfono son **opcionales**: si faltan, la web los omite (de la operación dice
+solo la ciudad). Desde el 14 de octubre de 2026 están Wrabbit Ai LLC, Delaware y
+8 The Green, Suite B, Dover; faltan la dirección operativa y el teléfono, que la
+política de datos debería llevar (Decreto 1377 de 2013).
 
 ### Datos de relleno que hoy se renderizan
 
 | Dato | Valor actual | Dónde sale |
 |---|---|---|
-| NIT | `901.000.000-0` | pie de todas las páginas y cuerpo de `/privacidad` |
-| Teléfono | `+57 601 000 0000` | JSON-LD `Organization` |
-| Dirección | `Calle 100 # 00-00` | JSON-LD y `/privacidad` |
-| Razón social | `WR AI S.A.S.` | pie y `/privacidad` — la marca es «WR AI Labs» desde el 12 de septiembre de 2026; el nombre registrado hay que confirmarlo |
 | LinkedIn de la compañía | `/company/wrailabs` | **404** — pie y `sameAs` |
 | X | `x.com/wrailabs` | **404** — pie y `sameAs` |
-| Correo | `contacto@wrailabs.com` | hay que crear el buzón |
+| Correo | `contacto@wrailabs.com` | hay que confirmar que el buzón recibe |
 
 El LinkedIn del director general sí es real y ya está en su ficha.
 
