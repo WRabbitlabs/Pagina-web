@@ -154,14 +154,21 @@ export const telefonoHref = (t: string) => `tel:${t.replace(/[^+\d]/g, '')}`;
  * /contact resume. Son reglas por defecto: una cotización firmada puede fijar
  * otras, y entonces manda la cotización.
  *
- * Valores propuestos el 9 de octubre de 2026 y pendientes de que el director
- * los confirme; cada uno está registrado en el cerebro.
+ * Propuestos el 9 de octubre de 2026. La reunión de revisión del 14 de
+ * octubre de 2026 confirmó el calendario de pagos por hitos, la vigencia de
+ * la cotización y la garantía; el resto sigue pendiente de confirmar. Todo
+ * está registrado en el cerebro (C-03).
  */
 export const condiciones = {
   moneda: 'USD',
   monedaNombre: 'dólares estadounidenses',
-  /** Proyectos a la medida, si la cotización no fija otro calendario. */
-  anticipoPorcentaje: 50,
+  /**
+   * Proyectos a la medida, si la cotización no fija otro calendario: tres
+   * pagos por hitos. El anticipo es para contratar al equipo y arrancar.
+   */
+  pagoAnticipo: 30,
+  pagoPrimerEntregable: 50,
+  pagoEntregaFinal: 20,
   vigenciaCotizacionDias: 30,
   plazoPagoFacturaDias: 15,
   /** Días de mora tras los cuales se puede pausar el trabajo, con aviso. */
@@ -174,3 +181,9 @@ export const condiciones = {
   respuestaReembolsoDiasHabiles: 5,
   procesoReembolsoDiasHabiles: 10,
 } as const;
+
+// Si alguien cambia un hito y los tres dejan de sumar 100, que se note en el
+// build y no en una página que promete cobrar el 110 %.
+if (condiciones.pagoAnticipo + condiciones.pagoPrimerEntregable + condiciones.pagoEntregaFinal !== 100) {
+  throw new Error('Los tres pagos por hitos de src/data/legal.ts no suman 100 %.');
+}

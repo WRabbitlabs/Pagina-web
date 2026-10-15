@@ -91,8 +91,8 @@ const c = condiciones;
   <p>
     Se rigen por nuestra política de <a href="/pagos">Pagos, cancelaciones y
     reembolsos</a>. En resumen: los proyectos se pagan según el calendario de la
-    cotización —si no fija otro, {c.anticipoPorcentaje} % al aceptarla y el resto a la
-    entrega—; los servicios recurrentes se pagan por mes adelantado, se renuevan
+    cotización —si no fija otro, {c.pagoAnticipo} % de anticipo al aceptarla, {c.pagoPrimerEntregable} % con
+    el primer entregable y {c.pagoEntregaFinal} % a la entrega final—; los servicios recurrentes se pagan por mes adelantado, se renuevan
     solos y se cancelan con {c.avisoCancelacionDias} días de aviso; y si un proyecto
     se cancela, se paga el trabajo hecho y se devuelve lo que sobre del anticipo.
     Los pagos con tarjeta los procesa Stripe.

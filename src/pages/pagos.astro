@@ -9,7 +9,7 @@ import { legal, condiciones } from '../data/legal';
  * procesador de pagos revisa que el sitio diga, antes de cobrar, en qué moneda
  * se cobra, cómo se entrega lo que se vende, cómo se cancela y cuándo se
  * devuelve el dinero. Separa los dos negocios porque se cancelan distinto: el
- * proyecto a la medida (anticipo y entrega) y el servicio recurrente
+ * proyecto a la medida (anticipo e hitos) y el servicio recurrente
  * (mensualidad que se renueva sola).
  *
  * Cada número sale de `condiciones` en data/legal.ts; /terminos los resume
@@ -64,10 +64,9 @@ const mailto = `mailto:${legal.correo}`;
   <h2>4. Proyectos a la medida</h2>
   <ul>
     <li>
-      Se pagan según el calendario de la cotización. Si no fija otro: {c.anticipoPorcentaje} %
-      al aceptar la cotización, como anticipo, y el {100 - c.anticipoPorcentaje} % restante
-      a la entrega. Los proyectos largos pueden dividirse en hitos, cada uno con su
-      pago.
+      Se pagan por hitos, según el calendario de la cotización. Si no fija otro: {c.pagoAnticipo} %
+      al aceptar la cotización, como anticipo para arrancar; {c.pagoPrimerEntregable} % con el
+      primer entregable, y {c.pagoEntregaFinal} % a la entrega final.
     </li>
     <li>
       Las facturas se pagan dentro de los {c.plazoPagoFacturaDias} días calendario
