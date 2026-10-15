@@ -18,7 +18,7 @@ import { legal, condiciones } from '../data/legal';
 const updated = '2026-10-09';
 
 const title = 'Pagos, cancelaciones y reembolsos';
-const description = `Cómo cotiza y cobra ${legal.nombreComercial} (${legal.entidad}): precios a la medida en ${condiciones.moneda}, medios de pago, cancelación de proyectos y servicios recurrentes, y reembolsos.`;
+const description = `Cómo cotiza y cobra ${legal.nombreComercial} (${legal.entidad}): precios a la medida en ${condiciones.monedasCodigo}, medios de pago, cancelación de proyectos y servicios recurrentes, y reembolsos.`;
 
 const c = condiciones;
 const mailto = `mailto:${legal.correo}`;
@@ -43,16 +43,15 @@ const mailto = `mailto:${legal.correo}`;
 
   <h2>2. Moneda</h2>
   <p>
-    Cotizamos y cobramos en {c.monedaNombre} ({c.moneda}). Si una cotización se emite
-    en otra moneda, lo dice expresamente y esa es la moneda del pago. Cuando el
-    cliente paga desde otra moneda, la conversión y las comisiones de su banco o de
-    su tarjeta corren por su cuenta.
+    Cotizamos y cobramos en {c.monedas}. Cada cotización dice en cuál de las dos, y
+    esa es la moneda del pago. Cuando el cliente paga desde otra moneda, la
+    conversión y las comisiones de su banco o de su tarjeta corren por su cuenta.
   </p>
 
   <h2>3. Medios de pago</h2>
   <p>
     Tarjeta de crédito o débito y los demás medios que ofrezca Stripe, nuestro
-    procesador de pagos, o transferencia bancaria cuando la cotización lo indique.
+    procesador de pagos, o transferencia bancaria.
     Los datos de la tarjeta los procesa Stripe: nosotros no los vemos ni los
     guardamos. Cada pago tiene su factura o recibo a nombre de {legal.entidad}.
   </p>
@@ -98,11 +97,9 @@ const mailto = `mailto:${legal.correo}`;
       Si cancela antes de que empiece el trabajo, devolvemos el anticipo completo.
     </li>
     <li>
-      Si cancela con el trabajo empezado, paga el trabajo hecho hasta la fecha de
-      cancelación —según los hitos de la cotización o, si no los hay, en proporción
-      al avance— y los costos de terceros ya comprometidos para el proyecto. Si el
-      anticipo supera ese valor, devolvemos la diferencia. En todo caso le
-      entregamos lo construido hasta ese momento.
+      Una vez iniciado el desarrollo, los pagos recibidos no son reembolsables:
+      cubren el trabajo, el equipo y los recursos ya dedicados a construir el
+      sistema. Con la cancelación no se cobran los hitos que faltaban.
     </li>
   </ul>
   <h3>Servicios recurrentes</h3>
@@ -126,13 +123,12 @@ const mailto = `mailto:${legal.correo}`;
   <p>Hay reembolso:</p>
   <ul>
     <li>del anticipo completo, si el proyecto se cancela antes de empezar;</li>
-    <li>de la parte del anticipo que supere el trabajo hecho, si se cancela después;</li>
     <li>de lo pagado y no prestado, si cancelamos nosotros;</li>
     <li>siempre, de un cobro duplicado o hecho por error.</li>
   </ul>
   <p>
-    No hay reembolso de los meses de servicio recurrente ya iniciados, que no se
-    prorratean, ni del trabajo ya hecho y aceptado. Si un entregable no cumple lo
+    No hay reembolso de lo pagado por un proyecto una vez iniciado el desarrollo,
+    ni de los meses de servicio recurrente ya iniciados, que no se prorratean. Si un entregable no cumple lo
     pactado, la solución es corregirlo sin costo durante la garantía
     ({c.garantiaDias} días desde la entrega, o el plazo que fije la cotización); si
     no logramos corregirlo, acordamos con el cliente un reembolso proporcional.

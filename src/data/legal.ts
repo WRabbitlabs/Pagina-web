@@ -154,14 +154,17 @@ export const telefonoHref = (t: string) => `tel:${t.replace(/[^+\d]/g, '')}`;
  * /contact resume. Son reglas por defecto: una cotización firmada puede fijar
  * otras, y entonces manda la cotización.
  *
- * Propuestos el 9 de octubre de 2026. La reunión de revisión del 14 de
- * octubre de 2026 confirmó el calendario de pagos por hitos, la vigencia de
- * la cotización y la garantía; el resto sigue pendiente de confirmar. Todo
- * está registrado en el cerebro (C-03).
+ * Propuestos el 9 de octubre de 2026 y confirmados por el director el 14 de
+ * octubre de 2026: en la reunión de revisión (hitos, vigencia, garantía) y al
+ * responder la lista de pendientes (monedas, transferencia, facturas, pausa,
+ * mensualidades, cancelación sin reembolso una vez empezado el desarrollo,
+ * propiedad intelectual). Los plazos de respuesta y de proceso de un
+ * reembolso son propuesta propia. Todo está en el cerebro (C-03).
  */
 export const condiciones = {
-  moneda: 'USD',
-  monedaNombre: 'dólares estadounidenses',
+  /** Las dos monedas en que se cotiza y se cobra; cada cotización dice cuál. */
+  monedas: 'dólares estadounidenses (USD) o pesos colombianos (COP)',
+  monedasCodigo: 'USD o COP',
   /**
    * Proyectos a la medida, si la cotización no fija otro calendario: tres
    * pagos por hitos. El anticipo es para contratar al equipo y arrancar.

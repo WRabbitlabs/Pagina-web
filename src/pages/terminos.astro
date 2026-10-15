@@ -21,7 +21,7 @@ const updated = '2026-10-09';
 
 const title = 'Términos y condiciones';
 const description =
-  `Términos y condiciones de ${legal.nombreComercial} (${legal.entidad}): uso del sitio, cotizaciones, precios en ${condiciones.moneda}, pagos, propiedad intelectual, confidencialidad y ley aplicable.`;
+  `Términos y condiciones de ${legal.nombreComercial} (${legal.entidad}): uso del sitio, cotizaciones, precios en ${condiciones.monedasCodigo}, pagos, propiedad intelectual, confidencialidad y ley aplicable.`;
 
 const c = condiciones;
 ---
@@ -73,8 +73,8 @@ const c = condiciones;
       de pago, y vale {c.vigenciaCotizacionDias} días desde su envío.
     </li>
     <li>
-      Los precios se expresan y se cobran en {c.monedaNombre} ({c.moneda}), salvo que
-      la cotización indique expresamente otra moneda.
+      Los precios se expresan y se cobran en {c.monedas}; cada cotización dice en
+      cuál de las dos.
     </li>
     <li>
       Los precios no incluyen impuestos, retenciones ni comisiones bancarias o de
@@ -94,7 +94,7 @@ const c = condiciones;
     cotización —si no fija otro, {c.pagoAnticipo} % de anticipo al aceptarla, {c.pagoPrimerEntregable} % con
     el primer entregable y {c.pagoEntregaFinal} % a la entrega final—; los servicios recurrentes se pagan por mes adelantado, se renuevan
     solos y se cancelan con {c.avisoCancelacionDias} días de aviso; y si un proyecto
-    se cancela, se paga el trabajo hecho y se devuelve lo que sobre del anticipo.
+    se cancela una vez iniciado el desarrollo, lo pagado no se devuelve.
     Los pagos con tarjeta los procesa Stripe.
   </p>
 
