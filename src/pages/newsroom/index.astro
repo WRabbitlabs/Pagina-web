@@ -13,7 +13,9 @@ const rest = all.filter((e) => e.id !== featured?.id);
 /** Claro, medio, tinta, y vuelta a empezar. */
 const TONES = ['paper', 'deep', 'ink'] as const;
 
-const title = 'Newsroom';
+// «Noticias» y no «Newsroom» desde el 23 de octubre de 2026: el sitio va
+// entero en español. La ruta sigue siendo /newsroom para no romper enlaces.
+const title = 'Noticias';
 const description =
   'Publicaciones, anuncios, prensa y actualidad de WR AI Labs. Método, resultados, y las normas y estudios sobre inteligencia artificial que tocan nuestro trabajo.';
 ---

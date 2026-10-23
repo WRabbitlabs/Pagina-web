@@ -25,7 +25,9 @@ const organization = {
   email: legal.correo,
   // Opcional: sin teléfono, la propiedad no se emite.
   ...(legal.telefono ? { telephone: legal.telefono } : {}),
-  foundingDate: site.founded,
+  // Solo con la fecha del certificado: un año aproximado aquí es justo lo que
+  // Stripe compara contra el registro de la LLC.
+  ...(legal.fechaDeConstitucion ? { foundingDate: legal.fechaDeConstitucion } : {}),
   // Primero el domicilio legal de la LLC, después donde opera el equipo.
   address: [direccionSchema(legal.direccionLegal), operacionSchema()],
   sameAs: social.map((s) => s.href),

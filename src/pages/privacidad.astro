@@ -16,9 +16,12 @@ import { legal } from '../data/legal';
  * artículo 26.
  *
  * Redactada el 9 de octubre de 2026 a partir de la revisión previa a Stripe.
- * Pendiente de lectura por el área jurídica.
+ * El 23 de octubre de 2026, por las observaciones del director: las
+ * solicitudes las atiende el director general (antes «el área jurídica») y
+ * WhatsApp entra como canal de contacto, con Meta como proveedor.
+ * Pendiente de lectura por la directora jurídica.
  */
-const updated = '2026-10-09';
+const updated = '2026-10-23';
 
 const title = 'Política de Tratamiento de Datos Personales';
 const description =
@@ -48,8 +51,9 @@ const description =
   <h2>3. Qué datos tratamos</h2>
   <ul>
     <li>
-      <strong>Si nos escribe:</strong> su nombre, su organización y cargo, su correo,
-      su teléfono si nos lo da y el contenido del mensaje.
+      <strong>Si nos escribe por correo o por WhatsApp:</strong> su nombre, su
+      organización y cargo, su correo, el número desde el que nos escribe o el que nos
+      dé, y el contenido del mensaje.
     </li>
     <li>
       <strong>Si es cliente o está en conversaciones con nosotros:</strong> los datos
@@ -120,6 +124,7 @@ const description =
   <ul>
     <li>Stripe, para procesar pagos;</li>
     <li>nuestro proveedor de correo electrónico;</li>
+    <li>WhatsApp, de Meta, cuando usted nos escribe por ese canal;</li>
     <li>GitHub, que aloja este sitio;</li>
     <li>
       los proveedores de nube y de inteligencia artificial que use un proyecto,
@@ -165,7 +170,7 @@ const description =
   <p>
     Escriba a <a href={`mailto:${legal.correo}`}>{legal.correo}</a> con el asunto
     «Datos personales», su nombre, lo que pide y el medio por el que quiere la
-    respuesta. Atiende las solicitudes el área jurídica de {legal.nombreComercial}.
+    respuesta. Atiende las solicitudes el director general de {legal.nombreComercial}.
   </p>
   <ul>
     <li>
@@ -218,7 +223,8 @@ const description =
 
   <h2>15. Vigencia y cambios</h2>
   <p>
-    Esta política rige desde el 9 de octubre de 2026. Si la cambiamos de forma
+    Esta política rige desde el 9 de octubre de 2026 y se actualizó el 23 de octubre
+    de 2026. Si la cambiamos de forma
     sustancial, lo publicaremos en este sitio antes de aplicarlo y, a nuestros
     clientes, se lo avisaremos por correo. La fecha de la última actualización
     está siempre al inicio del documento.

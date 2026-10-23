@@ -136,7 +136,9 @@ código:
 `/privacidad`, `/terminos` y `/pagos` identifican a la empresa legal, Wrabbit AI
 LLC, y ya no llevan el aviso de borrador: la revisión previa a Stripe (9 de
 octubre de 2026) pidió quitarlo. Los textos los redactó el equipo y falta que
-los lea el área jurídica.
+los lea la directora jurídica. Desde el 23 de octubre de 2026 se ven como un
+documento impreso, en blanco y negro (`src/layouts/Legal.astro`), y las
+solicitudes de datos personales las atiende el director general.
 
 ### Los datos legales
 
@@ -144,9 +146,11 @@ Viven en `src/data/legal.ts`. Un dato que falta vale `null`, nunca un relleno.
 El estado de constitución y el domicilio legal son **obligatorios**: si faltan,
 el build de producción se detiene nombrándolos. La dirección operativa y el
 teléfono son **opcionales**: si faltan, la web los omite (de la operación dice
-solo la ciudad). Desde el 14 de octubre de 2026 están Wrabbit Ai LLC, Delaware y
-8 The Green, Suite B, Dover; faltan la dirección operativa y el teléfono, que la
-política de datos debería llevar (Decreto 1377 de 2013).
+solo la ciudad), y lo mismo la fecha de constitución. Desde el 14 de octubre de
+2026 están Wrabbit Ai LLC, Delaware y 8 The Green, Suite B, Dover; desde el 23,
+la dirección operativa (Calle 44 # 8-11, Bogotá). Faltan el teléfono, que la
+política de datos debería llevar (Decreto 1377 de 2013), y la fecha de
+constitución del certificado.
 
 ### Datos de relleno que hoy se renderizan
 
@@ -160,10 +164,10 @@ El LinkedIn del director general sí es real y ya está en su ficha.
 
 ### Lo demás
 
-- Las biografías del equipo siguen en `PENDIENTE`. Hoy no se renderizan: la
-  plantilla solo muestra nombre, cargo y enlaces.
-- Dos de las tres fichas de `src/content/team/` están en `draft: true`. Vuelven
-  quitando esa línea.
+- El cuerpo de cada ficha de `src/content/team/` es su biografía y se pinta en
+  /company. La del director general es real (23 de octubre de 2026); las de
+  Danna y Moshe Rafael Manrique Perafán faltan, y sin cuerpo la ficha muestra
+  solo nombre y cargo.
 - La tipografía Aspekta no está: el sistema usa Inter Tight como sustituta.
 
 ### Y entonces

@@ -49,13 +49,13 @@ const bg = footerData.bg;
   <div class="container footer__inner">
     <div class="footer__top">
       <div class="footer__pitch">
-        {/* Van en inglés a propósito: son las líneas del logotipo, y `lang`
-            hace que el lector de pantalla las pronuncie como inglés. */}
-        <ul class="t-eyebrow footer__fields" role="list" lang="en">
+        {/* Las líneas del logotipo. Desde el 23 de octubre de 2026, en español
+            como el resto del sitio. */}
+        <ul class="t-eyebrow footer__fields" role="list">
           {site.fields.map((campo) => <li>{campo}</li>)}
         </ul>
         <p class="t-statement footer__claim">{site.tagline}</p>
-        <p class="t-eyebrow footer__motto" lang="en">{site.motto}</p>
+        <p class="t-eyebrow footer__motto">{site.motto}</p>
         {/*
           El envoltorio no es decorativo: los estilos con ámbito de este
           componente sólo alcanzan a los elementos escritos en su plantilla.
@@ -503,6 +503,11 @@ const bg = footerData.bg;
 
   .footer__copy {
     color: var(--text-muted);
+    /* La eyebrow pone todo en mayúsculas, y aquí eso cambia el nombre legal:
+       el pie mostraba «WRABBIT AI LLC» y las páginas legales «Wrabbit Ai LLC».
+       La revisión del 23 de octubre de 2026 lo señaló: el nombre se lee igual
+       que en el certificado y en Stripe, en todas las páginas. */
+    text-transform: none;
     /* La eyebrow trae interlineado 1. Con la empresa legal y las
        direcciones, la letra pequeña parte en varias líneas en móvil y sin
        esto se tocan. */

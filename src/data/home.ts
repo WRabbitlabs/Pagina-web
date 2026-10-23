@@ -1,4 +1,5 @@
 import { CATEGORIES } from '../lib/categories';
+import { legal, fechaLarga } from './legal';
 
 /**
  * Copy de la home.
@@ -86,17 +87,23 @@ export const whatWeDo = {
   ],
 } as const;
 
+/**
+ * Cómo ejecutamos. Se llamaba «La plataforma» y hablaba de «un motor de
+ * ejecución» y de «nuestra plataforma»: prometía un producto de software que
+ * la compañía no vende. Las observaciones del 23 de octubre de 2026 pidieron
+ * coherencia —lo que se vende es un método— y dieron el texto nuevo.
+ */
 export const platform = {
-  eyebrow: 'La plataforma',
+  eyebrow: 'Cómo ejecutamos',
   /**
    * El titular va a dos tonos: `heading` en tinta plena y `headingTail` en un
-   * tono apagado. El corte no es decorativo — separa lo que la plataforma es
-   * de lo que no es, y el peso tipográfico cae sobre lo primero.
+   * tono apagado. El corte no es decorativo — separa lo que el método es de
+   * lo que no es, y el peso tipográfico cae sobre lo primero.
    */
-  heading: 'Un motor de ejecución auditable,',
+  heading: 'Un método de ejecución auditable,',
   headingTail: 'no un conjunto de integraciones.',
-  body: 'La mayoría de las automatizaciones fallan por el mismo motivo: conectan sistemas pero no responden por lo que ocurre entre ellos. Nuestra plataforma modela el proceso completo como una secuencia declarada —entrada, transformación, validación, salida— y registra cada paso con su insumo, su regla y su resultado. Cuando un ente de control pregunta qué pasó el 14 de marzo a las 09:42, la respuesta existe y se puede imprimir.',
-  cta: { label: 'Ver la plataforma', href: '/company#plataforma' },
+  body: 'La mayoría de las automatizaciones fallan por el mismo motivo: conectan sistemas pero no responden por lo que ocurre entre ellos. Nosotros modelamos el proceso completo como una secuencia declarada (entrada, transformación, validación y salida) y registramos cada paso con su insumo, su regla y su resultado. Cuando un ente de control pregunta qué pasó el 14 de marzo a las 09:42, la respuesta existe y se puede imprimir.',
+  cta: { label: 'Ver cómo ejecutamos', href: '/company#plataforma' },
   /**
    * Van numerados porque son una secuencia real, no categorías paralelas:
    * integrar → ejecutar → dejar evidencia. Ver DESIGN.md §11, decisión 5.
@@ -150,17 +157,29 @@ export const company = {
    *
    * La versión larga de esta historia vive en /company, que sí tiene sitio.
    */
+  /*
+   * El 23 de octubre de 2026 cambiaron dos frases que la revisión previa a
+   * Stripe no podía respaldar: «Nacimos en Bogotá en 2023» (Stripe compara la
+   * fecha con el registro de la LLC) y «Hoy trabajamos con entidades del orden
+   * nacional y territorial… y compañías de los sectores financiero, asegurador
+   * y de infraestructura», que nombraba clientes sin contratos citables. La
+   * primera dice ahora de dónde viene el equipo de verdad —gestión pública,
+   * derecho y tecnología— y da la fecha del certificado en cuanto esté en
+   * legal.ts; la segunda dice para quién construimos, no con quién.
+   */
   paragraphs: [
-    'Nacimos en Bogotá en 2023, del cruce entre un equipo de ingeniería de datos y un grupo de abogados con el mismo diagnóstico.',
+    legal.fechaDeConstitucion
+      ? `Nacimos en Bogotá, del cruce entre la gestión pública, el derecho y la tecnología, con un mismo diagnóstico. ${legal.entidad} se constituyó en ${legal.estadoDeConstitucion} el ${fechaLarga(legal.fechaDeConstitucion)}.`
+      : 'Nacimos en Bogotá, del cruce entre la gestión pública, el derecho y la tecnología, con un mismo diagnóstico.',
     'Los procesos de una entidad grande no fallan por falta de tecnología: fallan porque después nadie puede reconstruir qué se decidió y con qué información.',
-    'Hoy trabajamos con entidades del orden nacional y territorial, firmas de práctica corporativa y compañías de los sectores financiero, asegurador y de infraestructura.',
+    'Construimos para entidades públicas, bufetes de abogados y empresas medianas y grandes de sectores regulados.',
     'No entregamos modelos: entregamos procesos que se ejecutan igual la primera vez y la número diez mil, y que pueden explicarse línea por línea.',
   ],
   cta: { label: 'Ver la compañía', href: '/company' },
 } as const;
 
 export const newsroom = {
-  eyebrow: 'Newsroom',
+  eyebrow: 'Noticias',
   cta: { label: 'Ver todo', href: '/newsroom' },
 
   /**

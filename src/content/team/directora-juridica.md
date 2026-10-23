@@ -1,15 +1,9 @@
 ---
-name: 'Nombre Apellido'
-role: 'Directora jurídica y cofundadora'
+# Publicada por decisión del director el 23 de octubre de 2026. PENDIENTE:
+# apellido, biografía corta y LinkedIn; «cofundadora» queda fuera del cargo
+# hasta que se confirme. Sin cuerpo, la ficha muestra solo nombre y cargo.
+name: 'Danna'
+role: 'Directora jurídica'
 order: 2
-founder: true
-draft: true
-imageAlt: 'Retrato de la directora jurídica de WR AI Labs.'
-links:
-  - label: 'LinkedIn'
-    href: 'https://www.linkedin.com/in/placeholder-juridica'
+founder: false
 ---
-
-PENDIENTE — biografía real del cliente.
-
-Responsable del marco de cumplimiento de la compañía. Su trabajo define qué se puede automatizar, bajo qué regla y con qué evidencia.
