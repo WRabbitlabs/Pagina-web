@@ -28,10 +28,8 @@ export const intro = {
   eyebrow: 'WR AI Labs — Consultora de inteligencia artificial',
 
   /**
-   * El lema. Va en inglés y por eso lleva `lang` propio en la plantilla: sin
-   * él, un lector de pantalla en español lo pronuncia como si lo fuera. Se
-   * define una sola vez, en site.ts, para que el pie y esta cabecera digan
-   * lo mismo letra por letra.
+   * El lema. Se define una sola vez, en site.ts, para que el pie y esta
+   * cabecera digan lo mismo letra por letra.
    */
   motto: site.motto,
 
@@ -43,25 +41,23 @@ export const intro = {
   ],
 
   /**
-   * Dos cifras de portada. Son dos de las cinco de la home, no unas nuevas:
-   * repetir la misma medición con otro número sería el modo más rápido de
-   * perder la credibilidad que la sección de evidencia intenta construir.
+   * Dos compromisos donde antes había dos cifras: «hasta 70 % menos tiempo de
+   * ejecución» y «20–40 % de reducción en costos operativos», con la fuente
+   * «Portafolio WR AI Labs 2026». No había mediciones publicables detrás, y
+   * las observaciones del 23 de octubre de 2026 pidieron cambiarlas por lo que
+   * sí podemos sostener: cómo medimos el ahorro de cada cliente. El texto es
+   * el del director.
    */
-  stats: [
+  promises: [
     {
-      prefix: 'hasta',
-      figure: '70%',
-      label: 'menos tiempo de ejecución en procesos que sustituyen tareas manuales repetitivas',
+      title: 'Medimos el ahorro desde el primer día.',
+      body: 'Antes de construir, estimamos con usted cuánto tiempo y costo puede reducir la automatización de su proceso.',
     },
     {
-      prefix: '',
-      figure: '20–40%',
-      label: 'de reducción en costos operativos',
+      title: 'Y lo comprobamos al final.',
+      body: 'Al entregar, medimos el resultado real frente a esa estimación, y seguimos midiéndolo cada trimestre.',
     },
   ],
-
-  /** Fuente de las dos cifras. La misma que la de la home. */
-  source: 'Portafolio WR AI Labs 2026',
 } as const;
 
 /* ------------------------------------------------------------------------ */

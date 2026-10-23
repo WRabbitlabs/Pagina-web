@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Cta from '../components/Cta.astro';
 import Arrow from '../components/Arrow.astro';
@@ -9,8 +9,14 @@ import { site } from '../data/site';
 import { platform, company, closing } from '../data/home';
 import { intro, team as teamCopy } from '../data/company';
 
-const team = (await getCollection('team', ({ data }) => !data.draft)).sort(
-  (a, b) => a.data.order - b.data.order,
+/*
+ * Cada ficha con su biografía ya renderizada. La biografía es el cuerpo del
+ * Markdown; si está vacío, la ficha se queda en nombre, cargo y enlaces.
+ */
+const team = await Promise.all(
+  (await getCollection('team', ({ data }) => !data.draft))
+    .sort((a, b) => a.data.order - b.data.order)
+    .map(async (m) => ({ ...m, Bio: (await render(m)).Content, hasBio: Boolean(m.body?.trim()) })),
 );
 const founders = team.filter((m) => m.data.founder);
 const rest = team.filter((m) => !m.data.founder);
@@ -31,7 +37,7 @@ const PersonName = showGroups ? 'h4' : 'h3';
 
 const title = 'La compañía';
 const description =
-  'Quiénes somos, cómo trabajamos y por qué construimos automatización que deja evidencia. Historia, método, plataforma y equipo de WR AI Labs.';
+  'Quiénes somos, cómo trabajamos y por qué construimos automatización que deja evidencia. Historia, método, forma de ejecución y equipo de WR AI Labs.';
 ---
 
 <Base title={title} description={description}>
@@ -44,11 +50,7 @@ const description =
             las dos paginas diciendo lo mismo en su H1. */}
         <h1 class="t-h1 page-head__title" data-text-reveal>{company.heading}</h1>
 
-        {/*
-          El lema va en inglés. `lang` propio para que un lector de pantalla
-          en español no lo pronuncie como si fuera castellano.
-        */}
-        <p class="page-head__motto" lang="en">{intro.motto}</p>
+        <p class="page-head__motto">{intro.motto}</p>
 
         <p class="prose page-head__body" data-reveal>{intro.body}</p>
 
@@ -73,20 +75,15 @@ const description =
       </div>
 
       {/*
-        Dos de las cinco cifras de la portada, no unas nuevas: repetir la
-        misma medición con otro número sería el modo más rápido de perder la
-        credibilidad que la sección de evidencia construye.
+        Los dos compromisos de medición. Ocupan el sitio de las dos cifras que
+        hubo aquí hasta el 23 de octubre de 2026; ver la nota en company.ts.
       */}
       <ul class="figures" role="list" data-reveal>
         {
-          intro.stats.map((s) => (
+          intro.promises.map((s) => (
             <li class="figure">
-              <p class="figure__n">
-                {s.prefix && <span class="t-eyebrow figure__prefix">{s.prefix}</span>}
-                {s.figure}
-              </p>
-              <p class="t-small figure__label">{s.label}</p>
-              <p class="t-eyebrow figure__source">{intro.source}</p>
+              <p class="figure__n">{s.title}</p>
+              <p class="t-small figure__label">{s.body}</p>
             </li>
           ))
         }
@@ -100,9 +97,8 @@ const description =
       <div class="prose">
         {company.paragraphs.map((p) => <p set:html={p} />)}
         <p>
-          Operamos desde {site.city}. Trabajamos por contrato directo y a través de
-          convenios marco, y publicamos nuestro método
-          en el <a href="/newsroom">newsroom</a> para que pueda revisarse antes de contratarnos.
+          Operamos desde {site.city}. Cada proyecto se contrata por cotización escrita, y publicamos nuestro método
+          en <a href="/newsroom">Noticias</a> para que pueda revisarse antes de contratarnos.
         </p>
       </div>
     </div>
@@ -154,9 +150,10 @@ const description =
             {showGroups && <h3 class="t-eyebrow group-title">Fundadores</h3>}
             <ul class="people" role="list">
               {founders.map((m, i) => (
-                <li class="person" data-reveal style={`--reveal-delay:${i * 100}ms`}>
+                <li class:list={['person', { 'person--bio': m.hasBio }]} data-reveal style={`--reveal-delay:${i * 100}ms`}>
                   <PersonName class="t-h3">{m.data.name}</PersonName>
                   <p class="t-eyebrow person__role">{m.data.role}</p>
+                  {m.hasBio && <div class="prose person__bio"><m.Bio /></div>}
                   {m.data.links.map((l) => (
                     <a
                       class="link-arrow external person__link"
@@ -181,9 +178,21 @@ const description =
             {showGroups && <h3 class="t-eyebrow group-title">Dirección</h3>}
             <ul class="people" role="list">
               {rest.map((m, i) => (
-                <li class="person" data-reveal style={`--reveal-delay:${i * 100}ms`}>
+                <li class:list={['person', { 'person--bio': m.hasBio }]} data-reveal style={`--reveal-delay:${i * 100}ms`}>
                   <PersonName class="t-h3">{m.data.name}</PersonName>
                   <p class="t-eyebrow person__role">{m.data.role}</p>
+                  {m.hasBio && <div class="prose person__bio"><m.Bio /></div>}
+                  {m.data.links.map((l) => (
+                    <a
+                      class="link-arrow external person__link"
+                      href={l.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {l.label}
+                      <span class="sr-only"> de {m.data.name} (se abre en una pestaña nueva)</span>
+                    </a>
+                  ))}
                 </li>
               ))}
             </ul>
@@ -275,7 +284,7 @@ const description =
   }
 
   /* --------------------------------------------------------------------- */
-  /* Las dos cifras de portada                                             */
+  /* Los dos compromisos de medición                                       */
   /* --------------------------------------------------------------------- */
 
   .figures {
@@ -302,33 +311,18 @@ const description =
     background: var(--surface);
   }
 
+  /* Una frase y no una cifra: el cuerpo de titular pequeño, sin la caja
+     tabular que pedían los números. */
   .figure__n {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.7ch;
-    font-size: var(--text-h3);
-    line-height: 1.05;
+    font-size: var(--text-lead);
+    line-height: var(--lh-lead);
     letter-spacing: var(--ls-heading);
-    font-variant-numeric: tabular-nums;
     color: var(--text);
-  }
-
-  .figure__prefix {
-    color: var(--text-muted);
   }
 
   .figure__label {
     color: var(--text-muted);
-    max-width: 30ch;
-  }
-
-  /* La fuente, a la vista y no en una nota al pie. */
-  .figure__source {
-    margin-top: var(--space-3xs);
-    padding-top: var(--space-3xs);
-    border-top: 1px solid var(--rule);
-    color: var(--text-muted);
+    max-width: 34ch;
   }
 
   .lede {
@@ -403,6 +397,25 @@ const description =
 
   .person__link {
     margin-top: var(--space-2xs);
+  }
+
+  /*
+   * Una ficha con biografía ocupa la fila entera: tres párrafos en un tercio
+   * de pantalla serían una columna de periódico. El texto conserva la medida
+   * de lectura del sitio.
+   */
+  .person--bio {
+    grid-column: 1 / -1;
+  }
+
+  .person__bio {
+    margin-top: var(--space-s);
+    max-width: var(--measure);
+    color: var(--text-muted);
+  }
+
+  .person__bio :global(p + p) {
+    margin-top: 0.8em;
   }
 
   /* --------------------------------------------------------------------- */

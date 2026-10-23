@@ -31,7 +31,7 @@ poco es exactamente el que ese comprador descarta.
 3. **La historia** — doscientos años de instrucciones perforadas, del telar de
    Jacquard al software, contados en tarjetas cuyos agujeros codifican cada año
    en binario. Explica el oficio antes de pedir nada.
-4. **La plataforma** — el motor de ejecución auditable y sus tres pilares:
+4. **Cómo ejecutamos** — el método de ejecución auditable y sus tres pilares:
    integrar, ejecutar, dejar evidencia.
 5. **El método** — las cuatro fases de un encargo, con sus plazos.
 6. **Gobierno continuo** — una consola oscura que enseña la forma de la
@@ -287,8 +287,8 @@ Cloudflare no emitan enlaces absolutos al dominio de producción.
 cada página emite `noindex, nofollow` y `robots.txt` responde `Disallow: /`. El
 sitio se puede enseñar por enlace pero no se encuentra buscando.
 
-Es deliberado: las biografías del equipo siguen pendientes y los textos legales
-no han pasado por abogado. Los datos legales ya no son motivo: `legal.ts` no deja
+Es deliberado: faltan biografías de parte del equipo y los textos legales no han
+pasado por la directora jurídica. Los datos legales ya no son motivo: `legal.ts` no deja
 terminar un build con un dato de relleno.
 Se abre poniéndolo en `true`, y las condiciones para hacerlo están en
 [`DEPLOY.md`](./DEPLOY.md).
@@ -335,10 +335,12 @@ CLS 0 y TBT 0 ms en todas. Cero auditorías en rojo.
 
 - Copy real. Lo actual son placeholders específicos, sin lorem ipsum y sin
   texto tomado de ninguna referencia.
-- Dirección operativa en Colombia y teléfono de Wrabbit Ai LLC en
-  `src/data/legal.ts`. Mientras falten, la web los omite.
+- Teléfono y fecha de constitución de Wrabbit Ai LLC en `src/data/legal.ts`.
+  Mientras falten, la web los omite.
+- Enlace para agendar una llamada (`site.agenda`). Mientras falte, /contact no
+  pinta el botón.
 - Perfiles de LinkedIn y X reales.
-- Biografías del equipo.
+- Biografías, apellido y LinkedIn de Danna y de Moshe Rafael Manrique Perafán.
 - Assets definitivos: imagen de Compañía, imágenes de artículos y OG.
 - **Lectura jurídica** de `/privacidad`, `/terminos` y `/pagos`. Ya no se
   declaran borrador (lo pidió la revisión previa a Stripe, 9 de octubre de
