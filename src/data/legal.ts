@@ -13,10 +13,11 @@
  *   - obligatorios (estado de constitución y domicilio legal): si faltan, en
  *     desarrollo se pinta «[pendiente: …]» y el build de producción se
  *     detiene nombrando lo que falta. Sin ellos no hay página legal que valga;
- *   - opcionales (dirección operativa y teléfono): si faltan, la web los
- *     omite. El director decidió el 14 de octubre de 2026 publicar con lo que
- *     hay y dejar estos como pendiente interno, no en la página. Mientras
- *     falte la dirección operativa, la web dice solo la ciudad, que es real.
+ *   - opcionales (fecha de constitución, dirección operativa y teléfono): si
+ *     faltan, la web los omite. El director decidió el 14 de octubre de 2026
+ *     publicar con lo que hay y dejar estos como pendiente interno, no en la
+ *     página. Mientras falte la dirección operativa, la web dice solo la
+ *     ciudad, que es real.
  *
  * No se importa desde ningún <script> de cliente: el error es para el build,
  * no para el navegador del visitante.
@@ -28,7 +29,7 @@ export interface Direccion {
   /** Calle, número y oficina o suite. */
   calle: string;
   ciudad: string;
-  /** Estado en EE. UU., departamento en Colombia. */
+  /** Estado en EE. UU., departamento en Colombia. Vacío si la ciudad ya lo dice (Bogotá, D.C.). */
   region: string;
   codigoPostal?: string;
   /** ISO 3166-1 alfa-2. */
@@ -42,6 +43,7 @@ export interface Direccion {
 const datos: {
   entidad: string;
   estadoDeConstitucion: string | null;
+  fechaDeConstitucion: string | null;
   direccionLegal: Direccion | null;
   direccionOperativa: Direccion | null;
   telefono: string | null;
@@ -54,6 +56,14 @@ const datos: {
   entidad: 'Wrabbit Ai LLC',
   /** Estado de EE. UU. donde se constituyó la LLC. Mismo documento. */
   estadoDeConstitucion: 'Delaware',
+  /**
+   * PENDIENTE INTERNO: `AAAA-MM-DD`, tal como figura en el certificado. La
+   * web decía «Nacimos en Bogotá en 2023» y las observaciones del 23 de
+   * octubre de 2026 pidieron cambiarlo por esta fecha, porque Stripe compara.
+   * Mientras falte, la web no da ningún año de fundación: ni en la historia
+   * ni en los datos estructurados.
+   */
+  fechaDeConstitucion: null,
   /** Mismo documento: la dirección legal en Dover, Delaware. */
   direccionLegal: {
     calle: '8 The Green, Suite B',
@@ -63,10 +73,16 @@ const datos: {
     pais: 'US',
   },
   /**
-   * PENDIENTE INTERNO: donde trabaja el equipo, en Colombia. Mientras falte,
-   * la web dice solo la ciudad.
+   * Donde trabaja el equipo, en Colombia: observaciones del director del 23
+   * de octubre de 2026. Bogotá es un distrito capital y no pertenece a un
+   * departamento, por eso la región va vacía.
    */
-  direccionOperativa: null,
+  direccionOperativa: {
+    calle: 'Calle 44 # 8-11',
+    ciudad: 'Bogotá, D.C.',
+    region: '',
+    pais: 'CO',
+  },
   /**
    * PENDIENTE INTERNO. La política de datos debería llevarlo: el Decreto 1377
    * de 2013 (hoy en el Decreto 1074 de 2015) pide nombre, domicilio,
@@ -98,6 +114,8 @@ export const legal = {
   entidad: datos.entidad,
   nombreComercial: site.name,
   estadoDeConstitucion: exigir(datos.estadoDeConstitucion, 'estado de constitución de la LLC', marca('estado de constitución')),
+  /** Opcional: `null` mientras falte; quien la pinta la omite. */
+  fechaDeConstitucion: datos.fechaDeConstitucion,
   direccionLegal: exigir(datos.direccionLegal, 'dirección legal en EE. UU.', direccionPendiente('dirección legal en EE. UU.', 'US')),
   /** Opcional: `null` mientras falte. Para pintarla, `operacionEnLinea()`. */
   direccionOperativa: datos.direccionOperativa,
@@ -126,7 +144,7 @@ export function direccionSchema(d: Direccion) {
     '@type': 'PostalAddress',
     streetAddress: d.calle,
     addressLocality: d.ciudad,
-    addressRegion: d.region,
+    ...(d.region ? { addressRegion: d.region } : {}),
     ...(d.codigoPostal ? { postalCode: d.codigoPostal } : {}),
     addressCountry: d.pais,
   };
@@ -144,6 +162,11 @@ export function operacionSchema() {
   return legal.direccionOperativa
     ? direccionSchema(legal.direccionOperativa)
     : { '@type': 'PostalAddress', addressLocality: legal.ciudadOperativa, addressCountry: 'CO' };
+}
+
+/** «23 de octubre de 2026». En UTC: es un día del calendario, no un instante. */
+export function fechaLarga(iso: string): string {
+  return new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(iso));
 }
 
 /** Para `href="tel:…"`: solo el signo y los dígitos. */
