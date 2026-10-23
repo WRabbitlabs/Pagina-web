@@ -2,12 +2,23 @@
 /**
  * Marco de las tres páginas legales: /privacidad, /terminos y /pagos.
  *
- * Antes cada página traía su cabecera y su copia de los estilos; con una
- * tercera página la copia se triplicaba. Aquí van la cabecera oscura, la
- * fecha de actualización y la tipografía del texto legal. Los datos de la
- * empresa no se escriben en ninguna página: salen de `data/legal.ts`.
+ * Desde el 23 de octubre de 2026 se ven como un documento impreso: hoja blanca,
+ * texto negro, letra de imprenta, título centrado y cláusulas numeradas, sin
+ * los recursos de diseño del resto del sitio (rótulos, rejillas, colores de
+ * marca, animaciones). El director lo pidió así: «plano, blanco y negro, como
+ * un documento serio». Es la única excepción a la familia única del sitio
+ * (decisión D-02): la serif es la del sistema operativo, no se descarga
+ * ninguna fuente.
+ *
+ * Arriba queda una franja negra lisa. No es decorativa: la cabecera flota
+ * transparente con texto claro sobre la primera sección de cada página, y sin
+ * algo oscuro debajo el logotipo y el menú desaparecerían sobre el blanco.
+ *
+ * Los datos de la empresa no se escriben en ninguna página: salen de
+ * `data/legal.ts`.
  */
 import Base from './Base.astro';
+import { legal } from '../data/legal';
 
 interface Props {
   title: string;
@@ -27,78 +38,177 @@ const updatedLabel = new Intl.DateTimeFormat('es-CO', {
 ---
 
 <Base title={title} description={description}>
-  <section class="section page-head" data-surface="dark">
-    <div class="container">
-      <p class="t-eyebrow">Legal</p>
-      <h1 class="t-h1 page-head__title">{title}</h1>
-      <p class="t-eyebrow page-head__date">
+  <div class="band" data-surface="dark" aria-hidden="true"></div>
+
+  <article class="sheet">
+    <header class="sheet__head">
+      <p class="sheet__issuer">{legal.entidad}</p>
+      <h1 class="sheet__title">{title}</h1>
+      <p class="sheet__date">
         Última actualización: <time datetime={updated}>{updatedLabel}</time>
       </p>
-    </div>
-  </section>
+    </header>
 
-  <section class="section">
-    <div class="container">
-      <div class="prose legal">
-        <slot />
-      </div>
+    <div class="doc">
+      <slot />
     </div>
-  </section>
+  </article>
 </Base>
 
 <style>
-  .page-head {
-    padding-top: calc(var(--header-h) + var(--space-2xl));
+  .band {
+    height: calc(var(--header-h) + var(--space-l));
+    background: #000;
   }
 
-  .page-head__title {
-    margin-top: var(--space-s);
-    max-width: 22ch;
+  /*
+   * La hoja. Blanco y negro puros, sin tokens de color: el sitio puede cambiar
+   * de paleta y estas páginas tienen que seguir viéndose como un documento.
+   */
+  .sheet {
+    --doc-font: 'Times New Roman', Times, Georgia, 'Liberation Serif', serif;
+
+    background: #fff;
+    color: #000;
+    font-family: var(--doc-font);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    padding: var(--space-xl) var(--gutter) var(--space-2xl);
   }
 
-  .page-head__date {
+  .sheet__head,
+  .doc {
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+
+  .sheet__head {
+    text-align: center;
+    padding-bottom: var(--space-m);
+    border-bottom: 1px solid #000;
+  }
+
+  .sheet__issuer {
+    font-size: 0.9375rem;
+    letter-spacing: 0.04em;
+  }
+
+  .sheet__title {
+    margin-top: 0.6em;
+    font-family: var(--doc-font);
+    font-size: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .sheet__date {
+    margin-top: 0.8em;
+    font-size: 0.9375rem;
+    font-style: italic;
+  }
+
+  .doc {
     margin-top: var(--space-m);
+    hyphens: auto;
   }
 
-  /* El contenido llega por el slot: sin :global, el estilo no lo alcanza. */
-  .legal :global(h2) {
-    margin-top: 2.2em;
-    font-size: var(--text-h3);
-    line-height: var(--lh-h3);
-    letter-spacing: var(--ls-heading);
-    color: var(--text);
-  }
-
-  .legal :global(h3) {
-    margin-top: 1.6em;
-    color: var(--text);
-  }
-
-  .legal :global(ul) {
-    padding-left: 1.2em;
-  }
-
-  .legal :global(li + li) {
-    margin-top: 0.4em;
-  }
-
-  /* Ficha de la empresa: etiqueta y dato en dos columnas desde tableta. */
-  .legal :global(dl) {
-    display: grid;
-    gap: 0.5em var(--gutter);
-  }
-
-  @media (min-width: 48rem) {
-    .legal :global(dl) {
-      grid-template-columns: max-content 1fr;
+  /* Justificado solo con medida de libro: en una columna de teléfono abre
+     ríos de blanco entre palabras. */
+  @media (min-width: 40rem) {
+    .doc {
+      text-align: justify;
     }
   }
 
-  .legal :global(dt) {
-    color: var(--text);
+  /* El contenido llega por el slot: sin :global, el estilo no lo alcanza. */
+  .doc :global(p),
+  .doc :global(ul),
+  .doc :global(dl) {
+    margin: 0.9em 0 0;
   }
 
-  .legal :global(dd) {
+  .doc :global(h2) {
+    margin-top: 1.8em;
+    font-family: var(--doc-font);
+    font-size: 1em;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-align: left;
+  }
+
+  .doc :global(h3) {
+    margin-top: 1.2em;
+    font-family: var(--doc-font);
+    font-size: 1em;
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  .doc :global(ul) {
+    padding-left: 1.6em;
+    list-style: disc;
+  }
+
+  .doc :global(li + li) {
+    margin-top: 0.35em;
+  }
+
+  .doc :global(strong) {
+    font-weight: 700;
+  }
+
+  .doc :global(a) {
+    color: #000;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .doc :global(a:focus-visible) {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+  }
+
+  /* La ficha de la empresa: renglones con la etiqueta en negrita, como en
+     el encabezado de un contrato. */
+  .doc :global(dl) {
+    text-align: left;
+  }
+
+  .doc :global(dt) {
+    display: inline;
+    font-weight: 700;
+  }
+
+  .doc :global(dt)::after {
+    content: ': ';
+  }
+
+  .doc :global(dd) {
+    display: inline;
     margin: 0;
+  }
+
+  .doc :global(dd)::after {
+    content: '';
+    display: block;
+    margin-bottom: 0.25em;
+  }
+
+  /* Impreso: solo la hoja, sin la cabecera ni el pie del sitio. */
+  @media print {
+    .band,
+    :global([data-header]),
+    :global(footer) {
+      display: none;
+    }
+
+    .sheet {
+      padding: 0;
+      font-size: 11pt;
+    }
   }
 </style>
