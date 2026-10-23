@@ -6,16 +6,22 @@ import { legal, condiciones, enLinea, operacionEnLinea } from '../data/legal';
 
 const title = 'Trabaja con nosotros';
 const description =
-  'Cuéntenos qué proceso quiere automatizar. Respondemos dentro de los dos días hábiles siguientes.';
+  'Cuéntenos qué proceso quiere automatizar, por correo o por WhatsApp. Respondemos dentro de los dos días hábiles siguientes.';
+
+/** `wa.me` solo admite dígitos, con el indicativo y sin el signo. */
+const whatsappHref = `https://wa.me/${site.whatsapp.replace(/\D/g, '')}`;
 
 /*
- * Un solo canal: el correo de la empresa.
+ * Canales directos: el correo de la empresa y WhatsApp, y una llamada de 30
+ * minutos en cuanto exista el enlace para agendarla.
  *
  * Por decisión del director (9 de octubre de 2026), la web no recoge datos
  * personales: no hay formulario, ni siquiera uno que se active con una
- * variable de entorno. Quien quiera escribir lo hace desde su propio correo,
- * cuando quiere y con lo que quiere contar. El teléfono tampoco va aquí: sale
- * en las páginas legales, donde la ley lo pide.
+ * variable de entorno. Quien quiera escribir lo hace desde su propio correo o
+ * su propio WhatsApp, cuando quiere y con lo que quiere contar. WhatsApp y
+ * la agenda llegaron con las observaciones del 23 de octubre de 2026: «en
+ * Colombia eso acelera mucho». El enlace de WhatsApp es `wa.me`, que abre el
+ * chat sin pasar nada por este sitio.
  *
  * El formulario (campos, consentimiento de la Ley 1581, honeypot y
  * validación) está en el historial de git antes de este cambio, y su módulo
@@ -38,14 +44,35 @@ const description =
         <p class="t-h3 direct__lead">Escríbanos.</p>
         <p class="prose direct__body">
           Cuéntenos qué proceso quiere automatizar, quién lo hace hoy y qué le
-          gustaría que cambiara. El correo lo leemos nosotros.
+          gustaría que cambiara. Los mensajes los leemos nosotros.
         </p>
-        <p class="direct__channels">
-          <a class="link-arrow" href={`mailto:${site.email}`}>
-            {site.email}
-            <Arrow />
-          </a>
-        </p>
+        <ul class="direct__channels" role="list">
+          <li>
+            <span class="t-eyebrow direct__label">Correo</span>
+            <a class="link-arrow" href={`mailto:${site.email}`}>
+              {site.email}
+              <Arrow />
+            </a>
+          </li>
+          <li>
+            <span class="t-eyebrow direct__label">WhatsApp</span>
+            <a class="link-arrow external" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+              {site.whatsapp}
+              <span class="sr-only"> (abre WhatsApp en una pestaña nueva)</span>
+            </a>
+          </li>
+          {
+            site.agenda && (
+              <li>
+                <span class="t-eyebrow direct__label">Llamada</span>
+                <a class="link-arrow external" href={site.agenda} target="_blank" rel="noopener noreferrer">
+                  Agendar una llamada de 30 minutos
+                  <span class="sr-only"> (se abre en una pestaña nueva)</span>
+                </a>
+              </li>
+            )
+          }
+        </ul>
       </div>
 
       {/*
@@ -108,7 +135,19 @@ const description =
   }
 
   .direct__channels {
-    margin-top: var(--space-m);
+    display: grid;
+    gap: var(--space-xs);
+    margin: var(--space-m) 0 0;
+    padding: 0;
+  }
+
+  .direct__channels li {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+
+  .direct__label {
+    color: var(--text-muted);
   }
 
   /* Condiciones y empresa: después del canal, separadas por un filete. */
