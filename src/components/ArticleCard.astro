@@ -1,6 +1,8 @@
 ---
 import Arrow from './Arrow.astro';
 import { href, isExternal, readLabel, formatDate, isoDate, type Article } from '../lib/newsroom';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
 
 interface Props {
   entry: Article;
@@ -18,6 +20,7 @@ interface Props {
 }
 const { entry, tone = 'paper', delay = 0, withExcerpt = true } = Astro.props;
 const external = isExternal(entry);
+const { ui } = textos(idiomaDe(Astro.url));
 const { category, date, title, excerpt } = entry.data;
 
 /**
@@ -49,21 +52,21 @@ const { category, date, title, excerpt } = entry.data;
     <span class="card__top">
       <span class="card__tag t-eyebrow">
         <span class="card__dot" aria-hidden="true"></span>
-        {category}
+        {ui.categoria(category)}
       </span>
-      <time class="card__date t-eyebrow" datetime={isoDate(date)}>{formatDate(date)}</time>
+      <time class="card__date t-eyebrow" datetime={isoDate(date)}>{formatDate(date, ui.locale)}</time>
     </span>
 
     {/* div y no span: un encabezado no cabe en contenido de frase, y el <a>
         es transparente, así que admite lo que admite el <li>. */}
     <div class="card__body">
-      <h3 class="t-h3 card__title">{title}</h3>
-      {withExcerpt && <p class="t-small card__excerpt">{excerpt}</p>}
+      <h3 class="t-h3 card__title" lang={ui.langArticulos}>{title}</h3>
+      {withExcerpt && <p class="t-small card__excerpt" lang={ui.langArticulos}>{excerpt}</p>}
     </div>
 
     <span class="card__foot t-eyebrow">
-      {readLabel(entry)}
-      {external && <span class="sr-only"> (se abre en una pestaña nueva)</span>}
+      {readLabel(entry, ui)}
+      {external && <span class="sr-only">{ui.pestanaNueva}</span>}
     </span>
 
     <span class="card__go" aria-hidden="true"><Arrow /></span>

@@ -1,6 +1,12 @@
 ---
-import { governance, planStates } from '../../data/home';
-import { esNumber, numWidth } from '../../lib/format';
+import { numero, numWidth } from '../../lib/format';
+import { textos } from '../../i18n/textos';
+import { idiomaDe } from '../../i18n/idioma';
+
+const t = textos(idiomaDe(Astro.url));
+const { governance, planStates } = t.home;
+/** Las cifras en el formato del idioma de la página. */
+const num = (n: number, d = 0) => numero(n, d, t.idioma);
 
 /**
  * GOBIERNO CONTINUO — la consola.
@@ -51,6 +57,7 @@ const lastIndex = N - 1;
 
 /** Todo lo que el script necesita, sin repetir la geometría en el cliente. */
 const payload = {
+  semana: t.ui.semana,
   x: Array.from({ length: N }, (_, i) => px(i)),
   base: Y1,
   series: plot.map((s) => ({
@@ -64,7 +71,7 @@ const payload = {
 /** Decimales de cada KPI: 99,4 lleva uno; 24 y 0, ninguno. */
 const kpis = governance.kpis.map((k) => {
   const decimals = Number.isInteger(k.value) ? 0 : 1;
-  return { ...k, decimals, text: esNumber(k.value, decimals), w: numWidth(k.value, decimals) };
+  return { ...k, decimals, text: num(k.value, decimals), w: numWidth(k.value, decimals) };
 });
 
 const GRID = [0.25, 0.5, 0.75];
@@ -122,7 +129,7 @@ const GRID = [0.25, 0.5, 0.75];
           <div class="chart__head">
             <h3 class="t-eyebrow chart__title">{governance.chart.title}</h3>
 
-            <div class="seg" role="group" aria-label="Serie del gráfico">
+            <div class="seg" role="group" aria-label={t.ui.serieGrafico}>
               {
                 plot.map((s, i) => (
                   <button
@@ -179,10 +186,10 @@ const GRID = [0.25, 0.5, 0.75];
             las tablas de abajo.
           */}
           <p class="chart__readout t-eyebrow" data-readout>
-            <span data-readout-week>Semana {lastIndex + 1}</span>
+            <span data-readout-week>{t.ui.semana} {lastIndex + 1}</span>
             <span class="chart__sep" aria-hidden="true">·</span>
             <span class="chart__num" data-readout-value>
-              {esNumber(first.values[lastIndex]!)}
+              {num(first.values[lastIndex]!)}
             </span>
             <span data-readout-unit>{first.unit}</span>
           </p>
@@ -202,8 +209,8 @@ const GRID = [0.25, 0.5, 0.75];
             {
               plot.map((s) => (
                 <p>
-                  {s.label}, {s.unit} de la semana 1 a la {N}:{' '}
-                  {s.values.map((v) => esNumber(v)).join(', ')}. {governance.panel.disclaimer}
+                  {s.label}, {s.unit} {t.ui.semanasDel(N)}:{' '}
+                  {s.values.map((v) => num(v)).join(', ')}. {governance.panel.disclaimer}
                 </p>
               ))
             }
@@ -755,7 +762,7 @@ const GRID = [0.25, 0.5, 0.75];
 
 <script>
   import { counters } from '../../scripts/count';
-  import { esNumber } from '../../lib/format';
+  import { numero } from '../../lib/format';
 
   counters();
 
@@ -764,7 +771,7 @@ const GRID = [0.25, 0.5, 0.75];
   /* --------------------------------------------------------------------- */
 
   type Serie = { label: string; unit: string; ys: number[]; values: number[] };
-  type Payload = { x: number[]; base: number; series: Serie[] };
+  type Payload = { semana: string; x: number[]; base: number; series: Serie[] };
 
   const node = document.querySelector<HTMLElement>('[data-chart]');
   const raw = document.querySelector('[data-chart-payload]')?.textContent;
@@ -833,8 +840,8 @@ const GRID = [0.25, 0.5, 0.75];
 
     const readout = (i: number) => {
       const s = series[current]!;
-      outWeek.textContent = `Semana ${i + 1}`;
-      outValue.textContent = esNumber(s.values[i]!);
+      outWeek.textContent = `${data.semana} ${i + 1}`;
+      outValue.textContent = numero(s.values[i]!, 0, document.documentElement.lang);
       outUnit.textContent = s.unit;
     };
 

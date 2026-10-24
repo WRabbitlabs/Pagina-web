@@ -57,11 +57,12 @@ const datos: {
   /** Estado de EE. UU. donde se constituyó la LLC. Mismo documento. */
   estadoDeConstitucion: 'Delaware',
   /**
-   * PENDIENTE INTERNO: `AAAA-MM-DD`, tal como figura en el certificado. La
-   * web decía «Nacimos en Bogotá en 2023» y las observaciones del 23 de
-   * octubre de 2026 pidieron cambiarlo por esta fecha, porque Stripe compara.
-   * Mientras falte, la web no da ningún año de fundación: ni en la historia
-   * ni en los datos estructurados.
+   * `AAAA` o `AAAA-MM-DD`, tal como figura en el certificado. La web decía
+   * «Nacimos en Bogotá en 2023» y las observaciones del 23 de octubre de 2026
+   * pidieron cambiarlo por la fecha de la LLC, porque Stripe compara. Ese
+   * mismo día el director dio el año: 2026. PENDIENTE: el día exacto del
+   * certificado; basta con escribirlo aquí completo y la web pasa de «en
+   * 2026» a «el … de 2026».
    */
   fechaDeConstitucion: null,
   /** Mismo documento: la dirección legal en Dover, Delaware. */
@@ -91,7 +92,12 @@ const datos: {
   telefono: null,
 };
 
-const PAISES = { US: 'Estados Unidos', CO: 'Colombia' } as const;
+const PAISES = {
+  es: { US: 'Estados Unidos', CO: 'Colombia' },
+  en: { US: 'United States', CO: 'Colombia' },
+} as const;
+
+type Idioma = keyof typeof PAISES;
 
 const faltan: string[] = [];
 
@@ -133,9 +139,9 @@ if (faltan.length > 0 && !import.meta.env.DEV) {
 }
 
 /** «Calle, ciudad, región CP, país» en una línea, sin comas colgando. */
-export function enLinea(d: Direccion): string {
+export function enLinea(d: Direccion, idioma: Idioma = 'es'): string {
   const region = [d.region, d.codigoPostal].filter(Boolean).join(' ');
-  return [d.calle, d.ciudad, region, PAISES[d.pais]].filter(Boolean).join(', ');
+  return [d.calle, d.ciudad, region, PAISES[idioma][d.pais]].filter(Boolean).join(', ');
 }
 
 /** Para JSON-LD. */
@@ -151,10 +157,10 @@ export function direccionSchema(d: Direccion) {
 }
 
 /** La dirección de operación completa, o solo la ciudad mientras falte. */
-export function operacionEnLinea(): string {
+export function operacionEnLinea(idioma: Idioma = 'es'): string {
   return legal.direccionOperativa
-    ? enLinea(legal.direccionOperativa)
-    : `${legal.ciudadOperativa}, ${PAISES.CO}`;
+    ? enLinea(legal.direccionOperativa, idioma)
+    : `${legal.ciudadOperativa}, ${PAISES[idioma].CO}`;
 }
 
 /** Lo mismo para JSON-LD: sin calle mientras no se tenga. */
@@ -165,8 +171,18 @@ export function operacionSchema() {
 }
 
 /** «23 de octubre de 2026». En UTC: es un día del calendario, no un instante. */
-export function fechaLarga(iso: string): string {
-  return new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(iso));
+export function fechaLarga(iso: string, locale = 'es-CO'): string {
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(iso));
+}
+
+/**
+ * Cuándo se constituyó la LLC, listo para ir detrás del verbo: «en 2026» si
+ * solo se sabe el año, «el 23 de octubre de 2026» si se sabe el día. En
+ * inglés, «in 2026» u «on October 23, 2026».
+ */
+export function cuandoSeConstituyo(fecha: string, idioma: 'es' | 'en' = 'es'): string {
+  if (/^\d{4}$/.test(fecha)) return idioma === 'en' ? `in ${fecha}` : `en ${fecha}`;
+  return idioma === 'en' ? `on ${fechaLarga(fecha, 'en-US')}` : `el ${fechaLarga(fecha)}`;
 }
 
 /** Para `href="tel:…"`: solo el signo y los dígitos. */
@@ -188,6 +204,8 @@ export const condiciones = {
   /** Las dos monedas en que se cotiza y se cobra; cada cotización dice cuál. */
   monedas: 'dólares estadounidenses (USD) o pesos colombianos (COP)',
   monedasCodigo: 'USD o COP',
+  /** Lo mismo para la versión en inglés. */
+  monedasEn: 'US dollars (USD) or Colombian pesos (COP)',
   /**
    * Proyectos a la medida, si la cotización no fija otro calendario: tres
    * pagos por hitos. El anticipo es para contratar al equipo y arrancar.

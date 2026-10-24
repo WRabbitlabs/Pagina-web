@@ -1,5 +1,5 @@
 import { CATEGORIES } from '../lib/categories';
-import { legal, fechaLarga } from './legal';
+import { legal, cuandoSeConstituyo } from './legal';
 
 /**
  * Copy de la home.
@@ -169,7 +169,7 @@ export const company = {
    */
   paragraphs: [
     legal.fechaDeConstitucion
-      ? `Nacimos en Bogotá, del cruce entre la gestión pública, el derecho y la tecnología, con un mismo diagnóstico. ${legal.entidad} se constituyó en ${legal.estadoDeConstitucion} el ${fechaLarga(legal.fechaDeConstitucion)}.`
+      ? `Nacimos en Bogotá, del cruce entre la gestión pública, el derecho y la tecnología, con un mismo diagnóstico. ${legal.entidad} se constituyó en ${legal.estadoDeConstitucion} ${cuandoSeConstituyo(legal.fechaDeConstitucion)}.`
       : 'Nacimos en Bogotá, del cruce entre la gestión pública, el derecho y la tecnología, con un mismo diagnóstico.',
     'Los procesos de una entidad grande no fallan por falta de tecnología: fallan porque después nadie puede reconstruir qué se decidió y con qué información.',
     'Construimos para entidades públicas, bufetes de abogados y empresas medianas y grandes de sectores regulados.',

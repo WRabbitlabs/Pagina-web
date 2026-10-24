@@ -1,6 +1,9 @@
 ---
 import Campo from './Campo.astro';
-import { hero } from '../../data/home';
+import { textos } from '../../i18n/textos';
+import { idiomaDe } from '../../i18n/idioma';
+
+const { hero } = textos(idiomaDe(Astro.url)).home;
 
 /**
  * Escenario: el fondo que comparten el hero y las declaraciones.

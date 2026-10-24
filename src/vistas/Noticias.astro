@@ -1,0 +1,121 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import FeaturedArticle from '../components/FeaturedArticle.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import NewsroomFilter from '../components/NewsroomFilter.astro';
+import { splitFeatured, byDateDesc, published } from '../lib/newsroom';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
+
+/*
+ * El índice de Noticias, en los dos idiomas: lo montan
+ * src/pages/newsroom/index.astro y src/pages/en/newsroom.astro. Los artículos
+ * solo existen en español; la versión en inglés lo dice antes de la lista.
+ */
+const t = textos(idiomaDe(Astro.url));
+const en = t.idioma === 'en';
+
+const all = byDateDesc(published(await getCollection('newsroom')));
+const { featured } = splitFeatured(all, 0);
+const rest = all.filter((e) => e.id !== featured?.id);
+
+/** Claro, medio, tinta, y vuelta a empezar. */
+const TONES = ['paper', 'deep', 'ink'] as const;
+
+// «Noticias» y no «Newsroom» desde el 23 de octubre de 2026: el sitio va
+// entero en español. La ruta sigue siendo /newsroom para no romper enlaces.
+const title = t.home.newsroom.eyebrow;
+const description = en
+  ? 'Publications, announcements, press and current affairs from WR AI Labs: our method, and the regulations and studies on artificial intelligence that affect our work. Articles are in Spanish.'
+  : 'Publicaciones, anuncios, prensa y actualidad de WR AI Labs. Método, resultados, y las normas y estudios sobre inteligencia artificial que tocan nuestro trabajo.';
+---
+
+<Base title={title} description={description}>
+  <section class="section page-head" data-surface="dark">
+    <div class="container">
+      <p class="t-eyebrow">{title}</p>
+      <h1 class="t-h1 page-head__title" data-text-reveal>
+        {en ? 'We publish our method before anyone asks for it.' : 'Publicamos el método antes de que nos lo pidan.'}
+      </h1>
+      {
+        en && (
+          <p class="t-lead page-head__note">
+            Our articles are published in Spanish, the language of our clients and of the regulations they cover.
+          </p>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="section" aria-label={t.ui.articulos}>
+    <div class="container">
+      {featured && <FeaturedArticle entry={featured} as="h2" />}
+
+      {/*
+        El filtro cuenta `rest`, no `all`: el destacado vive fuera de la lista
+        y no se filtra, así que incluirlo en el recuento daría un número que
+        no casa con lo que se ve.
+      */}
+      {rest.length > 0 && <NewsroomFilter total={rest.length} />}
+
+      {
+        rest.length > 0 ? (
+          <ul class="cards" role="list" data-articles>
+            {rest.map((entry, i) => (
+              <ArticleCard
+                entry={entry}
+                tone={TONES[i % TONES.length]}
+                delay={Math.min(i, 3) * 100}
+              />
+            ))}
+          </ul>
+        ) : (
+          !featured && <p class="t-body empty">{en ? 'No articles yet.' : 'Todavía no hay publicaciones.'}</p>
+        )
+      }
+
+      <p class="t-body empty" data-empty hidden>
+        {en ? 'No articles in this category.' : 'No hay publicaciones en esta categoría.'}
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head__note {
+    margin-top: var(--space-m);
+    max-width: var(--measure);
+    color: var(--text-muted);
+  }
+
+  .page-head {
+    padding-top: calc(var(--header-h) + var(--space-2xl));
+  }
+
+  .page-head__title {
+    margin-top: var(--space-s);
+    max-width: 18ch;
+  }
+
+  .cards {
+    display: grid;
+    gap: var(--gutter);
+    /* El filtro ya pone el aire por encima con su filete. */
+    margin: var(--space-l) 0 0;
+    padding: 0;
+    /* El color con el que las tarjetas muerden su esquina: el de esta página,
+       no el de la tarjeta, que redefine --surface con su tono. */
+    --notch: var(--surface);
+  }
+
+  @media (min-width: 48rem) {
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .empty {
+    color: var(--text-muted);
+  }
+</style>

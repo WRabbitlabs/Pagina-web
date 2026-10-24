@@ -7,6 +7,8 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import RabbitMark from '../components/icons/RabbitMark.astro';
 import { site } from '../data/site';
+import { textos } from '../i18n/textos';
+import { idiomaDe, gemelas } from '../i18n/idioma';
 
 interface Props {
   /** Único por página. Se le añade el sufijo de marca salvo en la home. */
@@ -44,10 +46,19 @@ const fullTitle = isHome ? title : `${title} — ${site.name}`;
 const ICON_VERSION = 3;
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site).href;
 const ogImageUrl = new URL(ogImage, Astro.site).href;
+
+/*
+ * El idioma de la página y su gemela en el otro. Con `hreflang`, un buscador
+ * sabe que /company y /en/company son la misma página en dos idiomas y no dos
+ * páginas que compiten; `x-default` dice cuál servir a quien no pide ninguno.
+ */
+const t = textos(idiomaDe(Astro.url));
+const par = gemelas(Astro.url);
+const alterna = (ruta: string) => new URL(ruta, Astro.site).href;
 ---
 
 <!doctype html>
-<html lang={site.lang}>
+<html lang={t.site.lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -55,6 +66,15 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {
+      par && (
+        <>
+          <link rel="alternate" hreflang="es" href={alterna(par.es)} />
+          <link rel="alternate" hreflang="en" href={alterna(par.en)} />
+          <link rel="alternate" hreflang="x-default" href={alterna(par.es)} />
+        </>
+      )
+    }
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <!--
@@ -91,7 +111,7 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={site.name} />
-    <meta property="og:locale" content={site.locale} />
+    <meta property="og:locale" content={t.site.locale} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -184,7 +204,7 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
       <span class="boot__rule"></span>
     </div>
 
-    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <a class="skip-link" href="#main">{t.ui.saltar}</a>
 
     <Header enterDelay={isHome ? 1000 : 220} />
 

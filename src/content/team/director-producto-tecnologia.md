@@ -4,6 +4,7 @@
 # biografía corta y LinkedIn, si los quiere publicar.
 name: 'Moshe Rafael Manrique Perafán'
 role: 'Director de producto y tecnología'
+roleEn: 'Director of Product and Technology'
 order: 3
 founder: false
 ---

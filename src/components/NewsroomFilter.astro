@@ -1,5 +1,9 @@
 ---
-import { newsroom } from '../data/home';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
+
+const t = textos(idiomaDe(Astro.url));
+const { newsroom } = t.home;
 
 /**
  * Filtro por categoría del índice del newsroom.
@@ -23,7 +27,7 @@ const { total } = Astro.props;
 ---
 
 <div class="filter" data-filter>
-  <div class="filter__bar" role="group" aria-label="Filtrar por categoría">
+  <div class="filter__bar" role="group" aria-label={t.ui.filtrarPorCategoria}>
     {
       newsroom.filters.map((f, i) => (
         <button
@@ -40,7 +44,7 @@ const { total } = Astro.props;
   </div>
 
   <p class="t-eyebrow filter__count" aria-live="polite" data-filter-count>
-    {total} de {total}
+    {t.ui.conteo(total, total)}
   </p>
 </div>
 
@@ -137,7 +141,7 @@ const { total } = Astro.props;
           shown++;
         }
       }
-      count.textContent = `${shown} de ${total}`;
+      count.textContent = `${shown} ${document.documentElement.lang === 'en' ? 'of' : 'de'} ${total}`;
 
       /* La rejilla vacía no dice nada; el mensaje sí. */
       list.hidden = shown === 0;

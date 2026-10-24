@@ -1,4 +1,5 @@
 import type { CollectionEntry } from 'astro:content';
+import type { Ui } from '../i18n/ui';
 
 export type Article = CollectionEntry<'newsroom'>;
 
@@ -22,24 +23,25 @@ export function isExternal(entry: Article): boolean {
 }
 
 /** Rótulo del enlace: lo propio se lee aquí; lo externo, en su fuente. */
-export function readLabel(entry: Article): string {
-  return isExternal(entry) ? 'Leer en la fuente' : 'Leer artículo';
+export function readLabel(entry: Article, ui: Pick<Ui, 'leerFuente' | 'leerArticulo'>): string {
+  return isExternal(entry) ? ui.leerFuente : ui.leerArticulo;
 }
 
-const formatter = new Intl.DateTimeFormat('es-CO', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
-
 /**
- * "6 ago 2026" — compacto, para filas de metadatos.
+ * "6 ago 2026" — compacto, para filas de metadatos. En inglés, "Aug 6, 2026".
  * Intl en es-CO devuelve "6 de ago. de 2026"; los conectores y el punto
  * de abreviatura sobran en una línea de metadato.
  */
-export function formatDate(date: Date): string {
-  return formatter.format(date).replace(/\sde\s/g, ' ').replace(/\./g, '');
+export function formatDate(date: Date, locale = 'es-CO'): string {
+  return new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
+    .format(date)
+    .replace(/\sde\s/g, ' ')
+    .replace(/\./g, '');
 }
 
 /** ISO corto para el atributo datetime. */

@@ -1,0 +1,91 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/home/Hero.astro';
+import Stage from '../components/home/Stage.astro';
+import Statements from '../components/home/Statements.astro';
+import Story from '../components/Story.astro';
+import Platform from '../components/home/Platform.astro';
+import Governance from '../components/home/Governance.astro';
+import Method from '../components/Method.astro';
+import Marquee from '../components/home/Marquee.astro';
+import Company from '../components/home/Company.astro';
+import NewsroomTeaser from '../components/home/NewsroomTeaser.astro';
+import { legal, direccionSchema, operacionSchema } from '../data/legal';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
+
+/*
+ * La portada, en los dos idiomas: la monta src/pages/index.astro para el
+ * español y src/pages/en/index.astro para el inglés. El idioma sale de la
+ * dirección de la página; ver src/i18n/.
+ */
+const t = textos(idiomaDe(Astro.url));
+const { site, social } = t;
+const { hero } = t.home;
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  legalName: legal.entidad,
+  url: site.url,
+  logo: new URL('/icon-512.png', site.url).href,
+  description: site.description,
+  email: legal.correo,
+  // Opcional: sin teléfono, la propiedad no se emite.
+  ...(legal.telefono ? { telephone: legal.telefono } : {}),
+  // Solo con la fecha del certificado: un año aproximado aquí es justo lo que
+  // Stripe compara contra el registro de la LLC.
+  ...(legal.fechaDeConstitucion ? { foundingDate: legal.fechaDeConstitucion } : {}),
+  // Primero el domicilio legal de la LLC, después donde opera el equipo.
+  address: [direccionSchema(legal.direccionLegal), operacionSchema()],
+  sameAs: social.map((s) => s.href),
+};
+
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: site.name,
+  url: site.url,
+  inLanguage: t.ui.locale,
+  publisher: { '@type': 'Organization', name: site.name },
+};
+---
+
+<Base
+  title={`${site.name} — ${hero.headlineFlat}`}
+  description={site.description}
+  isHome
+  jsonLd={[organization, website]}
+>
+  <!--
+    Hero y declaraciones comparten un único fondo de vídeo fijado. El marco se
+    abre al cargar y se suelta a sangre completa al bajar. Ver Stage.astro.
+  -->
+  <Stage>
+    <Hero />
+    <Statements />
+  </Stage>
+
+  {/*
+    Orden de lectura, en la forma del sitio de referencia: quiénes somos →
+    de dónde venimos → qué construimos → cómo se contrata → cómo se opera →
+    respiro → la compañía → qué publicamos → el cierre, que vive en el pie.
+
+    La historia abre porque explica el nombre y el oficio antes de pedir
+    nada. El método va pegado a la plataforma: primero qué es, después cómo
+    se contrata. El marquee separa la consola oscura de la compañía.
+
+    Aquí no hay bloque de cifras ni bloque de problema: la página describe lo
+    que hacemos y deja la prueba en el newsroom y en el equipo, que es como
+    se sostiene la credibilidad sin autoproclamarse resultados.
+  */}
+  <Story />
+  <Platform />
+  <Method />
+  <Governance />
+  <Marquee />
+  <Company />
+  <NewsroomTeaser />
+</Base>
+

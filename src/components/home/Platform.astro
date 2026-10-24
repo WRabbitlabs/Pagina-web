@@ -1,7 +1,10 @@
 ---
 import Cta from '../Cta.astro';
 import PillarIcon from '../icons/PillarIcon.astro';
-import { platform } from '../../data/home';
+import { textos } from '../../i18n/textos';
+import { idiomaDe } from '../../i18n/idioma';
+
+const { platform } = textos(idiomaDe(Astro.url)).home;
 
 /**
  * Las tres superficies del sistema, una por pilar: acento, tinta y escarcha.

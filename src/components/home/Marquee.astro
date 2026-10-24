@@ -1,5 +1,8 @@
 ---
-import { marquee } from '../../data/home';
+import { textos } from '../../i18n/textos';
+import { idiomaDe } from '../../i18n/idioma';
+
+const { marquee } = textos(idiomaDe(Astro.url)).home;
 
 /**
  * Decorativo: aria-hidden. La frase-tesis ya se dice en texto real en el

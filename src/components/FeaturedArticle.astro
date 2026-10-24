@@ -2,6 +2,8 @@
 import { Picture } from 'astro:assets';
 import Arrow from './Arrow.astro';
 import { href, isExternal, readLabel, formatDate, isoDate, type Article } from '../lib/newsroom';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
 
 interface Props {
   entry: Article;
@@ -14,6 +16,7 @@ interface Props {
 }
 const { entry, as: Heading = 'h3' } = Astro.props;
 const external = isExternal(entry);
+const { ui } = textos(idiomaDe(Astro.url));
 const { image, imageAlt, category, date, title, excerpt } = entry.data;
 ---
 
@@ -44,17 +47,17 @@ const { image, imageAlt, category, date, title, excerpt } = entry.data;
     <div class="feat__text">
       <p class="feat__meta t-eyebrow">
         <span class="feat__dot" aria-hidden="true"></span>
-        {category}
+        {ui.categoria(category)}
         <span aria-hidden="true"> · </span>
-        <time datetime={isoDate(date)}>{formatDate(date)}</time>
+        <time datetime={isoDate(date)}>{formatDate(date, ui.locale)}</time>
       </p>
 
-      <Heading class="t-h3 feat__title">{title}</Heading>
-      <p class="t-body feat__excerpt">{excerpt}</p>
+      <Heading class="t-h3 feat__title" lang={ui.langArticulos}>{title}</Heading>
+      <p class="t-body feat__excerpt" lang={ui.langArticulos}>{excerpt}</p>
 
       <p class="t-eyebrow feat__go">
-        {readLabel(entry)}
-        {external && <span class="sr-only"> (se abre en una pestaña nueva)</span>}
+        {readLabel(entry, ui)}
+        {external && <span class="sr-only">{ui.pestanaNueva}</span>}
       </p>
     </div>
 

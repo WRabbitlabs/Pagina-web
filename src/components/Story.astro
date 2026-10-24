@@ -1,5 +1,8 @@
 ---
-import { craft } from '../data/company';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
+
+const { craft } = textos(idiomaDe(Astro.url)).company;
 
 /**
  * NUESTRA HISTORIA — del telar al software.

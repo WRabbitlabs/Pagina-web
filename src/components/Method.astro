@@ -1,6 +1,9 @@
 ---
 import Cta from './Cta.astro';
-import { method } from '../data/company';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
+
+const { method } = textos(idiomaDe(Astro.url)).company;
 
 interface Props {
   /**

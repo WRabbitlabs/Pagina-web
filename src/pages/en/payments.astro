@@ -1,0 +1,119 @@
+---
+import Legal from '../../layouts/Legal.astro';
+import { legal, condiciones } from '../../data/legal';
+
+/**
+ * Traducción al inglés de /pagos (23 de octubre de 2026), para clientes de
+ * EE. UU. La versión que obliga es la española. Cada número sale de
+ * `condiciones`, igual que en /pagos.
+ */
+const updated = '2026-10-23';
+
+const title = 'Payments, Cancellations and Refunds';
+const description = `How ${legal.nombreComercial} (${legal.entidad}) quotes and bills: custom prices in USD or COP, payment methods, cancellation of projects and recurring services, and refunds.`;
+
+const c = condiciones;
+const mailto = `mailto:${legal.correo}`;
+---
+
+<Legal title={title} description={description} updated={updated}>
+  <p>
+    How we quote and bill, how a service is cancelled and when we refund money. It applies to the services of {legal.entidad} ({legal.nombreComercial}) and forms part of the <a href="/en/terms">Terms and Conditions</a>. If a signed quote sets other terms, the quote prevails. This is a translation for convenience; if it differs from the <a href="/pagos">Spanish version</a>, the Spanish version prevails.
+  </p>
+
+  <h2>1. How we quote</h2>
+  <p>
+    We have no list prices. Each project is quoted to measure and in writing, after understanding the process to be automated. The quote details the scope, deliverables, acceptance criteria, schedule, price and payment schedule, and is valid for {c.vigenciaCotizacionDias} days from the date it is sent.
+  </p>
+
+  <h2>2. Currency</h2>
+  <p>
+    We quote and bill in {c.monedasEn}. Each quote states which of the two, and that is the currency of payment. When the client pays from another currency, the conversion and the fees of its bank or card are at its expense.
+  </p>
+
+  <h2>3. Payment methods</h2>
+  <p>
+    Credit or debit card and the other methods offered by Stripe, our payment processor, or bank transfer. Card details are processed by Stripe: we do not see or store them. Each payment has its invoice or receipt issued by {legal.entidad}.
+  </p>
+  <p>
+    Prices do not include taxes, withholdings or bank or exchange fees; those that apply are itemized in the quote or the invoice.
+  </p>
+
+  <h2>4. Custom projects</h2>
+  <ul>
+    <li>
+      They are paid in milestones, according to the schedule in the quote. If it does not set another: {c.pagoAnticipo}% on acceptance of the quote, as an advance to get started; {c.pagoPrimerEntregable}% on the first deliverable, and {c.pagoEntregaFinal}% on final delivery.
+    </li>
+    <li>
+      Invoices are payable within {c.plazoPagoFacturaDias} calendar days of issue.
+    </li>
+    <li>
+      If a payment is more than {c.pausaPorMoraDias} days past due, we may pause the work with prior written notice. The project deadlines move by as long as the pause lasts.
+    </li>
+  </ul>
+
+  <h2>5. Recurring services</h2>
+  <p>
+    The operation, support and continuous governance of a delivered system are billed monthly in advance and renew automatically each month until cancelled. If paid by card, Stripe charges the monthly fee on the renewal date. A price change is notified in writing {c.avisoCambioPrecioDias} days in advance and never affects a period already paid.
+  </p>
+
+  <h2>6. Cancellations</h2>
+  <h3>Projects</h3>
+  <ul>
+    <li>The client may cancel a project at any time, in writing.</li>
+    <li>If it cancels before work begins, we refund the advance in full.</li>
+    <li>
+      Once development has started, payments received are non-refundable: they cover the work, the team and the resources already devoted to building the system. On cancellation, the remaining milestones are not charged.
+    </li>
+  </ul>
+  <h3>Recurring services</h3>
+  <ul>
+    <li>
+      They are cancelled in writing with {c.avisoCancelacionDias} days' notice. The service remains active until the end of the monthly period in which the notice period ends, and later periods are not charged.
+    </li>
+    <li>On termination, we hand over to the client its data and the system documentation.</li>
+  </ul>
+  <h3>If we cancel</h3>
+  <p>
+    If we cancel a service without any breach by the client, we refund what was paid for work or periods we did not get to provide.
+  </p>
+
+  <h2>7. Refunds</h2>
+  <p>A refund applies:</p>
+  <ul>
+    <li>for the full advance, if the project is cancelled before it starts;</li>
+    <li>for what was paid and not provided, if we cancel;</li>
+    <li>always, for a duplicate or mistaken charge.</li>
+  </ul>
+  <p>
+    There is no refund of what was paid for a project once development has started, or of months of recurring service already begun, which are not prorated. If a deliverable does not meet what was agreed, the remedy is to correct it at no cost during the warranty period ({c.garantiaDias} days from delivery, or the period set in the quote); if we cannot correct it, we will agree a proportional refund with the client.
+  </p>
+  <p>
+    <strong>How to request one:</strong> write to <a href={mailto}>{legal.correo}</a> with the subject «Reembolso» (refund), the invoice number and the reason. We reply within {c.respuestaReembolsoDiasHabiles} business days. An approved refund is processed within {c.procesoReembolsoDiasHabiles} business days through the same method used to pay; the bank or card issuer may take a few more days to reflect it.
+  </p>
+
+  <h2>8. Before disputing a charge</h2>
+  <p>
+    If you do not recognize a charge or believe there is an error, write to us before opening a dispute with your bank: most are resolved within a few days, while a bank dispute takes weeks.
+  </p>
+
+  <h2>9. How services are delivered</h2>
+  <p>
+    Our services are digital. They are delivered online, in the client's environments or ours, according to the schedule in the quote. We do not ship physical goods.
+  </p>
+
+  <h2>10. Right of withdrawal</h2>
+  <p>
+    We contract with organizations and our services are custom-made for each client, so the right of withdrawal for distance sales to consumers (article 47 of Colombian Law 1480 of 2011) generally does not apply. If the law recognizes it in a specific case, we honor it.
+  </p>
+
+  <h2>11. Public entities</h2>
+  <p>
+    With Colombian public entities, the payment method, deadlines and termination conditions are those of the government contract.
+  </p>
+
+  <h2>12. Contact</h2>
+  <p>
+    For any question about payments, invoices or refunds, write to us at <a href={mailto}>{legal.correo}</a>.
+  </p>
+</Legal>

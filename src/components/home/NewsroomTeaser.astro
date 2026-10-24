@@ -4,7 +4,10 @@ import Arrow from '../Arrow.astro';
 import FeaturedArticle from '../FeaturedArticle.astro';
 import ArticleCard from '../ArticleCard.astro';
 import { splitFeatured } from '../../lib/newsroom';
-import { newsroom } from '../../data/home';
+import { textos } from '../../i18n/textos';
+import { idiomaDe } from '../../i18n/idioma';
+
+const { newsroom } = textos(idiomaDe(Astro.url)).home;
 
 /*
  * Un destacado con extracto + 3 tarjetas sin extracto.
