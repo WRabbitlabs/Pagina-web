@@ -61,8 +61,13 @@ export const social = [
   { label: 'X', href: 'https://x.com/wrailabs' },
 ] as const;
 
-/** Máximo 2 enlaces + 1 CTA. La navegación corta comunica foco. */
+/**
+ * Tres enlaces + 1 CTA. Eran dos hasta el 23 de octubre de 2026, cuando las
+ * observaciones del director pidieron «Servicios» en el menú y en el pie (el
+ * pie lee esta misma lista). Sigue siendo corta a propósito: comunica foco.
+ */
 export const nav = [
+  { label: 'Servicios', href: '/servicios' },
   { label: 'Compañía', href: '/company' },
   { label: 'Noticias', href: '/newsroom' },
 ] as const;
