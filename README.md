@@ -217,9 +217,32 @@ El orden es siempre por fecha descendente, automático. El destacado es el
 más reciente marcado `featured`.
 
 **Equipo.** Un `.md` por persona en `src/content/team/`, ordenado por
-`order`. `founder: true` lo agrupa bajo "Fundadores".
+`order`. `founder: true` lo agrupa bajo "Fundadores". El cuerpo del Markdown es
+la biografía en español; `roleEn` y `bioEn` (párrafos separados por una línea en
+blanco) son el cargo y la biografía de `/en/company`.
 
 **Copy de la home.** Todo en `src/data/home.ts`.
+
+## Dos idiomas
+
+Desde el 23 de octubre de 2026 el sitio está en español (raíz) y en inglés
+(`/en`), para clientes de EE. UU. La traducción la revisa una persona que
+designó el director.
+
+- **Textos.** El español es el molde: `src/data/*.ts`. El inglés tiene la misma
+  forma en `src/data/en/*.ts` y está tipado contra el español
+  (`src/i18n/ancho.ts`): si a la traducción le falta una clave, el build falla.
+  Las etiquetas sueltas de la interfaz están en `src/i18n/ui.ts`.
+- **Cómo sabe un componente el idioma.** Por la dirección:
+  `textos(idiomaDe(Astro.url))` (`src/i18n/`). Nadie pasa el idioma a mano.
+- **Páginas.** Las de contenido viven una sola vez en `src/vistas/` y las montan
+  dos rutas: `src/pages/company.astro` y `src/pages/en/company.astro`, etc. Las
+  legales en inglés son archivos propios (`src/pages/en/privacy.astro`,
+  `terms.astro`, `payments.astro`) y dicen que prevalece la versión en español.
+- **Rutas gemelas** (para el selector ES/EN y los `hreflang`): la tabla de
+  `src/i18n/idioma.ts`. Una página nueva en los dos idiomas se añade ahí.
+- **Noticias** solo existe en español; `/en/newsroom` lo dice y marca los
+  títulos con `lang="es"`.
 
 ## Formulario de contacto
 

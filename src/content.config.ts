@@ -53,6 +53,10 @@ const team = defineCollection({
     z.object({
       name: z.string(),
       role: z.string(),
+      /** El cargo y la biografía para /en/company. La biografía en español es el cuerpo del Markdown. */
+      roleEn: z.string().optional(),
+      /** Párrafos separados por una línea en blanco. */
+      bioEn: z.string().optional(),
       /** Orden de aparición. Menor primero. */
       order: z.number().int().default(99),
       founder: z.boolean().default(false),

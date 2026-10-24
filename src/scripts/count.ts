@@ -14,7 +14,7 @@
  * no mueve nada de su sitio: cero CLS.
  */
 
-import { esNumber } from '../lib/format';
+import { numero } from '../lib/format';
 
 const DUR = 900;
 
@@ -45,7 +45,7 @@ export function counters(root: ParentNode = document): void {
       const t = Math.min(1, (now - start) / DUR);
       /* easeOutCubic: llega deprisa y frena, como el resto del sitio. */
       const e = 1 - Math.pow(1 - t, 3);
-      el.textContent = esNumber(target * e, decimals);
+      el.textContent = numero(target * e, decimals, document.documentElement.lang);
       if (t < 1) requestAnimationFrame(step);
     };
 

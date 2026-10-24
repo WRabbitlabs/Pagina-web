@@ -19,6 +19,8 @@
  */
 import Base from './Base.astro';
 import { legal } from '../data/legal';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
 
 interface Props {
   title: string;
@@ -31,7 +33,8 @@ const { title, description, updated } = Astro.props;
 
 // En UTC: la fecha es un día del calendario, no un instante. Sin esto, un
 // build en un huso al oeste de Greenwich la retrasaría un día.
-const updatedLabel = new Intl.DateTimeFormat('es-CO', {
+const { ui } = textos(idiomaDe(Astro.url));
+const updatedLabel = new Intl.DateTimeFormat(ui.locale, {
   dateStyle: 'long',
   timeZone: 'UTC',
 }).format(new Date(updated));
@@ -45,7 +48,7 @@ const updatedLabel = new Intl.DateTimeFormat('es-CO', {
       <p class="sheet__issuer">{legal.entidad}</p>
       <h1 class="sheet__title">{title}</h1>
       <p class="sheet__date">
-        Última actualización: <time datetime={updated}>{updatedLabel}</time>
+        {ui.ultimaActualizacion}: <time datetime={updated}>{updatedLabel}</time>
       </p>
     </header>
 

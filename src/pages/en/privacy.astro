@@ -1,0 +1,142 @@
+---
+import Legal from '../../layouts/Legal.astro';
+import Empresa from '../../components/Empresa.astro';
+import { legal } from '../../data/legal';
+
+/**
+ * Traducción al inglés de /privacidad (23 de octubre de 2026), para clientes
+ * de EE. UU. La versión que obliga es la española: lo dice el primer párrafo
+ * y lo dicen los términos. Si cambia /privacidad, cambia esta.
+ */
+const updated = '2026-10-23';
+
+const title = 'Personal Data Processing Policy';
+const description = `What personal data ${legal.nombreComercial} (${legal.entidad}) processes, for what purpose, with whom it is shared and how to exercise your rights under Colombian Law 1581 of 2012.`;
+---
+
+<Legal title={title} description={description} updated={updated}>
+  <p>
+    This policy explains what personal data we process, for what purpose, with whom we share it, how we protect it and how you can access, correct or ask us to delete it. It applies to this website, to your communications with us and to our relationship with our clients. This is a translation for convenience; if it differs from the <a href="/privacidad">Spanish version</a>, the Spanish version prevails.
+  </p>
+
+  <h2>1. Data controller</h2>
+  <Empresa />
+
+  <h2>2. Legal framework</h2>
+  <p>
+    We collect and process data from Colombia, so this policy follows Colombia's <em>Statutory Law 1581 of 2012</em>, <em>Decree 1074 of 2015</em> (which compiled Decree 1377 of 2013) and any rules that amend or replace them. If you reside in another country and your law grants you additional rights, you may exercise them through the channel described in section 10.
+  </p>
+
+  <h2>3. What data we process</h2>
+  <ul>
+    <li>
+      <strong>If you write to us by email or WhatsApp:</strong> your name, your organization and position, your email address, the number you write from or give us, and the content of your message.
+    </li>
+    <li>
+      <strong>If you are a client or in talks with us:</strong> the contact details of the people your organization designates, billing data and whatever is needed to prepare the quote and perform the contract.
+    </li>
+    <li>
+      <strong>If you pay by card:</strong> card details are received and processed directly by Stripe, our payment processor. We do not see or store them; we receive the payment confirmation, the amount, the date and the type of payment method with its last four digits.
+    </li>
+    <li>
+      <strong>If you visit the website:</strong> we do not set cookies or use analytics. The provider that hosts the website logs technical data for each visit, such as the IP address, the browser and the time, to operate and protect the service.
+    </li>
+  </ul>
+  <p>
+    Through this website we do not collect sensitive data or data about children and adolescents.
+  </p>
+
+  <h2>4. What we use it for</h2>
+  <ul>
+    <li>to answer your requests and prepare quotes;</li>
+    <li>to enter into and perform contracts, invoice and collect payment;</li>
+    <li>to provide the support and recurring services contracted;</li>
+    <li>to comply with legal, accounting and tax obligations;</li>
+    <li>to prevent fraud and protect the security of the website and our systems.</li>
+  </ul>
+  <p>
+    We do not sell personal data, we do not use it for third-party advertising and we do not use it to train artificial intelligence models.
+  </p>
+
+  <h2>5. Our clients' data in projects</h2>
+  <p>
+    When we build or operate a system that processes a client's personal data —its employees, users, patients or counterparties—, the client is the controller of that data and we act as processor. We process it only to provide the service, following the client's instructions and the terms of the contract, under a duty of confidentiality, and at the end we return or delete it, as the client indicates. If the project processes sensitive data, such as health data, the contract sets the additional measures.
+  </p>
+  <p>
+    Requests from data subjects about that data are addressed to the client. If they reach us, we forward them without delay.
+  </p>
+
+  <h2>6. Authorization</h2>
+  <p>
+    We process your data with your prior, express and informed authorization, except where the law does not require it. Authorization may be given in writing, orally or through unequivocal conduct, such as voluntarily writing to us with your data to request information or a quote. You may revoke it at any time, except when a legal or contractual duty requires us to keep the data.
+  </p>
+
+  <h2>7. Who we share it with</h2>
+  <p>
+    Only with providers that help us deliver the service, who act as processors and are bound by confidentiality:
+  </p>
+  <ul>
+    <li>Stripe, to process payments;</li>
+    <li>our email provider;</li>
+    <li>WhatsApp, by Meta, when you write to us through that channel;</li>
+    <li>GitHub, which hosts this website;</li>
+    <li>the cloud and artificial intelligence providers a project uses, when the contract with the client provides for it.</li>
+  </ul>
+  <p>
+    We may also disclose it when an authority orders us to under the law, to defend our rights in legal proceedings, or in a merger, sale or reorganization of the company, in which case the recipient is bound by this policy.
+  </p>
+
+  <h2>8. International transfer</h2>
+  <p>
+    {legal.entidad} is a United States company, and several of our providers process data there. Your data may therefore leave Colombia, in particular for the United States. We do so in accordance with article 26 of Law 1581 of 2012: to countries with an adequate level of protection according to Colombia's Superintendence of Industry and Commerce, with your express authorization, or under contracts that require our processors to apply this policy. By sending us your data and accepting this policy, you authorize that transfer.
+  </p>
+
+  <h2>9. Your rights</h2>
+  <p>Under article 8 of Law 1581 of 2012, you may:</p>
+  <ul>
+    <li>access, update and correct your data;</li>
+    <li>request proof of the authorization you gave us;</li>
+    <li>be informed of how we have used it;</li>
+    <li>revoke the authorization or ask us to delete your data, where there is no legal or contractual duty to keep it;</li>
+    <li>access it free of charge;</li>
+    <li>file complaints with the Superintendence of Industry and Commerce, after submitting your inquiry or claim to us.</li>
+  </ul>
+
+  <h2>10. How to exercise them</h2>
+  <p>
+    Write to <a href={`mailto:${legal.correo}`}>{legal.correo}</a> with the subject «Datos personales» (personal data), your name, what you are requesting and how you want to receive the answer. Requests are handled by the Chief Executive Officer of {legal.nombreComercial}.
+  </p>
+  <ul>
+    <li>
+      <strong>Inquiries:</strong> we answer within ten (10) business days of receipt at most. If we cannot, we will tell you why before the deadline and answer within the following five (5) business days.
+    </li>
+    <li>
+      <strong>Claims</strong> (correction, update, deletion or breach): we answer within fifteen (15) business days from the day after receipt at most, extendable by eight (8) business days with notice. If the claim is missing information, we will ask you for it within five (5) days; if two months pass without you sending it, the claim is deemed withdrawn.
+    </li>
+  </ul>
+
+  <h2>11. Security</h2>
+  <p>
+    We apply reasonable technical, human and administrative measures: encrypted connections, access limited to those who need the data for their work, and a duty of confidentiality for the entire team and our providers. No measure is infallible. If an incident puts your data at risk, we report it to the Superintendence of Industry and Commerce and to the affected data subjects, as the law requires.
+  </p>
+
+  <h2>12. How long we keep it</h2>
+  <p>
+    For as long as needed for the purpose for which it was collected. Requests that do not lead to a business relationship are deleted two years after the last contact. Client data is kept for the term of the contract and, afterwards, for as long as accounting, tax and commercial rules require. Our databases remain in force for as long as the company carries on its activity.
+  </p>
+
+  <h2>13. Cookies</h2>
+  <p>
+    This website does not use analytics, advertising or tracking cookies, and does not embed third-party services that set them. Fonts are served from our own domain.
+  </p>
+
+  <h2>14. Minors</h2>
+  <p>
+    Our services are aimed at organizations, not minors. If we find that we have received a minor's data without the authorization of their legal representative, we delete it.
+  </p>
+
+  <h2>15. Effective date and changes</h2>
+  <p>
+    This policy has been in force since October 9, 2026 and was updated on October 23, 2026. If we change it substantially, we will publish the change on this website before applying it and notify our clients by email. The date of the last update always appears at the top of the document.
+  </p>
+</Legal>

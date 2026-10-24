@@ -1,6 +1,9 @@
 ---
 import Cta from '../Cta.astro';
-import { hero } from '../../data/home';
+import { textos } from '../../i18n/textos';
+import { idiomaDe } from '../../i18n/idioma';
+
+const { hero } = textos(idiomaDe(Astro.url)).home;
 
 /**
  * Hero: solo contenido. El fondo, el marco y su apertura los pone Stage,

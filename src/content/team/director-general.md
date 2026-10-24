@@ -1,6 +1,13 @@
 ---
 name: 'Cristhian Alexander Caballero Mora'
 role: 'Director general y fundador'
+roleEn: 'Chief Executive Officer and Founder'
+bioEn: |
+  Public administrator with a specialization in Social Project Management and more than 15 years of experience in the Colombian public sector. He has led the formulation, execution, monitoring and evaluation of investment projects, public budgeting and strategic planning in national-level government entities, both in leadership positions and as a specialized technical advisor.
+
+  He has structured sector investment portfolios, redesigned institutional processes and designed territorial capacity-building methodologies in science, technology and innovation. He has also secured funding before Colombia's National Planning Department and Ministry of Finance. He works with the logical framework approach and PMI methodologies, with a focus on regulatory compliance, budget efficiency and institutional strengthening.
+
+  His work centers on turning technical information into strategic decisions and on improving the way organizations govern their projects and are held accountable.
 order: 1
 founder: true
 links:

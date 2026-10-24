@@ -1,0 +1,223 @@
+---
+import Base from '../layouts/Base.astro';
+import Arrow from '../components/Arrow.astro';
+import { legal, condiciones, enLinea, operacionEnLinea } from '../data/legal';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
+
+/*
+ * Contacto, en los dos idiomas: la montan src/pages/contact.astro y
+ * src/pages/en/contact.astro. Los textos de esta página solo se usan aquí,
+ * así que viven aquí y no en data/.
+ */
+const t = textos(idiomaDe(Astro.url));
+const { site, ui } = t;
+const idioma = t.idioma === 'en' ? 'en' : 'es';
+
+const L = {
+  es: {
+    title: 'Trabaja con nosotros',
+    description:
+      'Cuéntenos qué proceso quiere automatizar, por correo o por WhatsApp. Respondemos dentro de los dos días hábiles siguientes.',
+    h1: 'Cuéntenos qué proceso quiere automatizar.',
+    sub: 'Respondemos dentro de los dos días hábiles siguientes.',
+    lead: 'Escríbanos.',
+    body: 'Cuéntenos qué proceso quiere automatizar, quién lo hace hoy y qué le gustaría que cambiara. Los mensajes los leemos nosotros.',
+    correo: 'Correo',
+    llamada: 'Llamada',
+    agendar: 'Agendar una llamada de 30 minutos',
+    cotizamos: 'Cómo cotizamos',
+    cotizamosBody:
+      'No tenemos precios de lista. Cada proyecto se cotiza a la medida y por escrito, después de entender el proceso: la cotización fija el alcance, los entregables, el calendario y la forma de pago.',
+    monedas: `Cotizamos y cobramos en ${condiciones.monedas}.`,
+    condiciones: 'Las condiciones de pago, cancelación y reembolso están en',
+    pagos: { label: 'Pagos, cancelaciones y reembolsos', href: '/pagos' },
+    empresa: 'Empresa',
+    empresaDd: `${legal.nombreComercial} es un nombre comercial de ${legal.entidad}.`,
+  },
+  en: {
+    title: 'Work with us',
+    description:
+      'Tell us which process you want to automate, by email or WhatsApp. We reply within two business days.',
+    h1: 'Tell us which process you want to automate.',
+    sub: 'We reply within two business days.',
+    lead: 'Write to us.',
+    body: 'Tell us which process you want to automate, who does it today and what you would like to change. Every message is read by our team.',
+    correo: 'Email',
+    llamada: 'Call',
+    agendar: 'Book a 30-minute call',
+    cotizamos: 'How we quote',
+    cotizamosBody:
+      'We have no list prices. Every project is quoted to measure and in writing, once we understand the process: the quote sets the scope, deliverables, schedule and payment terms.',
+    monedas: `We quote and bill in ${condiciones.monedasEn}.`,
+    condiciones: 'Payment, cancellation and refund terms are in',
+    pagos: { label: 'Payments, cancellations and refunds', href: '/en/payments' },
+    empresa: 'Company',
+    empresaDd: `${legal.nombreComercial} is a trade name of ${legal.entidad}.`,
+  },
+}[idioma];
+
+const title = L.title;
+const description = L.description;
+
+/** `wa.me` solo admite dígitos, con el indicativo y sin el signo. */
+const whatsappHref = `https://wa.me/${site.whatsapp.replace(/\D/g, '')}`;
+
+/*
+ * Canales directos: el correo de la empresa y WhatsApp, y una llamada de 30
+ * minutos en cuanto exista el enlace para agendarla.
+ *
+ * Por decisión del director (9 de octubre de 2026), la web no recoge datos
+ * personales: no hay formulario, ni siquiera uno que se active con una
+ * variable de entorno. Quien quiera escribir lo hace desde su propio correo o
+ * su propio WhatsApp, cuando quiere y con lo que quiere contar. WhatsApp y
+ * la agenda llegaron con las observaciones del 23 de octubre de 2026: «en
+ * Colombia eso acelera mucho». El enlace de WhatsApp es `wa.me`, que abre el
+ * chat sin pasar nada por este sitio.
+ *
+ * El formulario (campos, consentimiento de la Ley 1581, honeypot y
+ * validación) está en el historial de git antes de este cambio, y su módulo
+ * de validación sigue en src/lib/contact.ts para cuando vuelva.
+ */
+---
+
+<Base title={title} description={description}>
+  <section class="section page-head" data-surface="dark">
+    <div class="container">
+      <p class="t-eyebrow">{title}</p>
+      <h1 class="t-h1 page-head__title" data-text-reveal>{L.h1}</h1>
+      <p class="t-lead page-head__sub">{L.sub}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="direct">
+        <p class="t-h3 direct__lead">{L.lead}</p>
+        <p class="prose direct__body">{L.body}</p>
+        <ul class="direct__channels" role="list">
+          <li>
+            <span class="t-eyebrow direct__label">{L.correo}</span>
+            <a class="link-arrow" href={`mailto:${site.email}`}>
+              {site.email}
+              <Arrow />
+            </a>
+          </li>
+          <li>
+            <span class="t-eyebrow direct__label">WhatsApp</span>
+            <a class="link-arrow external" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+              {site.whatsapp}
+              <span class="sr-only">{ui.whatsappPestana}</span>
+            </a>
+          </li>
+          {
+            site.agenda && (
+              <li>
+                <span class="t-eyebrow direct__label">{L.llamada}</span>
+                <a class="link-arrow external" href={site.agenda} target="_blank" rel="noopener noreferrer">
+                  {L.agendar}
+                  <span class="sr-only">{ui.pestanaNueva}</span>
+                </a>
+              </li>
+            )
+          }
+        </ul>
+      </div>
+
+      {/*
+        Lo que un comprador —y Stripe— busca antes de escribir: que no hay
+        precios de lista, en qué moneda se cobra, dónde están las condiciones
+        y quién es la empresa. No es un canal de contacto ni recoge nada.
+      */}
+      <div class="terms">
+        <h2 class="t-eyebrow terms__title">{L.cotizamos}</h2>
+        <p class="prose terms__body">{L.cotizamosBody} {L.monedas}</p>
+        <p class="prose terms__body">
+          {L.condiciones} <a href={L.pagos.href}>{L.pagos.label}</a>.
+        </p>
+
+        <dl class="t-small who">
+          <div>
+            <dt>{L.empresa}</dt>
+            <dd>{L.empresaDd}</dd>
+          </div>
+          <div>
+            <dt>{ui.domicilioLegal}</dt>
+            <dd>{enLinea(legal.direccionLegal, idioma)}</dd>
+          </div>
+          <div>
+            <dt>{ui.operacion}</dt>
+            <dd>{operacionEnLinea(idioma)}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-top: calc(var(--header-h) + var(--space-2xl));
+  }
+
+  .page-head__title {
+    margin-top: var(--space-s);
+    max-width: 20ch;
+  }
+
+  .page-head__sub {
+    margin-top: var(--space-m);
+    max-width: var(--measure);
+  }
+
+  .direct {
+    max-width: var(--measure);
+  }
+
+  .direct__body {
+    margin-top: var(--space-s);
+  }
+
+  .direct__channels {
+    display: grid;
+    gap: var(--space-xs);
+    margin: var(--space-m) 0 0;
+    padding: 0;
+  }
+
+  .direct__channels li {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+
+  .direct__label {
+    color: var(--text-muted);
+  }
+
+  /* Condiciones y empresa: después del canal, separadas por un filete. */
+  .terms {
+    max-width: var(--measure);
+    margin-top: var(--space-xl);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--rule);
+  }
+
+  .terms__body {
+    margin-top: var(--space-xs);
+  }
+
+  .terms__body a {
+    color: var(--text);
+  }
+
+  .who {
+    display: grid;
+    gap: var(--space-2xs);
+    margin-top: var(--space-m);
+    color: var(--text-muted);
+  }
+
+  .who dt {
+    color: var(--text);
+  }
+</style>

@@ -1,5 +1,8 @@
 ---
-import { whatWeDo } from '../../data/home';
+import { textos } from '../../i18n/textos';
+import { idiomaDe } from '../../i18n/idioma';
+
+const { whatWeDo } = textos(idiomaDe(Astro.url)).home;
 
 /**
  * Declaraciones que se leen solas con el scroll.

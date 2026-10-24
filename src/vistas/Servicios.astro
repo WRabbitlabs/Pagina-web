@@ -1,0 +1,221 @@
+---
+import Base from '../layouts/Base.astro';
+import Cta from '../components/Cta.astro';
+import Arrow from '../components/Arrow.astro';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
+
+/*
+ * Servicios: los siete módulos, en el orden en que suelen contratarse.
+ *
+ * Página nueva por las observaciones del 23 de octubre de 2026. Cada módulo
+ * va en el split editorial del sitio —número y nombre a la izquierda, qué
+ * incluye a la derecha— y separado por un filete, como las secciones de
+ * /company. Debajo de la cabecera, un índice con anclas: siete bloques largos
+ * piden poder saltar al que interesa.
+ */
+
+const t = textos(idiomaDe(Astro.url));
+const { servicios, ui } = t;
+const en = t.idioma === 'en';
+const title = servicios.eyebrow;
+const description = en
+  ? 'Seven modules of one process: assessment, AI and automation, data, regulatory compliance, information security, training and support. Custom quotes in USD or COP.'
+  : 'Siete módulos de un mismo proceso: diagnóstico, IA y automatización, datos, cumplimiento normativo, seguridad de la información, capacitación y soporte. Cotización a la medida en USD o COP.';
+const { modulos, contratacion } = servicios;
+---
+
+<Base title={title} description={description}>
+  <section class="section page-head" data-surface="dark">
+    <div class="container">
+      <p class="t-eyebrow">{servicios.eyebrow}</p>
+      <h1 class="t-h1 page-head__title" data-text-reveal>{servicios.heading}</h1>
+      <p class="t-lead page-head__sub">{servicios.intro}</p>
+
+      <nav class="index" aria-label={ui.modulos}>
+        <ol class="index__list" role="list">
+          {
+            modulos.map((m) => (
+              <li>
+                <a class="index__link" href={`#${m.id}`}>
+                  <span class="t-eyebrow index__n">{m.n}</span>
+                  {m.title}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <section class="section" aria-label={ui.modulosServicio}>
+    <div class="container">
+      {
+        modulos.map((m) => (
+          <article class="split modulo" id={m.id} aria-labelledby={`${m.id}-title`}>
+            <div class="modulo__head">
+              <p class="t-eyebrow modulo__n">{m.n}</p>
+              <h2 class="t-h3 modulo__title" id={`${m.id}-title`}>{m.title}</h2>
+            </div>
+            <div class="modulo__body" data-reveal>
+              <p class="t-lead modulo__lead">{m.lead}</p>
+              <ul class="prose modulo__items">
+                {m.items.map((item) => <li>{item}</li>)}
+              </ul>
+              {
+                'lectura' in m && m.lectura && (
+                  <p class="modulo__lectura">
+                    <span class="t-eyebrow">{ui.leaEn}</span>
+                    <a class="link-arrow" href={m.lectura.href}>
+                      {m.lectura.label}
+                      <Arrow />
+                    </a>
+                  </p>
+                )
+              }
+              {'nota' in m && m.nota && <p class="t-small modulo__nota">{m.nota}</p>}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section contratar" data-surface="dark" aria-labelledby="contratar">
+    <div class="container split">
+      <div><h2 class="t-eyebrow" id="contratar">{contratacion.heading}</h2></div>
+      <div>
+        <p class="t-h3 contratar__body">
+          {contratacion.body} {en ? 'The terms are in' : 'Las condiciones están en'} <a href={contratacion.pagos.href}>{contratacion.pagos.label}</a>.
+        </p>
+        <p class="contratar__cta"><Cta label={contratacion.cta.label} href={contratacion.cta.href} /></p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-top: calc(var(--header-h) + var(--space-2xl));
+  }
+
+  .page-head__title {
+    margin-top: var(--space-s);
+    max-width: 18ch;
+  }
+
+  .page-head__sub {
+    margin-top: var(--space-m);
+    max-width: var(--measure);
+  }
+
+  /* El índice: dos columnas desde tableta, número en mono delante. */
+  .index {
+    margin-top: var(--space-l);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--rule);
+  }
+
+  .index__list {
+    display: grid;
+    gap: var(--space-3xs) var(--gutter);
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .index__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .index__link {
+    display: flex;
+    align-items: baseline;
+    gap: 1.2ch;
+    min-height: var(--tap);
+    padding-block: var(--space-3xs);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .index__link:hover {
+    color: var(--signal);
+  }
+
+  .index__n {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Cada módulo, separado del anterior por un filete. */
+  .modulo {
+    padding-block: var(--space-l);
+    border-top: 1px solid var(--rule);
+    /* El ancla no debe quedar tapada por la cabecera flotante. */
+    scroll-margin-top: calc(var(--header-h) + var(--space-s));
+  }
+
+  .modulo:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .modulo__n {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .modulo__title {
+    margin-top: var(--space-2xs);
+    max-width: 16ch;
+  }
+
+  .modulo__body {
+    max-width: var(--measure);
+  }
+
+  .modulo__lead {
+    color: var(--text);
+  }
+
+  .modulo__items {
+    margin: var(--space-s) 0 0;
+    padding-left: 1.2em;
+    color: var(--text-muted);
+  }
+
+  .modulo__items li + li {
+    margin-top: 0.5em;
+  }
+
+  .modulo__lectura {
+    display: grid;
+    gap: var(--space-3xs);
+    margin-top: var(--space-m);
+  }
+
+  .modulo__lectura .t-eyebrow {
+    color: var(--text-muted);
+  }
+
+  .modulo__nota {
+    margin-top: var(--space-m);
+    padding-left: var(--space-xs);
+    border-left: 1px solid var(--rule-strong);
+    color: var(--text-muted);
+  }
+
+  .contratar__body {
+    max-width: 30ch;
+  }
+
+  .contratar__body a {
+    color: inherit;
+  }
+
+  .contratar__cta {
+    margin-top: var(--space-m);
+  }
+</style>

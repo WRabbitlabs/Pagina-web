@@ -1,32 +1,42 @@
 ---
 /**
  * Ficha de la empresa para los textos legales: quién es el responsable, dónde
- * está y cómo se le escribe. La usan /privacidad y /terminos; el pie y
- * /contact dicen lo mismo en corto. Todo sale de `data/legal.ts`.
+ * está y cómo se le escribe. La usan /privacidad y /terminos y sus versiones
+ * en inglés; el pie y /contact dicen lo mismo en corto. Todo sale de
+ * `data/legal.ts`.
  *
  * El teléfono es opcional: mientras falte, la fila no se pinta.
  */
 import { legal, enLinea, operacionEnLinea, telefonoHref } from '../data/legal';
+import { textos } from '../i18n/textos';
+import { idiomaDe } from '../i18n/idioma';
+
+const { idioma, ui } = textos(idiomaDe(Astro.url));
+const en = idioma === 'en';
+const i = en ? 'en' : 'es';
 ---
 
 <dl>
-  <dt>Empresa</dt>
+  <dt>{en ? 'Company' : 'Empresa'}</dt>
   <dd>
-    {legal.entidad}, sociedad de responsabilidad limitada (LLC) constituida en el estado de {legal.estadoDeConstitucion},
-    Estados Unidos.
+    {
+      en
+        ? `${legal.entidad}, a limited liability company (LLC) organized in the State of ${legal.estadoDeConstitucion}, United States.`
+        : `${legal.entidad}, sociedad de responsabilidad limitada (LLC) constituida en el estado de ${legal.estadoDeConstitucion}, Estados Unidos.`
+    }
   </dd>
-  <dt>Nombre comercial</dt>
+  <dt>{en ? 'Trade name' : 'Nombre comercial'}</dt>
   <dd>{legal.nombreComercial}</dd>
-  <dt>Domicilio legal</dt>
-  <dd>{enLinea(legal.direccionLegal)}</dd>
-  <dt>Operación</dt>
-  <dd>{operacionEnLinea()}</dd>
-  <dt>Correo</dt>
+  <dt>{ui.domicilioLegal}</dt>
+  <dd>{enLinea(legal.direccionLegal, i)}</dd>
+  <dt>{ui.operacion}</dt>
+  <dd>{operacionEnLinea(i)}</dd>
+  <dt>{en ? 'Email' : 'Correo'}</dt>
   <dd><a href={`mailto:${legal.correo}`}>{legal.correo}</a></dd>
   {
     legal.telefono && (
       <>
-        <dt>Teléfono</dt>
+        <dt>{en ? 'Phone' : 'Teléfono'}</dt>
         <dd><a href={telefonoHref(legal.telefono)}>{legal.telefono}</a></dd>
       </>
     )

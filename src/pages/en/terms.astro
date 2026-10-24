@@ -1,0 +1,153 @@
+---
+import Legal from '../../layouts/Legal.astro';
+import Empresa from '../../components/Empresa.astro';
+import { legal, condiciones } from '../../data/legal';
+
+/**
+ * Traducción al inglés de /terminos (23 de octubre de 2026), para clientes de
+ * EE. UU. La versión que obliga es la española (cláusula 19). Los plazos y
+ * porcentajes salen de `condiciones`, los mismos que leen /terminos y /pagos.
+ */
+const updated = '2026-10-23';
+
+const title = 'Terms and Conditions';
+const description = `Terms and conditions of ${legal.nombreComercial} (${legal.entidad}): use of the website, quotes, prices in USD or COP, payments, intellectual property, confidentiality and governing law.`;
+
+const c = condiciones;
+---
+
+<Legal title={title} description={description} updated={updated}>
+  <p>
+    These terms govern the use of this website and the contracting of {legal.nombreComercial}'s services. In them, "we" means {legal.entidad}, and "you" or "the client" means whoever visits the website or contracts our services, together with the organization they represent. This is a translation for convenience; if it differs from the <a href="/terminos">Spanish version</a>, the Spanish version prevails.
+  </p>
+
+  <h2>1. Who we are</h2>
+  <p>
+    {legal.nombreComercial} is the trade name under which {legal.entidad} operates. The legal entity —the one that signs contracts, invoices and receives payments— is {legal.entidad}; the team works from Colombia.
+  </p>
+  <Empresa />
+
+  <h2>2. Acceptance and governing documents</h2>
+  <p>
+    By using the website, you accept these terms. If you contract on behalf of an organization, you represent that you have authority to bind it.
+  </p>
+  <p>
+    Each service is also governed by the accepted quote and, where there is one, by the signed contract. If either contradicts these terms, the contract prevails first, then the quote, then these terms. The <a href="/en/privacy">Personal Data Processing Policy</a> and the <a href="/en/payments">Payments, cancellations and refunds</a> policy form part of these terms.
+  </p>
+
+  <h2>3. What we offer</h2>
+  <p>
+    We design, build and operate dedicated software and automation for companies, law firms and public entities. We contract with organizations, not with consumers. The content of this website is informational: it is not a binding offer or advice of any kind.
+  </p>
+
+  <h2>4. Quotes, prices and currency</h2>
+  <ul>
+    <li>
+      We have no list prices. Each project is quoted to measure and in writing, after understanding the client's process. The quote sets the scope, deliverables, acceptance criteria, schedule, price and payment terms, and is valid for {c.vigenciaCotizacionDias} days from the date it is sent.
+    </li>
+    <li>
+      Prices are stated and charged in {c.monedasEn}; each quote says which of the two.
+    </li>
+    <li>
+      Prices do not include taxes, withholdings or bank or exchange fees. Those that apply are settled under the applicable law and itemized in the quote or the invoice.
+    </li>
+    <li>
+      Work begins once the quote has been accepted in writing and, if the quote requires it, the advance payment has been received.
+    </li>
+  </ul>
+
+  <h2>5. Payments, cancellations and refunds</h2>
+  <p>
+    They are governed by our <a href="/en/payments">Payments, cancellations and refunds</a> policy. In short: projects are paid according to the schedule in the quote —if it does not set another, {c.pagoAnticipo}% in advance on acceptance, {c.pagoPrimerEntregable}% on the first deliverable and {c.pagoEntregaFinal}% on final delivery—; recurring services are paid monthly in advance, renew automatically and are cancelled with {c.avisoCancelacionDias} days' notice; and if a project is cancelled once development has started, amounts paid are not refunded. Card payments are processed by Stripe.
+  </p>
+
+  <h2>6. What we ask of the client</h2>
+  <ul>
+    <li>Complete and accurate information about the process to be automated.</li>
+    <li>The access, data, approvals and contact people the project needs, in a timely manner.</li>
+    <li>The right to use and hand over to us the information, documents and personal data it entrusts to us.</li>
+  </ul>
+  <p>
+    The deadlines in the quote are good-faith estimates. They depend on the client responding in time and on third parties we do not control, such as software vendors, government platforms or external services. If a deadline moves for those reasons, we will let you know and adjust it.
+  </p>
+
+  <h2>7. Intellectual property</h2>
+  <p>
+    The texts, trademarks, logos, diagrams and other elements of this website are ours or used under license. They may not be copied for commercial purposes without written authorization.
+  </p>
+  <p>
+    In projects, unless the contract says otherwise: once the full price has been paid, the client owns the deliverables made specifically for it, such as the project's code, configurations and documentation. We retain ownership of our pre-existing or general-purpose tools, components and know-how, and grant the client a perpetual, non-exclusive license, at no additional cost, to use them as part of what was delivered. Third-party and open-source components are governed by their own licenses.
+  </p>
+
+  <h2>8. Confidentiality</h2>
+  <p>
+    The information the client entrusts to us —its processes, documents, data and case files— is confidential. We use it only to provide the service, share it only with those who need it to do so and under the same duty, and protect it during the relationship and after it ends. Information that was already public, that the client authorizes us to disclose or that an authority orders us to reveal under the law is not confidential.
+  </p>
+
+  <h2>9. Personal data</h2>
+  <p>
+    The processing of personal data is governed by the <a href="/en/privacy">Personal Data Processing Policy</a>. When a project processes the client's personal data, we act as processor under Colombian Law 1581 of 2012 and the contract.
+  </p>
+
+  <h2>10. Artificial intelligence and the scope of our work</h2>
+  <p>
+    Some of our systems use artificial intelligence models. We design them so that their results can be reviewed and leave evidence, but an automated result may contain errors: the decisions the client makes with them remain its own, and the contract defines what human review applies.
+  </p>
+  <p>
+    We are not a law firm and we do not provide legal, accounting or tax advice. Our systems support the client's regulatory compliance but do not replace it: interpreting the law and making legal decisions are the responsibility of the client and its advisors.
+  </p>
+
+  <h2>11. Warranty</h2>
+  <p>
+    We provide our services with professional diligence and as agreed. If a deliverable does not meet the acceptance criteria in the quote, we correct it at no cost during the {c.garantiaDias} days following its delivery, or during the period set in the quote. Beyond what was agreed, and to the extent permitted by law, the website and the services are provided without any other warranty.
+  </p>
+
+  <h2>12. Limitation of liability</h2>
+  <p>
+    To the extent permitted by law, we are not liable for lost profits or for indirect or consequential damages, and our total liability for a service is limited to what the client paid us for it in the twelve months before the event giving rise to the claim. This limitation does not apply in cases of willful misconduct or gross negligence, or where the law does not allow liability to be limited.
+  </p>
+
+  <h2>13. Indemnification</h2>
+  <p>
+    The client will hold us harmless from third-party claims arising from information or data it gives us without the right to do so, or from the unlawful use of the deliverables. We will hold the client harmless from third-party claims alleging that a deliverable we made infringes their intellectual property rights, unless the claim arises from third-party components or from changes made by the client.
+  </p>
+
+  <h2>14. Suspension and termination</h2>
+  <p>
+    We may pause a project or suspend a recurring service for non-payment, with prior written notice and under the terms of the payments policy. Either party may terminate a service if the other commits a serious breach and does not remedy it within fifteen (15) days of written notice. On termination, the client pays for what has been provided up to that date and we hand over what has been built and its data.
+  </p>
+
+  <h2>15. Contracts with public entities</h2>
+  <p>
+    When the client is a Colombian public entity, the relationship is governed by the government contract and the public procurement rules that apply to it. These terms apply only insofar as they do not contradict them.
+  </p>
+
+  <h2>16. Use of the website</h2>
+  <p>
+    Do not use this website for unlawful purposes or attempt to compromise its security. The website links to third-party content we do not control: external links are marked and open in a new tab, and that content is the responsibility of whoever publishes it. We strive to keep the website continuously available, but we do not guarantee that there will be no interruptions, and we may change or remove content at any time.
+  </p>
+
+  <h2>17. Changes to these terms</h2>
+  <p>
+    We may update these terms. The version in force is the one published here, with its date at the top. Changes do not affect quotes already accepted or contracts already signed, which continue under the terms on which they were agreed.
+  </p>
+
+  <h2>18. Governing law and disputes</h2>
+  <p>
+    These terms are governed by the laws of the Republic of Colombia. In the event of a dispute, the parties will first attempt a direct settlement during the thirty (30) days following written notice. If they fail, the dispute will be submitted to the competent courts of Bogotá, D.C., unless the contract provides for another mechanism, such as arbitration.
+  </p>
+
+  <h2>19. General provisions</h2>
+  <ul>
+    <li>The parties are independent contractors: neither is the agent, partner or employer of the other.</li>
+    <li>The client may not assign its rights or obligations without our written consent.</li>
+    <li>If a clause is held invalid, the rest remains in force. Failure to exercise a right in time does not mean waiving it.</li>
+    <li>Communications, notices and acceptances by email are valid between the parties.</li>
+    <li>If there are translations of these terms, the Spanish version prevails.</li>
+  </ul>
+
+  <h2>20. Contact</h2>
+  <p>
+    For any question about these terms, write to us at <a href={`mailto:${legal.correo}`}>{legal.correo}</a>.
+  </p>
+</Legal>

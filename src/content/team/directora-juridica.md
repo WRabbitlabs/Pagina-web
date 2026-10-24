@@ -4,6 +4,7 @@
 # hasta que se confirme. Sin cuerpo, la ficha muestra solo nombre y cargo.
 name: 'Danna'
 role: 'Directora jurídica'
+roleEn: 'Legal Director'
 order: 2
 founder: false
 ---

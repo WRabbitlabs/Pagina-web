@@ -1,8 +1,11 @@
 ---
 import { Picture } from 'astro:assets';
 import Cta from '../Cta.astro';
-import { company } from '../../data/home';
+import { textos } from '../../i18n/textos';
+import { idiomaDe } from '../../i18n/idioma';
 import companyImage from '../../assets/company.png';
+
+const { company } = textos(idiomaDe(Astro.url)).home;
 
 /**
  * Compañía: imagen a la izquierda, discurso a la derecha.

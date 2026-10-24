@@ -1,9 +1,15 @@
 ---
 import Arrow from './Arrow.astro';
 import Cta from './Cta.astro';
-import { nav, cta, social, legalNav, site } from '../data/site';
 import { legal, enLinea, operacionEnLinea } from '../data/legal';
-import { footer as footerData } from '../data/home';
+import { textos } from '../i18n/textos';
+import { idiomaDe, rutaEn } from '../i18n/idioma';
+
+const t = textos(idiomaDe(Astro.url));
+const { nav, cta, social, legalNav, site, ui } = t;
+const footerData = t.home.footer;
+const idioma = t.idioma === 'en' ? 'en' : 'es';
+const otro = ui.otroIdioma;
 
 const year = new Date().getFullYear();
 const navigate = [...nav, cta];
@@ -66,8 +72,8 @@ const bg = footerData.bg;
       </div>
 
       <div class="footer__cols">
-        <nav class="footer__col" aria-label="Navegación del pie">
-          <h2 class="t-eyebrow footer__title">Navegar</h2>
+        <nav class="footer__col" aria-label={ui.pieNav}>
+          <h2 class="t-eyebrow footer__title">{ui.pieNavegar}</h2>
           <ul role="list" class="footer__links">
             {
               navigate.map((item) => (
@@ -81,8 +87,8 @@ const bg = footerData.bg;
           </ul>
         </nav>
 
-        <nav class="footer__col" aria-label="Redes sociales">
-          <h2 class="t-eyebrow footer__title">Conectar</h2>
+        <nav class="footer__col" aria-label={ui.pieRedes}>
+          <h2 class="t-eyebrow footer__title">{ui.pieConectar}</h2>
           <ul role="list" class="footer__links">
             {
               social.map((item) => (
@@ -94,7 +100,7 @@ const bg = footerData.bg;
                     rel="noopener noreferrer"
                   >
                     {item.label}
-                    <span class="sr-only"> (se abre en una pestaña nueva)</span>
+                    <span class="sr-only">{ui.pestanaNueva}</span>
                   </a>
                 </li>
               ))
@@ -104,7 +110,7 @@ const bg = footerData.bg;
       </div>
 
       <button class="footer__up" type="button" data-to-top>
-        <span class="sr-only">Volver arriba</span>
+        <span class="sr-only">{ui.volverArriba}</span>
         <span aria-hidden="true"><Arrow dir="up" /></span>
       </button>
     </div>
@@ -125,17 +131,24 @@ const bg = footerData.bg;
               </li>
             ))
           }
+          {/* El otro idioma, siempre a mano: en tableta la cabecera no lo
+              muestra (ver Header.astro). */}
+          <li>
+            <a class="footer__link" href={rutaEn(Astro.url, idioma === 'en' ? 'es' : 'en')} hreflang={otro.lang} lang={otro.lang}>
+              {otro.largo}
+            </a>
+          </li>
         </ul>
 
         <p class="t-eyebrow footer__copy">
-          {site.name} es un nombre comercial de {legal.entidad} · © {year}. Todos los derechos reservados.
+          {ui.nombreComercial(site.name, legal.entidad, year)}
         </p>
 
         {/* Las dos direcciones, por separado: la legal de la LLC y la de
             donde trabaja el equipo. */}
         <p class="t-eyebrow footer__copy footer__addr">
-          <span>Domicilio legal: {enLinea(legal.direccionLegal)}</span>
-          <span>Operación: {operacionEnLinea()}</span>
+          <span>{ui.domicilioLegal}: {enLinea(legal.direccionLegal, idioma)}</span>
+          <span>{ui.operacion}: {operacionEnLinea(idioma)}</span>
         </p>
       </div>
     </div>
