@@ -64,7 +64,7 @@ const datos: {
    * certificado; basta con escribirlo aquí completo y la web pasa de «en
    * 2026» a «el … de 2026».
    */
-  fechaDeConstitucion: null,
+  fechaDeConstitucion: '2026',
   /** Mismo documento: la dirección legal en Dover, Delaware. */
   direccionLegal: {
     calle: '8 The Green, Suite B',
