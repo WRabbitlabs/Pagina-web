@@ -1,5 +1,5 @@
 ---
-name: 'Cristhian Alexander Caballero Mora'
+name: 'Cristhian Caballero'
 role: 'Director general y fundador'
 roleEn: 'Chief Executive Officer and Founder'
 bioEn: |
