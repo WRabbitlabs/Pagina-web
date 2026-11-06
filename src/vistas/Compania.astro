@@ -29,31 +29,30 @@ const team = await Promise.all(
     .sort((a, b) => a.data.order - b.data.order)
     .map(async (m) => {
       const bioEn = m.data.bioEn?.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+      const parrafosEs = (m.body ?? '').split(/\n\s*\n/).filter((p) => p.trim()).length;
+      const parrafos = en ? (bioEn?.length ?? 0) : parrafosEs;
       return {
         ...m,
         role: en ? (m.data.roleEn ?? m.data.role) : m.data.role,
         Bio: (await render(m)).Content,
         bioEn: en ? bioEn : undefined,
-        hasBio: en ? Boolean(bioEn?.length) : Boolean(m.body?.trim()),
+        hasBio: parrafos > 0,
+        /*
+         * Solo una biografía de varios párrafos ocupa la fila entera: tres
+         * párrafos en media pantalla serían una columna de periódico. Las de
+         * un párrafo caben en la retícula de dos columnas.
+         */
+        bioLarga: parrafos > 1,
       };
     }),
 );
-const founders = team.filter((m) => m.data.founder);
-const rest = team.filter((m) => !m.data.founder);
 
 /*
- * Los rotulos de grupo solo valen cuando hay dos grupos que separar. Con una
- * sola ficha publicada, un titulo "Fundadores" sobre una tarjeta suelta anuncia
- * una lista que no existe; el h2 "Equipo" ya dice lo que hace falta.
+ * UNA sola lista, sin rótulos de grupo (6 de noviembre de 2026). Con cinco
+ * fichas, «Fundadores» quedaba encima de una sola persona y «Dirección»
+ * encima de perfiles que no son de dirección. El orden lo da `order` y el
+ * cargo de cada ficha dice quién es quién; el h2 «Equipo» basta.
  */
-const showGroups = founders.length > 0 && rest.length > 0;
-
-/*
- * El nombre de cada ficha cuelga del rotulo de grupo cuando lo hay. Sin
- * rotulo, ese h3 desaparece y la ficha tiene que ocupar su nivel: si no, la
- * pagina salta de h2 "Equipo" a h4 y deja un hueco en la jerarquia.
- */
-const PersonName = showGroups ? 'h4' : 'h3';
 
 const title = en ? 'The company' : 'La compañía';
 const description = en
@@ -174,61 +173,26 @@ const description = en
       */}
       <h2 class="t-eyebrow" id="equipo">{teamCopy.eyebrow}</h2>
 
-      {
-        founders.length > 0 && (
-          <>
-            {showGroups && <h3 class="t-eyebrow group-title">{ui.fundadores}</h3>}
-            <ul class="people" role="list">
-              {founders.map((m, i) => (
-                <li class:list={['person', { 'person--bio': m.hasBio }]} data-reveal style={`--reveal-delay:${i * 100}ms`}>
-                  <PersonName class="t-h3">{m.data.name}</PersonName>
-                  <p class="t-eyebrow person__role">{m.role}</p>
-                  {m.hasBio && <div class="prose person__bio">{m.bioEn ? m.bioEn.map((p) => <p>{p}</p>) : <m.Bio />}</div>}
-                  {m.data.links.map((l) => (
-                    <a
-                      class="link-arrow external person__link"
-                      href={l.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {l.label}
-                      <span class="sr-only">{ui.pestanaNuevaDe(m.data.name)}</span>
-                    </a>
-                  ))}
-                </li>
-              ))}
-            </ul>
-          </>
-        )
-      }
-
-      {
-        rest.length > 0 && (
-          <>
-            {showGroups && <h3 class="t-eyebrow group-title">{ui.direccion}</h3>}
-            <ul class="people" role="list">
-              {rest.map((m, i) => (
-                <li class:list={['person', { 'person--bio': m.hasBio }]} data-reveal style={`--reveal-delay:${i * 100}ms`}>
-                  <PersonName class="t-h3">{m.data.name}</PersonName>
-                  <p class="t-eyebrow person__role">{m.role}</p>
-                  {m.hasBio && <div class="prose person__bio">{m.bioEn ? m.bioEn.map((p) => <p>{p}</p>) : <m.Bio />}</div>}
-                  {m.data.links.map((l) => (
-                    <a
-                      class="link-arrow external person__link"
-                      href={l.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {l.label}
-                      <span class="sr-only">{ui.pestanaNuevaDe(m.data.name)}</span>
-                    </a>
-                  ))}
-                </li>
-              ))}
-            </ul>
-          </>
-        )
-      }
+      <ul class="people" role="list">
+        {team.map((m, i) => (
+          <li class:list={['person', { 'person--bio-larga': m.bioLarga }]} data-reveal style={`--reveal-delay:${Math.min(i, 3) * 100}ms`}>
+            <h3 class="t-h3">{m.data.name}</h3>
+            <p class="t-eyebrow person__role">{m.role}</p>
+            {m.hasBio && <div class="prose person__bio">{m.bioEn ? m.bioEn.map((p) => <p>{p}</p>) : <m.Bio />}</div>}
+            {m.data.links.map((l) => (
+              <a
+                class="link-arrow external person__link"
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {l.label}
+                <span class="sr-only">{ui.pestanaNuevaDe(m.data.name)}</span>
+              </a>
+            ))}
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 
@@ -392,12 +356,6 @@ const description = en
     color: var(--text-muted);
   }
 
-  .group-title {
-    margin-top: var(--space-xl);
-    padding-bottom: var(--space-xs);
-    border-bottom: 1px solid var(--rule);
-  }
-
   .people {
     display: grid;
     gap: var(--space-l) var(--gutter);
@@ -409,15 +367,11 @@ const description = en
     border-top: 1px solid var(--rule);
   }
 
-  .group-title + .people {
-    margin-top: var(--space-l);
-    padding-top: 0;
-    border-top: 0;
-  }
-
+  /* Dos columnas: cada ficha lleva un párrafo de biografía, y en un tercio
+     de pantalla ese párrafo se leía como una columna de periódico. */
   @media (min-width: 48rem) {
     .people {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
@@ -430,11 +384,10 @@ const description = en
   }
 
   /*
-   * Una ficha con biografía ocupa la fila entera: tres párrafos en un tercio
-   * de pantalla serían una columna de periódico. El texto conserva la medida
-   * de lectura del sitio.
+   * Una ficha con biografía de varios párrafos ocupa la fila entera. El texto
+   * conserva la medida de lectura del sitio.
    */
-  .person--bio {
+  .person--bio-larga {
     grid-column: 1 / -1;
   }
 
